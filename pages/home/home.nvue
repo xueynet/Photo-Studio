@@ -1,0 +1,155 @@
+<template>
+	<view class="page">
+		<u-navbar :is-back="false" title="我的" :border-bottom="false">
+			<!-- #ifdef MP -->
+			<view class="right-centent">
+				<u-icon @click="navto('/pages/home/set/set')" name="setting" class="navbtn u-m-l-20" color="#969799" size="48"></u-icon>
+				<u-icon @click="navto('/pages/home/notice')" custom-prefix="iconfont icon-xiaoxi1" class="navbtn" color="#969799" size="48"></u-icon>
+			</view>
+			<!-- #endif -->
+			<!-- #ifndef MP -->
+			<view slot="right" class="right-centent">
+				<u-icon @click="navto('/pages/home/notice')" custom-prefix="iconfont icon-xiaoxi1" class="navbtn" color="#969799" size="48"></u-icon>
+				<u-icon @click="navto('/pages/home/set/set')" name="setting" class="navbtn" color="#969799" size="48"></u-icon>
+			</view>
+			<!-- #endif -->
+		</u-navbar>
+		<view class="flex-center user-box" @click="navto('/pages/home/set/personal')">
+			<view class="item">
+				<u-avatar :src="pic" size="140"></u-avatar>
+			</view>
+			<view class="fillbox item">
+				<view class="u-font-18 u-p-b-20">uView ui</view>
+				<view class="u-font-14 u-tips-color">会员号:helang_uView</view>
+			</view>
+			<view class="item">
+				<u-icon name="arrow-right" color="#969799" size="28"></u-icon>
+			</view>
+		</view>
+		<u-grid class="order" :col="5" :border="false">
+			<u-grid-item @click="navto('/pages/order/order/order',0)">
+				<u-icon custom-prefix="iconfont icon-dingdan1" color="#e07472"></u-icon>
+				<text>全部</text>
+			</u-grid-item>
+			<u-grid-item @click="navto('/pages/order/order/order',1)">
+				<u-icon custom-prefix="iconfont icon-daifukuan" color="#333"></u-icon>
+				<text>待付款</text>
+			</u-grid-item>
+			<u-grid-item @click="navto('/pages/order/order/order',2)">
+				<u-icon custom-prefix="iconfont icon-daishouhuo" color="#333"></u-icon>
+				<text>待收货</text>
+			</u-grid-item>
+			<u-grid-item @click="navto('/pages/order/order/order',3)">
+				<u-icon custom-prefix="iconfont icon-weishiyong" color="#333"></u-icon>
+				<text>已完成</text>
+			</u-grid-item>
+			<u-grid-item @click="navto('/pages/order/order/order',4)">
+				<u-icon custom-prefix="iconfont icon-remen" color="#333"></u-icon>
+				<text>待评价</text>
+			</u-grid-item>
+			
+		</u-grid>
+		<u-cell-group class="cell-group">
+			<u-cell-item :iconStyle="{color:'#e07472'}" iconSize="40" custom-prefix="iconfont icon-wallet" title="钱包">
+				<text>您的会员还有三天内到期</text>
+			</u-cell-item>
+		</u-cell-group>
+	
+		<u-cell-group class="cell-group">
+			<u-cell-item @click="navto('/pages/home/collect')" :iconStyle="{color:'#54b4ef'}" iconSize="40" custom-prefix="iconfont icon-shoucang" title="我的收藏"></u-cell-item>
+			<u-cell-item @click="navto('/pages/home/mycomment/mycomment')" :iconStyle="{color:'#ee883b'}" iconSize="40" icon="chat" title="我的评论">
+				<text>您还有多条未评论</text>
+			</u-cell-item>
+			<u-cell-item :iconStyle="{color:'#9789f7'}" iconSize="40" custom-prefix="iconfont icon-gongxiang" title="分享">
+				<text>邀请好友赢百万大礼</text>
+			</u-cell-item>
+			<u-cell-item @click="navto('/pages/home/address/address')" :iconStyle="{color:'#5fcda2'}" iconSize="40" custom-prefix="iconfont icon-dingwei1" title="地址管理"></u-cell-item>
+		</u-cell-group>
+	
+		<u-cell-group class="cell-group">
+			<u-cell-item @click="navto('/pages/home/set/set')" icon="setting" iconSize="40" :iconStyle="{color:'#e07472'}" title="设置"></u-cell-item>
+		</u-cell-group>
+	</view>
+</template>
+
+<script>  
+	export default {
+		data() {
+			return {
+				pic:'https://uviewui.com/common/logo.png',
+				show:true
+			}
+		},
+		onShow() {
+			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
+				getApp().globalData.hasLaunch = false
+				this.getdata()
+			} else {
+				if(!getApp().globalData.hasLogin){
+					this.$u.route({
+						url: '/pages/home/login',
+					})
+				}
+			}
+		},
+		onLoad(e) {
+			this.option = e
+			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
+				this.getdata()
+			}
+		},
+		
+		onPullDownRefresh() {
+			console.log('refresh');
+			setTimeout(function () {
+				uni.stopPullDownRefresh();
+			}, 1000);
+		},
+		methods: {
+			getdata(){
+				
+			},
+			navto(url, id) {
+				this.$u.route({
+					url,
+					params: {
+						id: id
+					}
+				})
+			},
+		}
+	}
+</script>
+
+<style lang="scss">
+	page{
+		background: #f9f9f9;
+		.page{
+			flex: 1;
+		}
+	}
+	
+	.user-box{
+		background-color: #fff;
+		padding: 20rpx;
+		.item{
+			margin-right: 10rpx;
+		}
+	}
+	
+	.cell-group{
+		margin-top: 20rpx;
+	}
+
+	.order{
+		.u-icon, .iconfont{
+			color:#333;
+			margin-bottom: 20rpx;
+			font-size: 60rpx;
+		}.red{
+			color: $uni-tt-df;
+		}
+		
+	}
+
+</style>

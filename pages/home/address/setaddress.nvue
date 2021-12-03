@@ -1,0 +1,150 @@
+<template>
+	<view class="page">
+		<u-form :model="model" :rules="rules" :errorType="errorType" ref="uForm">
+			<u-form-item label="姓名" prop="name" label-width="150" :label-position="labelPosition">
+				<u-input v-model="model.name" placeholder="请输入姓名" :border="border" type="text"></u-input>
+			</u-form-item>
+			<u-form-item label="手机号码" prop="phone" label-width="150" :label-position="labelPosition">
+				<u-input v-model="model.phone" placeholder="请输入手机号码" :border="border" type="number"></u-input>
+			</u-form-item>
+			<u-form-item label="所在地区" prop="address" label-width="150" :label-position="labelPosition">
+				<u-input v-model="model.address" placeholder="请选择地区" :border="border" type="select" :select-open="pickerShow" @click="pickerShow = true"></u-input>
+			</u-form-item>
+			<u-form-item label="详细地址" prop="detailedAddress" label-width="150" label-position="top">
+				<u-input v-model="model.detailedAddress" placeholder="请填写详细地址" class="detailedAddress" :auto-height="true" type="textarea" :border="border"></u-input>
+			</u-form-item>
+			<u-form-item label="是否默认" prop="default" label-width="150" :label-position="labelPosition">
+				<view class="flex-end fillbox">
+					<switch color="red" @change="model.default = !model.default"></switch>
+				</view>
+			</u-form-item>
+		</u-form>
+		<u-button type="error" @click="submit">提交</u-button>
+		<u-picker mode="region" v-model="pickerShow" @confirm="regionConfirm"></u-picker>
+	</view>
+</template>
+
+<script> 
+	export default {
+		data() {
+			return {
+				labelPosition:'left',
+				pickerShow: false,
+				border:false,
+				errorType: ['message'],
+				model: {
+					name: '',
+					phone: '',
+					address: '',
+					default: false,
+					detailedAddress: '',
+				},
+				rules: {
+					name: [
+						{
+							required: true,
+							message: '请输入姓名',
+							trigger: 'blur' ,
+						},
+						{
+							min: 2,
+							max: 5,
+							message: '姓名长度在3到5个字符',
+							trigger: ['change','blur'],
+						},
+						{
+							validator: (rule, value, callback) => {
+								return this.$u.test.chinese(value);
+							},
+							message: '姓名必须为中文',
+							trigger: ['change','blur'],
+						},
+					],
+					phone: [
+						{
+							required: true,
+							message: '请输入手机号',
+							trigger: ['change','blur'],
+						},
+						{
+							validator: (rule, value, callback) => {
+								return this.$u.test.mobile(value);
+							},
+							message: '手机号码不正确',
+							trigger: ['change','blur'],
+						}
+					],
+					address: [
+						{
+							required: true,
+							message: '请选择地区',
+							trigger: 'change',
+						}
+					],
+					detailedAddress: [
+						{
+							required: true,
+							message: '请填写简介'
+						},
+						{
+							min: 5,
+							message: '详细地址不能少于5个字',
+							trigger: 'change' ,
+						},
+					],
+				},
+			};
+		},
+		onShow() {
+			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
+				getApp().globalData.hasLaunch = false
+				this.getdata()
+			} else {
+				if(!getApp().globalData.hasLogin){
+					this.$u.route({
+						url: '/pages/home/login',
+					})
+				}
+			}
+		},
+		onLoad(e) {
+			this.option = e
+			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
+				this.getdata()
+			}
+			this.$refs.uForm.setRules(this.rules);
+		},
+		methods: {
+			getdata(){
+				
+			},
+			submit() {
+				this.$refs.uForm.validate(valid => {
+					if (valid) {
+						console.log('验证通过');
+					} else {
+						console.log('验证失败');
+					}
+				});
+			},
+			// 选择地区回调
+			regionConfirm(e) {
+				this.model.address = e.province.label + '-' + e.city.label + '-' + e.area.label;
+			},
+		}
+	};
+</script>
+
+<style lang="scss">
+	.page{
+		padding: 30rpx;
+		background: #fff;
+		.u-input{
+			align-items: center;
+		}
+		.detailedAddress{
+			background: #f9f9f9;
+			padding: 10rpx !important;
+		}
+	}
+</style>

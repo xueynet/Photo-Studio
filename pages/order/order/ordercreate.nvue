@@ -1,0 +1,623 @@
+<template>
+	<view class="page u-font-20">
+		<view class="box flex-center" @click="addressshow = !addressshow">
+			<view class="fillbox">
+				<view class="site flex-center u-m-b-15">
+					<u-tag v-if="checkaddress.default" class="u-m-r-15" type="error" size="mini" text="默认" mode="dark"></u-tag>
+					<u-icon v-else custom-prefix="iconfont icon-dingwei1" class="u-font-30 u-m-r-15"></u-icon>
+					{{checkaddress.site}}
+				</view>
+				<view class="xq u-m-b-15 bold u-font-32">
+					{{checkaddress.address}}
+				</view>
+				<view class="customer flex-center">
+					{{checkaddress.name}} {{checkaddress.phone}}
+				</view>
+			</view>
+			<u-icon custom-prefix="iconfont icon-chevron-right"></u-icon>
+		</view>
+		<view class="box">
+			<view class="productitem">
+				<view class="shopname flex-center u-m-b-20 bold">
+					<u-tag v-if="store.zy" class="u-m-r-15" size="mini" type="error" text="自营" mode="dark"></u-tag>
+					{{store.name}}
+				</view>
+				<view class="flex-center flex-start">
+					<u-image class='u-m-r-20' :src="product.image" width="200" height="200"></u-image>
+					<view class="fillbox">
+						<view class="pname u-m-b-15 bold u-font-28">
+							{{product.name}}
+						</view>
+						<view class="type u-m-b-15">
+							{{product.type}}
+						</view>
+						<view class="fillbox flex-s u-m-b-15">
+							<view class="price flex-center u-font-28">
+								<u-icon class="u-font-20" custom-prefix="iconfont icon-yen-sign"></u-icon>{{product.price}}
+							</view>
+							<u-number-box @change="setzongjia" class="flex-center" :min="1" v-model="product.number"></u-number-box>
+						</view>
+						<view class="server flex-start">
+							<u-tag v-for="(item,index) in product.server" :type="item.type" size="mini" :text="item.name" :key="index"></u-tag>
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+		<u-cell-group>
+			<u-cell-item title="商品金额" :arrow="false" title-width="120">
+				<view class="fillbox flex-s">
+					<view></view>
+					<view class="flex-center">
+						<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{model.zongjia}}
+					</view>
+				</view>
+			</u-cell-item>
+			<u-cell-item title="运费" :arrow="false" title-width="120">
+				<view class="fillbox flex-s">
+					<view></view>
+					<view class="flex-center">
+						<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{model.yunfei}}
+					</view>
+				</view>
+			</u-cell-item>
+			<u-cell-item title="优惠卷" title-width="120" @click="youhuijuanshow = !youhuijuanshow">
+				<view class="fillbox flex-s">
+					<view></view>
+					<view class="flex-center" :class="(youhuinumber>0)?'price':''">
+						<text v-if="model.youhuije===0">{{model.youhui}}</text>
+						<text v-else>- {{model.youhuije}}</text>
+					</view>
+				</view>
+			</u-cell-item>
+			<u-cell-item title="备注" :arrow="false" title-width="120">
+				<u-input class="fillbox" v-model="model.beizhu" type="text" placeholder="请填写备注信息"></u-input>
+			</u-cell-item>
+		</u-cell-group>
+		<view class="submit flex-center">
+			<view class="fillbox">
+				<view class="orderprice flex-center">
+					<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{model.allzongjia}}
+				</view>
+				<view class="youhuiprice flex-center" v-if="model.youhuije != 0">
+					共省：<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{model.youhuije}}
+				</view>
+			</view>
+			<view class="orderbtn" @click="navto('/pages/order/pay/pay',model)">提交订单</view>
+		</view>
+		<u-popup v-model="addressshow" mode="bottom" border-radius="20" :closeable="true">
+			<view class="popupbox">
+				<view class="popuptitle">配送至</view>
+				<view class="popuplist">
+					<view class="addressitem" @click="setaddress(item,index)" v-for="(item,index) in addresslist" :key="index">
+						<u-icon custom-prefix="iconfont icon-dingwei1"v-if="!item.check"></u-icon>
+						<u-icon color="#e80000" name="checkbox-mark" v-if="item.check"></u-icon>
+						<view class="fillbox">
+							<view class="label flex-center"><u-tag v-if="item.default" size="mini" type="error" class="u-m-r-15" text="默认" mode="dark"></u-tag>{{item.address}}</view>
+							<view class="desc u-m-b-10">{{item.site}}</view>
+							<view class="u-font-20">
+								{{item.name}} {{item.phone}}
+							</view>
+						</view>
+					</view>
+				</view>
+				<view class="popupbtn">
+					<u-button @click="navto('/pages/home/address/address')" :ripple="true" shape="circle">地址管理</u-button>
+				</view>
+			</view>
+		</u-popup>
+		<u-popup v-model="youhuijuanshow" mode="bottom" border-radius="20" :closeable="true">
+			<view class="popupbox">
+				<view class="popuptitle">优惠卷</view>
+				<view class="popuplist">
+					<view v-if="item.isok" v-for="(item,index) in youhuijuanlist" :key="index" class="couponitem" @click="setyouhui(item,index)">
+						<view class="left">
+							<view class="sum">
+								<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>
+								<text class="num">{{item.youhui}}</text>
+							</view>
+							<view class="type">满{{item.man}}元可用</view>
+						</view>
+						<view class="right">
+							<view class="top">
+								<view class="title">
+									<text><u-tag size="mini" mode="dark" text="官方" type="error"></u-tag>仅可购买个人护理部分商品仅可购买个人护理部分商品</text>
+								</view>
+								<view class="bottom">
+									<view class="date u-line-1">2020.01.01-2020.01.31</view>
+									<u-button type="default" size="mini" shape="circle" @click="setyouhui(item,index)">
+										<text v-if="item.check">已选择</text>
+										<text v-else>立即使用</text>
+									</u-button>
+								</view>
+							</view>
+						</view>
+					</view>
+					<view class="bold u-font-30">
+						不可用
+					</view>
+					<view v-if="!item.isok" v-for="(item,index) in youhuijuanlist" :key="index" class="couponitem nook">
+						<view class="left">
+							<view class="sum">
+								<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>
+								<text class="num">{{item.youhui}}</text>
+							</view>
+							<view class="type">满{{item.man}}元可用</view>
+						</view>
+						<view class="right">
+							<view class="top">
+								<view class="title">
+									<text><u-tag size="mini" mode="dark" text="官方" type="info"></u-tag>仅可购买个人护理部分商品仅可购买个人护理部分商品</text>
+								</view>
+								<view class="bottom">
+									<view class="date u-line-1">2020.01.01-2020.01.31</view>
+								</view>
+							</view>
+						</view>
+					</view>
+				</view>
+			</view>
+		</u-popup>
+	</view>
+</template>
+
+<script> 
+	export default {
+		data() {
+			return {
+				page:{},
+				store:{
+					name:'照相馆自营',
+					zy:true,
+				},
+				product:{
+					image:'',
+					name:'2021新款 赛600 四缸大摩托',
+					type:'官方标配 紫色',
+					price:'998.00',
+					number:1,
+					yunfei:'10.00',
+					server:[
+						{name:'支持7天无理由退换货',
+						type:'error'}
+					]
+				},
+				checkaddress:{},
+				addressshow:false,
+				addresslist:[
+					{
+						id: 0,
+						default:false,
+						check:false,
+						site: '重庆市 渝北区 龙塔街道',
+						address:"龙塔街道179号",
+						name:'yzz',
+						phone:10086,
+					},
+					{
+						id: 1,
+						default:true,
+						check:true,
+						site: '广东省 深圳市 宝安区',
+						address:"自由路66号",
+						name:'yzz',
+						phone:10086,
+					},
+					{
+						id: 2,
+						default:false,
+						check:false,
+						site: '广东省 深圳市 宝安区',
+						address:'自由路68号',
+						name:'yzz',
+						phone:10086,
+					},
+					{
+						id: 3,
+						default:false,
+						check:false,
+						site: '广东省 深圳市 宝安区',
+						address:'平安路13号',
+						name:'yzz',
+						phone:10086,
+					}
+				],
+				youhuijuanshow:false,
+				youhuijuanlist:[
+					{
+						id: 14577654230,
+						check:false,
+						isok:false,
+						name:'满2000优惠100',
+						youhui:100,
+						man:2000,
+					},
+					{
+						id: 12477654230,
+						check:false,
+						isok:false,
+						name:'满1000优惠50',
+						youhui:50,
+						man:1000,
+					},
+				],
+				youhuinumber:0,
+				model:{
+					youhui:'',
+					youhuije:0,
+					zongjia:'',
+					yunfei:'',
+					beizhu:'',
+					allzongjia:'',
+				}
+			}
+		},
+		onShow() {
+			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
+				getApp().globalData.hasLaunch = false
+				this.getdata()
+			} else {
+				if(!getApp().globalData.hasLogin){
+					this.$u.route({
+						url: '/pages/home/login',
+					})
+				}
+			}
+		},
+		onLoad(e) {
+			this.option = e
+			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
+				this.getdata()
+			}
+		},
+		methods: {
+			getdata(){
+				this.redayaddress()
+				this.setzongjia()
+				this.isyouhui()
+				this.setyunfei()
+			},
+			navto(url,id){
+				this.$u.route({
+					url,
+					params: {
+						id: id
+					}
+				})
+			},
+			priceDecimal(val) {
+				if (parseInt(val) === parseFloat(val).toFixed(2)) return val + '.00'
+				else return parseFloat(val).toFixed(2)
+			},
+			redayaddress(){
+				for (var i = 0; i < this.addresslist.length; i++) {
+					if(this.addresslist[i].check){
+						this.checkaddress = this.addresslist[i]
+					}
+				}
+			},
+			setaddress(data,index){
+				this.addressshow = false
+				for (var i = 0; i < this.addresslist.length; i++) {
+					this.addresslist[i].check = false
+				}
+				this.addresslist[index].check = true
+				this.checkaddress = this.addresslist[index]
+			},
+			setzongjia(){
+				this.model.zongjia = this.priceDecimal(parseFloat(this.product.price).toFixed(2)*this.product.number)
+				this.setyunfei()
+				this.isyouhui()
+				this.setallzongjia()
+			},
+			setyunfei(){
+				this.model.yunfei = this.priceDecimal(parseFloat(this.product.yunfei).toFixed(2)*this.product.number)
+			},
+			isyouhui(){
+				this.youhuinumber = 0
+				this.model.youhui = "无可用"
+				this.model.youhuije = 0
+				for (var i = 0; i < this.youhuijuanlist.length; i++) {
+					this.youhuijuanlist[i].isok = false
+					if(parseFloat(this.model.zongjia)>=this.youhuijuanlist[i].man){
+						this.youhuijuanlist[i].isok = true
+					}
+					if(this.youhuijuanlist[i].isok){
+						this.youhuinumber++
+						if(this.youhuijuanlist[i].check){
+							this.setyouhui(this.youhuijuanlist[i],i)
+						}else{
+							this.model.youhui = this.youhuinumber + '张可用'
+						}
+					}
+				}
+			},
+			setyouhui(item,index){
+				this.youhuijuanshow = false
+				for (var i = 0; i < this.youhuijuanlist.length; i++) {
+					this.youhuijuanlist[i].check = false
+				}
+				this.model.youhuije = this.priceDecimal(this.youhuijuanlist[index].youhui)
+				this.youhuijuanlist[index].check = true
+				this.setallzongjia()
+			},
+			setallzongjia(){
+				const pprice = this.priceDecimal(parseFloat(this.model.zongjia).toFixed(2))
+				const pyunfei = this.priceDecimal(parseFloat(this.model.yunfei).toFixed(2))
+				const pyouhui = this.priceDecimal(parseFloat(this.model.youhuije).toFixed(2))
+				this.model.allzongjia = this.priceDecimal(parseFloat(pprice) + parseFloat(pyunfei) - parseFloat(pyouhui))
+			}
+		}
+	}
+</script>
+
+<style lang="scss">
+	.page{
+		background: #eee;
+	}
+	.price{
+		color: #e80000;
+	}
+	.box{
+		padding: 20rpx;
+		margin-bottom: 20rpx;
+		background: #fff;
+		.type{
+			color: #999;
+		}
+		.pname{
+			flex-wrap: nowrap;
+			height: 40rpx;
+		}
+		.price{
+			color: #e80000;
+		}
+	}
+	.submit{
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		z-index:2;
+		flex: 1;
+		right: 0;
+		flex-direction: row;
+		padding: 20rpx;
+		flex-wrap: nowrap;
+		background: #fff;
+		border-top:1rpx solid #eee;
+		.orderprice{
+			font-size: 50rpx;
+			color:#e80000;
+			.u-icon{
+				font-size: 30rpx;
+				margin-top: 10rpx;
+			}
+		}
+		.youhuiprice{
+			font-size: 20rpx;
+			.u-icon{
+				font-size: 20rpx;
+			}
+		}
+		.orderbtn{
+			background: #e80000;
+			width: 200rpx;
+			color: #fff;
+			height: 80rpx;
+			border-radius: 40rpx;
+			line-height: 80rpx;
+			text-align: center;
+		}
+	}
+		
+	.popupbox{
+		height: 70vh;
+		padding: 30rpx;
+		justify-content: space-between;
+		.popuptitle{
+			line-height: 80rpx;
+			font-size: 32rpx;
+			height: 80rpx;
+			text-align: center;
+			background: #fff;
+			position: fixed;
+			flex: 1;
+			margin: 0;			
+			width: 100vw;
+			top: 0;
+			left: 0;
+			z-index:1;
+			&.popuptop{
+				height: 240rpx;
+				padding: 30rpx;
+				flex-direction: row;
+				line-height: unset;
+				.fillbox{
+					align-items: flex-start;
+					justify-content: flex-end;
+				}
+				.u-image{
+					margin-right: 30rpx;
+				}
+				.price{
+					font-size: 45rpx;
+					color:#e80000;
+					font-weight: bold;
+					margin-bottom: 10rpx;
+					flex-direction: row;
+					.u-icon{
+						font-size: 30rpx;
+						margin-top: 15rpx;
+					}
+				}
+				.type{
+					font-size: 26rpx;
+					color: #777;
+				}
+			}
+		}
+		.popuplist{
+			flex: 1;
+			margin-top: 60rpx;
+			padding-bottom: 120rpx;
+			&.popuptype{
+				margin-top: 210rpx;
+				.popupitem{
+					margin-bottom: 30rpx;
+					.tags{
+						flex-direction: row;
+						flex-wrap: wrap;
+						margin: 20rpx 0;
+						.tag{
+							margin-right: 20rpx;
+							padding:10rpx 30rpx;
+							border-radius: 10rpx;
+							margin-bottom: 20rpx;
+							background: #eee;
+							&.active{
+								background: #e80000;
+								color: #fff;
+							}
+						}
+					}
+				}
+			}
+			.linetitle{
+				line-height: 50rpx;
+				font-weight: bold;
+			}
+			.addressitem{
+				margin: 20rpx 0;
+				align-items: center;
+				flex-direction: row;
+				.u-icon{
+					margin-right: 30rpx;
+					font-size: 40rpx;
+				}
+				.label{
+					font-size: 32rpx;
+					margin-bottom: 10rpx;
+					font-weight: bold;
+				}
+				.desc{
+					font-size: 20rpx;
+				}
+			}
+			.serveritem{
+				margin: 20rpx 0;
+				.label{
+					flex-direction: row;
+					margin-bottom: 20rpx;
+					.u-icon{
+						margin-right: 20rpx;
+						color: #e80000;
+					}
+				}
+				.desc{
+					color: #777;
+				}
+			}
+			.parameteritem{
+				flex-direction: row;
+				line-height: 30rpx;
+				padding: 30rpx 0;
+				.label{
+					color: #777;
+					width: 200rpx;
+				}
+				.desc{
+					flex: 1;
+				}
+			}
+			.couponitem {
+				margin: 30rpx 0;
+				height: auto;
+				background-color: #ffffff;
+				display: flex;
+				flex-direction: row;
+				.left {
+					background-color: #e80000;
+					text-align: center;
+					font-size: 28rpx;
+					border-radius: 10rpx;
+					width: 200rpx;
+					height: 160rpx;
+					justify-content: center;
+					color: #ffffff;
+					.sum {
+						font-weight: bold;
+						font-size: 20rpx;
+						flex-direction: row;
+						align-items: center;					
+						margin-bottom: 10rpx;
+						justify-content: center;
+						.u-icon{
+							margin-top: 20rpx;
+						}
+						.num {
+							font-size: 60rpx;
+						}
+					}
+					.type {
+						font-size: 24rpx;
+					}
+				}
+				.right {
+					padding-left: 20rpx;
+					font-size: 28rpx;
+					flex: 1;
+					.top {
+						border-bottom: 2rpx dashed $u-border-color;
+						flex: 1;
+						justify-content: space-between;
+						.title {
+							line-height: 40rpx;
+							.u-tag {
+								margin-right: 10rpx;
+							}
+						}
+						.bottom {
+							display: flex;
+							flex-direction: row;
+							align-items: center;
+							justify-content: space-between;
+							margin: 10rpx 0;
+							.date {
+								font-size: 20rpx;
+								flex: 1;
+							}
+							.immediate-use {
+								height: auto;
+								padding: 0 20rpx;
+								font-size: 24rpx;
+								border-radius: 40rpx;
+								line-height: 40rpx;
+								color: rgb(117, 142, 165);
+								border: 2rpx solid rgb(117, 142, 165);
+							}
+						}
+					}
+				}
+				&.nook{
+					padding: 10rpx;
+					background: #ddd;
+					.left{
+						background: #999;
+					}
+				}
+			}
+		}
+		.popupbtn{
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			z-index:1;
+			width: 100vw;
+			padding: 30rpx 50rpx;
+			.u-btn{
+				color: #fff;
+				background-color: #e80000;
+			}
+		}
+	}
+</style>

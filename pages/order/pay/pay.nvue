@@ -1,0 +1,193 @@
+<template>
+	<view class="page">
+		<u-toast ref="uToast"/>
+		<view class="pricebox flex-c u-p-20 u-font-20">
+			<view class="flex-center flex-jcenter u-m-30">
+				<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>
+				<text class="price">{{data.price}}</text>
+			</view>
+			<view class="time flex-center flex-row u-m-b-30">
+				<text>支付剩余时间</text>
+				<u-count-down class="u-m-l-20" :timestamp="data.countdown" :show-border="true" font-size="28" color="#606266" border-color="#909399"></u-count-down>
+			</view>
+		</view>
+		<u-cell-group class="paytype">
+			<u-cell-item hover-class="none" :title="item.name" :arrow="false" title-width="140" v-for="(item,index) in paytype" :key="index">
+				<u-icon slot="icon" :color="item.color" size="40" :custom-prefix="item.icon"></u-icon>
+				<u-switch :loading="item.check&&paying" :disabled="paying" @change="setpaytype(index)" :active-color="item.color" slot="right-icon" :size="40" v-model="item.check"></u-switch>
+			</u-cell-item>
+		</u-cell-group>
+		<view class="submit">
+			<u-button :style="btnbg" class="btn" @click="pay()" :ripple="true" shape="circle">
+				<text v-if="item.check" v-for="(item,index) in paytype" :key="index">{{item.name}}</text><text class="u-m-l-10">{{data.price}}</text>
+			</u-button>
+		</view>
+	</view>
+</template>
+
+<script> 
+	export default {
+		data() {
+			return {
+				data:{
+					price:998,
+					countdown:1800,
+				},
+				paytype:[
+					{
+						id:0,
+						name:'钱包支付',
+						check:false,
+						isok:true,
+						icon:'iconfont icon-wallet',
+						color:'#e80000'
+					},
+					{
+						id:1,
+						name:'微信支付',
+						check:true,
+						isok:true,
+						icon:'iconfont icon-weixin',
+						color:'#00aa00'
+					},
+					{
+						id:1,
+						name:'支付宝支付',
+						check:false,
+						isok:false,
+						icon:'iconfont icon-alipay',
+						color:'#55aaff'
+					},
+					{
+						id:1,
+						name:'苹果支付',
+						check:false,
+						isok:false,
+						icon:'iconfont icon-apple',
+						color:'#000000'
+					}
+				],
+				btnbg:'',
+				paynum:0,
+				paying:false,
+			}
+		},
+		onShow() {
+			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
+				getApp().globalData.hasLaunch = false
+				this.getdata()
+			} else {
+				if(!getApp().globalData.hasLogin){
+					this.$u.route({
+						url: '/pages/home/login',
+					})
+				}
+			}
+		},
+		onLoad(e) {
+			this.option = e
+			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
+				this.getdata()
+			}
+		},
+		methods: {
+			getdata(){
+				this.data.price = this.priceDecimal(this.data.price)
+				this.setbtn()
+			},
+			pay(){
+				var that = this
+				this.paying = true
+				if(this.paytype[this.paynum].isok){
+					this.$refs.uToast.show({
+						title: '支付成功，即将跳转',
+						type: 'success',
+						url: '/pages/order/pay/paystatus',
+						callback(){
+							that.paying = false
+						}
+					})
+				}else{
+					that.paying = false
+					this.$refs.uToast.show({
+						title: '当前支付模式未开通',
+					})
+				}
+				
+			},
+			priceDecimal(val) {
+				if (parseInt(val) === parseFloat(val).toFixed(2)) return val + '.00'
+				else return parseFloat(val).toFixed(2)
+			},
+			setpaytype(index) {
+				if(this.paying){
+					this.paytype[index].check = true
+					return
+				}
+				for (var i = 0; i < this.paytype.length; i++) {
+					if(i!=index) this.paytype[i].check = false
+				}
+				if(!this.paytype[index].check) {
+					this.paytype[index].check = true
+					this.$refs.uToast.show({
+						title: '必选一种方式',
+					})
+				}
+				this.setbtn()
+			},
+			setbtn(){
+				for (var i = 0; i < this.paytype.length; i++) {
+					if(this.paytype[i].check) {
+						this.paynum = i
+						this.btnbg = 'background:' + this.paytype[i].color
+						break
+					}
+				}
+			},
+		}
+	}
+</script>
+
+<style lang="scss">
+	.page{
+		background: #fff;
+	}
+	.pricebox{
+		.u-icon{
+			font-size: 20rpx;
+			margin-top: 20rpx;
+			color:#e80000;
+		}
+		.price{
+			font-size: 50rpx;
+			color: #e80000;
+			font-weight: bold;
+		}
+	}
+	.paytype{
+		.u-icon{
+			width: 60rpx;
+		}
+	}
+	.submit{
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		z-index:2;
+		flex: 1;
+		right: 0;
+		flex-direction: row;
+		padding: 20rpx;
+		flex-wrap: nowrap;
+		background: #fff;
+		border-top:1rpx solid #eee;
+		.btn{
+			color: #fff;
+			flex: 1;
+			height: 80rpx;
+			border-radius: 40rpx;
+			line-height: 80rpx;
+			text-align: center;
+		}
+	}
+</style>

@@ -1,0 +1,112 @@
+<template>
+	<view class="page">
+		<u-cell-group class="cell-group">
+			<u-cell-item @click="navto('/pages/home/set/personal')" title="个人资料"></u-cell-item>
+			<u-cell-item @click="navto('/pages/home/address/address')" title="收货地址"></u-cell-item>
+			<u-cell-item @click="navto('/pages/home/set/setphone')" title="手机号"></u-cell-item>
+		</u-cell-group>
+		<u-cell-group class="cell-group">
+			<u-cell-item title="消息推送" :arrow='false'>
+				<u-switch slot="right-icon" active-color="#e80000" v-model="msgchecked"></u-switch>
+			</u-cell-item>
+		</u-cell-group>
+		<u-cell-group class="cell-group">
+			<u-cell-item title="清除缓存">
+				<view>{{huancun}}</view>
+			</u-cell-item>
+			<u-cell-item title="检查更新">
+				<view class="flex-s">
+					<view>
+						<u-tag v-if="false" size="mini" text="有新版本更新"></u-tag>
+					</view>
+					<view>
+						<view>{{banben}}</view>
+					</view>
+				</view>
+			</u-cell-item>
+		</u-cell-group>
+		<u-cell-group class="cell-group">
+			<u-cell-item :arrow='false'>
+				<u-button type="error" @click="logout">退出登录</u-button>
+			</u-cell-item>
+		</u-cell-group>
+	</view>
+</template>
+
+<script> 
+	export default {
+		data() {
+			return {
+				msgchecked:false,
+				banben:'当前版本 1.0.0',
+				huancun:'2M',
+				
+			}
+		},
+		onShow() {
+			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
+				getApp().globalData.hasLaunch = false
+				this.getdata()
+			} else {
+				if(!getApp().globalData.hasLogin){
+					this.$u.route({
+						url: '/pages/home/login',
+					})
+				}
+			}
+		},
+		onLoad(e) {
+			this.option = e
+			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
+				this.getdata()
+			}
+		},
+		onPullDownRefresh() {
+			console.log('refresh');
+			setTimeout(function () {
+				uni.stopPullDownRefresh();
+			}, 1000);
+		},
+		methods: {
+			getdata(){
+				
+			},
+			logout(){
+				uni.showLoading({
+					title:"注销中",
+					mask:true
+				})
+				setTimeout(()=>{
+					uni.hideLoading();
+					getApp().globalData.hasLogin = false;
+					getApp().globalData.user = {};
+					uni.removeStorageSync('haslogin') 
+					uni.removeStorageSync('user') 
+					uni.switchTab({
+						url:"/pages/index/index"
+					})
+				},2000)
+			},
+			navto(url,id){
+				this.$u.route({
+					url,
+					params: {
+						id: id
+					}
+				})
+			},
+		}
+	}
+</script>
+
+<style lang="scss">
+	page{
+		background: #f9f9f9;
+	}
+	.cell-group{
+		margin-top: 20rpx;
+		.u-icon, .iconfont{
+			margin-right: 20rpx;
+		}
+	}
+</style>

@@ -1,0 +1,405 @@
+<template>
+	<view class="page">
+		<!-- #ifdef MP -->
+		<u-navbar :is-back="false" :background="pagenavbg">
+			<view class="slot-content fillbox">
+				<u-search placeholder="点击输入商品名称" v-model="keyword" :show-action="false"></u-search>
+			</view>
+		</u-navbar>
+		<!-- #endif -->
+		<view class="topbox">
+			<u-line-progress :percent="progress" class="progress" :show-percent="false" height="5"
+				:active-color="progresstype" inactive-color="#e80000" :round="false">
+			</u-line-progress>
+			<u-swiper :height="350" :effect3d="true" bg-color="rgba(232, 0, 0,0)" :current="0" loading
+				indicatorMode="line" circular :list="swiperlist" keyName="image" :title="false">
+			</u-swiper>
+		</view>
+		<swiper v-if="(gridlist.length>8)">
+			<swiper-item v-for="(page,index) in gridpage" :key="index">
+				<u-grid :col="4" :border="false" hover-class="hover-class">
+					<u-grid-item @click="navto('/pages/'+item.to+'/list',item.id)" v-for="(item,index2) in page"
+						:key="index2">
+						<u-image :src="item.icon" width="88rpx" height="88rpx"></u-image>
+						<view class="grid-text">{{item.name}}</view>
+					</u-grid-item>
+				</u-grid>
+			</swiper-item>
+		</swiper>
+		<u-grid v-else :col="4" :border="false" hover-class="hover-class">
+			<u-grid-item @click="navto('/pages/'+item.to+'/list',item.id)" v-for="(item,index2) in gridlist" :key="index2">
+				<u-image :src="item.icon" width="88rpx" height="88rpx"></u-image>
+				<view class="grid-text">{{item.name}}</view>
+			</u-grid-item>
+		</u-grid>
+		<u-swiper class="ad-1" :height="200" bg-color="rgba(232, 0, 0,0)" :current="0" mode="none" :autoplay="false"
+			:list="cbanner" keyName="image" :title="false">
+		</u-swiper>
+		<!-- #ifdef MP-WEIXIN -->
+		<view class="u-waterfall">
+			<view class="demo-warter leftbox" v-for="(item, index) in flowList" :key="index" @click="navto('/pages/product/product',item.id)">
+				
+				<u-lazy-load threshold="450" loading-img="/static/images/banner-height.gif" border-radius="10"
+					:image="item.image" ></u-lazy-load>
+				
+				<view class="boxStyle">
+					<view class="demo-title">
+						{{item.title}}
+					</view>
+					<view class="flex-row demo-tag ">
+						<view class="demo-price">
+							{{item.price}}元
+						</view>
+						<view class="demo-shop flex-row">
+							<u-icon name="bag"></u-icon>
+							{{item.shop}}
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+		<!-- #endif -->
+		<!-- #ifndef MP-WEIXIN -->
+		<u-waterfall :value="flowList" ref="uWaterfall" add-time="50">
+			<template v-slot:left="{leftList}">
+				<view class="demo-warter leftbox" v-for="(item, index) in leftList" :key="index" @click="navto('/pages/product/product',item.id)">
+					
+					<u-lazy-load threshold="450" loading-img="/static/images/banner-height.gif" border-radius="10"
+						:image="item.image" ></u-lazy-load>
+					
+					<view class="boxStyle">
+						<view class="demo-title">
+							{{item.title}}
+						</view>
+						<view class="flex-row demo-tag ">
+							<view class="demo-price">
+								{{item.price}}元
+							</view>
+							<view class="demo-shop flex-row">
+								<u-icon name="bag"></u-icon>
+								{{item.shop}}
+							</view>
+						</view>
+					</view>
+				</view>
+			</template>
+			<template v-slot:right="{rightList}">
+				<view class="demo-warter rightbox" v-for="(item, index) in rightList" :key="index" @click="navto('/pages/product/product',item.id)">
+					
+					<u-lazy-load threshold="450" loading-img="/static/images/banner-height.gif" border-radius="10"
+						:image="item.image" ></u-lazy-load>
+					
+					<view class="boxStyle">
+						<view class="demo-title">
+							{{item.title}}
+						</view>
+						<view class="flex-row demo-tag ">
+							<view class="demo-price flex-center">
+								<u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon>
+								{{item.price}}元
+							</view>
+							<view class="demo-shop flex-row">
+								<u-icon name="bag"></u-icon>
+								{{item.shop}}
+							</view>
+						</view>
+					</view>
+				</view>
+			</template>
+		</u-waterfall>
+		<!-- #endif -->
+		
+		<u-loadmore bg-color="rgb(255, 255, 255)" :status="loadStatus" @loadmore="addRandomData"></u-loadmore>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				keyword: '照相馆',
+				pagenavbg: {
+					background: '#E80000'
+				},
+				progress: 0,
+				progresstype: '#19BE6B',
+				swiperlist: [],
+				cbanner: [],
+				gridpage: [],
+				gridlist: [],
+				loadStatus: 'loadmore',
+				flowList: [],
+				datalist: [],
+			}
+		},
+		onShow() {
+			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
+				getApp().globalData.hasLaunch = false
+				this.getdata()
+			} else {
+				if(!getApp().globalData.hasLogin){
+					this.$u.route({
+						url: '/pages/home/login',
+					})
+				}
+			}
+		},
+		onLoad(e) {
+			this.option = e
+			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
+				this.getdata()
+			}
+		},
+		onPullDownRefresh() {
+			console.log('refresh');
+			setTimeout(function() {
+				uni.clearStorageSync();
+				uni.stopPullDownRefresh();
+			}, 1000);
+		},
+		onReachBottom() {
+			this.loadStatus = 'loading';
+			setTimeout(() => {
+				this.addRandomData();
+				this.loadStatus = 'loadmore';
+			}, 500)
+		},
+		onReady() {
+		},
+		methods: {
+			getdata() {
+				var $this = this
+				//请求uniapp名
+				if(getApp().globalData.sitename === ''){
+					/*this.$app.request({
+						url:this.$api.siteinfo,
+						data:{
+							siteId:getApp().globalData.siteid,
+						},
+						success(res){
+							console.log(res)
+						},
+						fail(err){
+							console.log(err)
+						}
+					})*/
+				}
+				//请求栏目
+				this.$app.request({
+					url: this.$api.channels + getApp().globalData.siteid,
+					success: res => {
+						console.log(res)
+						let data_list = []
+						let or_list = []
+						for (var i = 0; i < res.length; i++) {
+							let test = -1
+							if(Array.isArray(res[i].groupNames)) test = res[i].groupNames.indexOf("首页栏目")
+							if(test > -1) data_list.push(res[i])
+							//请求轮播图,广告图
+							if(res[i].indexName === 'banner') {
+								$this.getbanner(res[i].id)
+							}else if(res[i].indexName === 'cbanner'){
+								$this.getcbanner(res[i].id)
+							}
+						}
+						
+						data_list = data_list.map((data) => {
+							let to = null
+							for (var i = 0; i < res.length; i++) {
+								if(data.parentsPath[1] == res[i].id) to = res[i].indexName
+							}
+							return {
+								id: data.id,
+								guid:data.guid,
+								parentid:data.parentsPath[1],
+								name:data.channelName,
+								icon:$this.$api.static + data.imageUrl.replace('@',''),
+								to:to
+							};
+						})
+						
+						this.gridlist = data_list
+					},
+					fail: err => {
+						console.log(err)
+					},
+				});
+				
+				uni.setNavigationBarTitle({
+					title: '照相馆'
+				});
+
+				for (var i = 0; i < this.gridlist.length; i += 8) {
+					this.gridpage.push(this.gridlist.slice(i, i + 8))
+				}
+				this.datalist = this.$defalutdata.goods
+				this.addRandomData(); 
+				this.getprogress(0)
+			},
+			getbanner(id){
+				var $this = this
+				this.$app.request({
+					url:$this.$api.contents,
+					method:'POST',
+					data:{
+						siteid:getApp().globalData.siteid,
+						channelId:id,
+					},
+					success(res) {
+						let data_list = res.contents.map((data) => {
+							return {
+								id: data.id,
+								guid:data.guid,
+								image:data.imageUrl,
+							};
+						})
+						$this.swiperlist = data_list
+					},
+					fail(err){
+						console.log(err)
+					}
+				})
+			},
+			getcbanner(id){
+				var $this = this
+				this.$app.request({
+					url:$this.$api.contents,
+					method:'POST',
+					data:{
+						siteid:getApp().globalData.siteid,
+						channelId:id,
+					},
+					success(res) {
+						let data_list = res.contents.map((data) => {
+							return {
+								id: data.id,
+								guid:data.guid,
+								image:data.imageUrl,
+							};
+						})
+						$this.cbanner = data_list
+					},
+					fail(err){
+						console.log(err)
+					}
+				})
+			},
+			navto(url, id) {
+				this.$u.route({
+					url,
+					params: {
+						id: id
+					}
+				})
+			
+			},
+			getprogress(n) {
+				this.progress = n
+				const progress = setInterval(() => {
+					this.progress = this.progress + 20
+					if (this.progress >= 120) {
+						clearInterval(progress)
+						this.progresstype = '#e80000'
+					}
+				}, 200)
+			},
+			addRandomData() {
+				let data = this.datalist
+				let list = JSON.parse(JSON.stringify(data))
+				let arr = this.flowList.concat(list)
+				this.flowList = arr
+				console.log(arr)
+			},
+		
+		}
+	}
+</script>
+
+<style lang="scss">
+	.u-waterfall {
+		background: #f9f9f9;
+		display: flex;
+		flex-wrap: wrap;
+		flex-direction: row;
+		.demo-warter{
+			width: 372rpx;
+		}
+	}
+	.topbox {
+		background: linear-gradient(180deg, rgb(232, 0, 0), rgb(223, 74, 0));
+		padding-bottom: 20rpx;
+
+		.u-swiper-wrap {
+			padding-bottom: 50rpx;
+		}
+	}
+
+	.titleNview-placing {
+		height: 44px;
+	}
+
+	.u-slot-content {
+		padding: 10px;
+	}
+
+	.leftbox {
+		padding: 12rpx;
+		padding-right: 6rpx;
+	}
+
+	.rightbox {
+		padding: 12rpx;
+		padding-left: 6rpx;
+	}
+
+	.ad-1 {
+		margin: 12rpx;
+		background: linear-gradient(180deg, rgb(255, 255, 255), #f9f9f9);
+		image {
+			width: 100%;
+			height: 100%;
+		}
+	}
+
+	.demo-warter {
+		.boxStyle {
+			padding: 12rpx;
+			background: #fff;
+
+			.demo-title {
+				margin: 5rpx 0;
+				height: 80rpx;
+				font-weight: bold;
+				lines: 2;
+				overflow: hidden;
+				-webkit-box-orient: vertical;
+				-webkit-line-clamp: 2;
+				text-overflow: ellipsis;
+			}
+
+			.demo-price {
+				font-size: 30rpx;
+				font-weight: bold;
+				color: #fa3534;
+				margin: 5rpx 0;
+			}
+
+			.demo-tag {
+				margin: 5rpx 0;
+
+				.u-tag {
+					margin-right: 5px;
+				}
+			}
+
+			.demo-shop {
+				font-size: 20rpx;
+				color: #999;
+				margin-top: 10rpx;
+				.u-icon {
+					margin-top: -10rpx;
+				}
+			}
+		}
+	}
+</style>

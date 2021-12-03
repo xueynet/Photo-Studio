@@ -1,0 +1,348 @@
+<template>
+	<view class="page">
+		<view class="content">
+			<view class="logo"><u-avatar size="220" :src="avatarUrl"></u-avatar></view>
+			<view class="pickname"><text>{{nickname}}</text></view>
+			<!-- #ifndef MP-WEIXIN -->
+			<!--普通登录-->
+			<view class="list" v-if="this.$app.isWechat()">
+				<u-button type="error" :ripple="true" class="button" hover-class="button-hover" @click="wechatLogin"><text>微信登录</text></u-button>
+			</view>
+			<view class="list" v-else>
+				<view class="item">
+					<u-icon class="icon" name="phone"></u-icon>
+					<u-input class="flex-center" v-model="mobile" type="number" maxlength="11" placeholder="请输入手机号" />
+				</view>
+				<view class="item">
+					<u-icon class="icon" name="lock"></u-icon>
+					<u-input class="flex-center" maxlength="6" v-model="code" placeholder="请输入验证码" type="text"></u-input>
+					<u-button class="u-m-l-20" size="mini" @click="getCode">{{codeTips}}</u-button>
+					<u-verification-code seconds="60" ref="uCode" @change="codeChange"></u-verification-code>
+				</view>
+				<u-button type="error" :ripple="true" class="button" hover-class="button-hover" @click="bindLogin"><text>登录</text></u-button>
+			</view>
+			<!-- #endif -->
+			<!-- #ifdef MP-WEIXIN -->
+			<!--微信登录-->
+			<view class="list">
+				<u-button type="error" :ripple="true" class="button" hover-class="button-hover" @click="wechatAppLogin"><text>微信登录</text></u-button>
+			</view>
+			<!-- #endif -->
+		</view>
+	</view>
+</template>
+
+<script>
+	//#ifdef H5
+		import wxsdk from '@/config/wx.js';
+	//#endif
+	export default {
+		data() {
+			return {
+				mobile: '15523126997',
+				code: '123456',
+				codeTips: '',
+				avatarUrl: '',
+				nickname:'',
+				UserInfo:'',
+				appid:'',
+				siteid:null,
+			};
+		},
+		onLoad() {
+			if(getApp().globalData.hasLogin){
+				uni.switchTab({
+					url:'/pages/index/index'
+				})
+			}else{
+				if(uni.getStorageSync('wxappid') === ''){
+					uni.showLoading({
+						title:'获取站点信息'
+					})
+					var $this = this
+					this.$app.request({
+						url: $this.$api.site,
+						success: res => {
+							console.log(res)
+							$this.appid = res.appid
+							res.appid = 'wx6f2fb0fdcebefe10'
+							res.siteId = 10
+							$this.siteid = res.siteId
+							
+							uni.setStorageSync('wxappid',$this.appid)
+							uni.setStorageSync('siteid',$this.siteid)
+							$this.LoginInit()
+						},
+						fail: (err) => {
+							$this.$app.alert('请求失败')
+						},
+						complete: (res) => {
+							setTimeout(function() {
+								uni.hideLoading()
+							}, 500);
+						}
+					});
+				}else{
+					this.appid = uni.getStorageSync('wxappid')
+					this.LoginInit()
+				}
+			}
+		},
+		methods: {
+			
+			// 登录完成
+			login(data){
+				data = {
+					token:"token",
+					userName:"呢称",
+					avatarUrl:"头像",
+				}
+				uni.hideLoading();
+				getApp().globalData.hasLogin = true;
+				getApp().globalData.user = data;
+				getApp().globalData.token = data.token;
+				getApp().globalData.siteid = this.siteid;
+				uni.setStorageSync("haslogin",true) 
+				uni.setStorageSync("token",data.token) 
+				
+				//测试
+				uni.setStorageSync("apikey",'55a0e321-d29a-416f-a01f-236026f656d9') 
+				
+				uni.setStorageSync("user",data) 
+				uni.navigateBack()
+			},
+			
+			/*登录初始化*/
+			LoginInit() {
+				var $this = this
+				/*检测是否授权*/
+				// #ifdef MP-WEIXIN
+				uni.getUserInfo({
+					provider:"weixin",
+					lang:"zh_CN",
+					success(res) {
+						console.log(res,'成功')
+						$this.nickname = res.userInfo.nickName
+						$this.avatarUrl = res.userInfo.avatarUrl
+						$this.UserInfo = res
+					},
+					fail: err => {
+						uni.showModal({
+							title:"用户拒绝授权",
+							showCancel:false
+						})
+					}
+				})
+				// #endif
+				// #ifdef H5
+				if(this.$app.isWechat()){
+					let code = this.getUrlCode('code')
+					
+					//测试
+					code = '1'
+					
+					console.log(code)
+					if(code != null && code != "") {
+						this.codegetuser(code)
+					}
+				}
+				// #endif
+			},
+			
+			//code获取用户信息
+			codegetuser(code){
+				uni.showLoading({
+					title: "正在登录",
+					mask: true
+				});
+				this.$app.request({
+					url: this.$api.login,
+					data: {
+						code: code,
+						user_info: this.UserInfo.rawData,
+						encrypted_data: this.UserInfo.encryptedData,
+						iv: this.UserInfo.iv,
+						signature: this.UserInfo.signature
+					},
+					method: 'POST',
+					dataType: 'json',
+					success: res => {
+						console.log("请求成功")
+					},
+					fail: err =>{
+						console.log("请求失败")
+					},
+					complete: res =>{
+						this.login(res.data);
+						console.log("传入code获取用户信息")
+					}
+				});
+			},
+			
+			/*微信小程序登录*/
+			wechatAppLogin(isBack = true) {
+				uni.login({
+					provider: 'weixin',
+					success: loginResult => {
+						console.log(loginResult,"获取code");
+						this.codegetuser(loginResult.code)
+					}
+				});
+			},
+			
+			/*微信浏览器登录*/
+			getUrlCode (name) {
+				return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.href) || [, ''])[1].replace(/\+/g, '%20')) || null
+			},
+			wechatLogin() {
+				/*获取登录验证url*/
+				let loginUrl = location.href.split('/#');
+				loginUrl = loginUrl[0]+loginUrl[1];
+				loginUrl = encodeURIComponent(window.location.href)
+				console.log(loginUrl,"h5获取code")
+				window.location.href = 
+				'https://open.weixin.qq.com/connect/oauth2/authorize?appid='+
+				this.appid +
+				'&redirect_uri='+
+				loginUrl +
+				'&response_type=code&scope=snsapi_base&state=ok#wechat_redirect'
+			},
+			
+			//普通登录
+			bindLogin() {
+				if (!this.$u.test.mobile(this.mobile)) {
+					return;
+				} else if (this.code == '') {
+					this.$alert('请输入验证码');
+					return;
+				}
+				uni.showLoading({
+					title: '正在登录',
+					mask: true
+				});
+				this.$app.request({
+					url: this.$api.login,
+					data: {
+						mobile: this.mobile,
+						code: this.code
+					},
+					method: 'POST',
+					dataType: 'json',
+					success: res => {
+						console.log(res,"请求成功")
+					},
+					fail: err =>{
+						console.log(err,"请求失败")
+					},
+					complete: res =>{
+						uni.hideLoading();
+						this.login(res.data);
+						console.log(res,"传入code获取用户信息")
+					}
+				});
+			},
+			//获取验证码
+			codeChange(text) {
+				this.codeTips = text;
+			},
+			getCode() {
+				if(this.$refs.uCode.canGetCode) {
+					// 模拟向后端请求验证码
+					uni.showLoading({
+						title: '正在获取验证码',
+						mask: true
+					})
+					setTimeout(() => {
+						uni.hideLoading();
+						// 这里此提示会被this.start()方法中的提示覆盖
+						this.$u.toast('验证码已发送');
+						// 通知验证码组件内部开始倒计时
+						this.$refs.uCode.start();
+					}, 1000);
+				} else {
+					this.$u.toast('倒计时结束后再发送');
+				}
+			},
+		}
+	};
+</script>
+
+<style lang="scss">
+.content {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+
+	.logo {
+		margin-top: 143rpx;
+		margin-left: auto;
+		margin-right: auto;
+		image {
+			height: 220rpx;
+			width: 220rpx;
+		}
+	}
+	.pickname{
+		margin-left: auto;
+		margin-right: auto;
+		font-size: 20px;
+		margin-top: 10rpx;
+	}
+
+	.list {
+		display: flex;
+		flex-direction: column;
+		padding-top: 120rpx;
+		padding-left: 100rpx;
+		padding-right: 100rpx;
+
+		.item {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			align-items: center;
+			height: 100rpx;
+			border-bottom: 1upx solid rgba(230, 230, 230, 1);
+
+			.icon {
+				color: #ababab;
+				margin-right: 15rpx;
+				font-size: 40rpx;
+			}
+
+			.input {
+				flex: 1;
+				text-align: left;
+				font-size: 30rpx;
+				margin-left: 16rpx;
+			}
+		}
+	}
+
+	.button {
+		margin-top: 100rpx;
+		margin-left: 0px;
+		margin-right: 0px;
+		
+	}
+
+	.other {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
+		font-size: 30rpx;
+		margin-top: 60rpx;
+		color: #8cc7b5;
+		text-align: center;
+		height: 40rpx;
+		line-height: 40rpx;
+
+		text {
+			font-size: 24rpx;
+			margin-left: 15rpx;
+			margin-right: 15rpx;
+		}
+	}
+}
+</style>

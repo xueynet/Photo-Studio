@@ -1,0 +1,242 @@
+<template>
+	<view class="page">
+		<view class="flex-c">
+			<u-avatar :src="avatar" mode="square" size="200" @tap="chooseAvatar"></u-avatar>
+		</view>
+		<u-form :model="model" :rules="rules" :errorType="errorType" ref="uForm">
+			<u-form-item label="呢称" prop="name" :label-position="labelPosition">
+				<u-input v-model="model.name" placeholder="请输入呢称" :border="border" type="text"></u-input>
+			</u-form-item>
+			<u-form-item label="性别" prop="sex" :label-position="labelPosition">
+				<u-input v-model="model.sex" placeholder="请选择性别" :border="border" type="select" :select-open="actionSheetShow" @click="actionSheetShow = true"></u-input>
+			</u-form-item>
+			<u-form-item label="简介" prop="intro" :label-position="labelPosition">
+				<u-input v-model="model.intro" placeholder="请填写简介" type="textarea" :border="border"></u-input>
+			</u-form-item>
+			<u-form-item label="所在地区" prop="address" label-width="150" :label-position="labelPosition">
+				<u-input v-model="model.address" placeholder="请选择地区" :border="border" type="select" :select-open="pickerShow" @click="pickerShow = true"></u-input>
+			</u-form-item>
+		</u-form>
+		<view class="agreement">
+			<u-checkbox active-color="blue" v-model="check" @change="checkboxChange"></u-checkbox>
+			<view class="agreement-text">
+				勾选同意更改资料
+			</view>
+		</view>
+		<u-button type="error" @click="submit">提交</u-button>
+		<u-action-sheet :list="actionSheetList" v-model="actionSheetShow" @click="actionSheetCallback"></u-action-sheet>
+		<u-picker mode="region" v-model="pickerShow" @confirm="regionConfirm"></u-picker>
+	</view>
+</template>
+
+<script> 
+	export default {
+		data() {
+			return {
+				labelPosition: 'top',
+				border: false,
+				check: false,
+				errorType: ['message'],
+				actionSheetShow: false,
+				pickerShow: false,
+				codeTips: '',
+				avatar: '',
+				showUploadList:false,
+				lists:[],
+				
+				model: {
+					name: '',
+					sex: '',
+					intro: '',
+					agreement: false,
+					address: '',
+				},
+				rules: {
+					name: [
+						{
+							required: true,
+							message: '请输入呢称',
+							trigger: 'blur' ,
+						},
+						{
+							min: 3,
+							max: 12,
+							message: '呢称长度在3到12个字符',
+							trigger: ['change','blur'],
+						},
+					],
+					sex: [
+						{
+							required: true,
+							message: '请选择性别',
+							trigger: 'change'
+						},
+					],
+					intro: [
+						{
+							required: true,
+							message: '请填写简介'
+						},
+						{
+							min: 5,
+							message: '简介不能少于5个字',
+							trigger: 'change' ,
+						},
+					],
+					address: [
+						{
+							required: true,
+							message: '请选择地区',
+							trigger: 'change',
+						}
+					],
+				},
+				actionSheetList: [
+					{
+						text: '男'
+					},
+					{
+						text: '女'
+					},
+					{
+						text: '保密'
+					}
+				],
+			}
+		},
+		onShow() {
+			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
+				getApp().globalData.hasLaunch = false
+				this.getdata()
+			} else {
+				if(!getApp().globalData.hasLogin){
+					this.$u.route({
+						url: '/pages/home/login',
+					})
+				}
+			}
+		},
+		onLoad(e) {
+			this.option = e
+			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
+				this.getdata()
+			}
+		},
+		onReady() {
+			this.$refs.uForm.setRules(this.rules);
+		},
+		created() {
+			// 监听从裁剪页发布的事件，获得裁剪结果
+			uni.$on('uAvatarCropper', path => {
+				this.avatar = path;
+			})
+		},
+		methods: {
+			getdata(){
+				
+			},
+			submit() {
+				this.$refs.uForm.validate(valid => {
+					if (valid) {
+						if(!this.model.agreement) return this.$u.toast('请勾选协议');
+						console.log('验证通过');
+						uni.uploadFile({
+							url: 'http://www.example.com/upload',
+							filePath: this.avatar,
+							name: 'file',
+							complete: (res) => {
+								console.log(res);
+							}
+						});
+					} else {
+						console.log('验证失败');
+					}
+				});
+			},
+			chooseAvatar() {
+				this.$u.route({
+					url: '/uview-ui/components/u-avatar-cropper/u-avatar-cropper',
+					params: {
+						// 输出图片宽度，高等于宽，单位px
+						destWidth: 200,
+						// 裁剪框宽度，高等于宽，单位px
+						rectWidth: 200,
+						// 输出的图片类型，如果'png'类型发现裁剪的图片太大，改成"jpg"即可
+						fileType: 'jpg',
+					}
+				})
+			},
+			// 点击actionSheet回调
+			actionSheetCallback(index) {
+				uni.hideKeyboard();
+				this.model.sex = this.actionSheetList[index].text;
+			},
+			// 勾选协议
+			checkboxChange(e) {
+				this.model.agreement = e.value;
+			},
+			// 选择地区回调
+			regionConfirm(e) {
+				this.model.address = e.province.label + '-' + e.city.label + '-' + e.area.label;
+			},
+		}
+	}
+</script>
+
+<style lang="scss">
+	.page {
+		padding: 30rpx;
+		background: #fff;
+		.u-input{
+			align-items: center;
+		}
+	}
+	
+	.u-avatar{
+		border: 1px solid #ddd;
+	}
+
+	.pre-box {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		flex-wrap: wrap;
+	}
+
+	.pre-item {
+		flex: 0 0 48.5%;
+		border-radius: 10rpx;
+		height: 140rpx;
+		overflow: hidden;
+		position: relative;
+		margin-bottom: 8rpx;
+		.u-delete-icon {
+			position: absolute;
+			top: 10rpx;
+			right: 10rpx;
+			z-index: 10;
+			background-color: $u-type-error;
+			border-radius: 100rpx;
+			width: 44rpx;
+			height: 44rpx;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+	}
+
+	
+
+	.agreement {
+		display: flex;
+		align-items: center;
+		flex-direction: row;
+		margin: 40rpx 0;
+
+		.agreement-text {
+			padding-left: 8rpx;
+			font-size: 20rpx;
+			color: $u-tips-color;
+		}
+	}
+</style>

@@ -1,0 +1,341 @@
+<template>
+	<view class="page">
+		<u-sticky :enable="enable">
+			<view class="flex-center">
+				<view class="fillbox">
+					<u-tabs-swiper
+						ref="tabs" 
+						inactive-color="#333" 
+						active-color="#da3c03" 
+						bar-width="100"
+						:list="tabs" 
+						:current="current" 
+						@change="tabsChange" 
+						:is-scroll="false">
+					</u-tabs-swiper>
+				</view>
+				<view class="changestyle" @click="waterfall = !waterfall">
+					<u-icon v-if="waterfall" name="grid" size="40"></u-icon>
+					<u-icon v-else name="list" size="40"></u-icon>
+				</view>
+			</view>
+		</u-sticky>
+		<view v-show="waterfall">
+			<!-- #ifdef MP-WEIXIN -->
+			<view class="u-waterfall">
+				<view class="demo-warter leftbox" v-for="(item, index) in flowList" :key="index" @click="navto('/pages/server/server',item.id)">
+					
+					<u-lazy-load threshold="450" loading-img="/static/images/banner-height.gif" border-radius="10"
+						:image="item.image" ></u-lazy-load>
+					
+					<view class="boxStyle">
+						<view class="demo-title">
+							{{item.title}}
+						</view>
+						<view class="flex-row demo-tag ">
+							<view class="demo-price flex-center">
+								<u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon>
+								{{item.price}}元
+							</view>
+							<view class="demo-shop flex-row flex-center">
+								<u-icon name="bag"></u-icon>
+								{{item.shop}}
+							</view>
+						</view>
+					</view>
+				</view>
+			</view>
+			<!-- #endif -->
+			<!-- #ifndef MP-WEIXIN -->
+			<u-waterfall :value="flowList" ref="uWaterfall" add-time="50">
+				<template v-slot:left="{leftList}">
+					<view class="demo-warter leftbox" v-for="(item, index) in leftList" :key="index" @click="navto('/pages/server/server',item.id)">
+						
+						<u-lazy-load threshold="450" loading-img="/static/images/banner-height.gif" border-radius="10"
+							:image="item.image" ></u-lazy-load>
+						
+						<view class="boxStyle">
+							<view class="demo-title">
+								{{item.title}}
+							</view>
+							
+							<view class="flex-row demo-tag ">
+								<view class="demo-price flex-center">
+									<u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon>
+									{{item.price}}元
+								</view>
+								<view class="demo-shop flex-row flex-center">
+									<u-icon name="bag"></u-icon>
+									{{item.shop}}
+								</view>
+							</view>
+						</view>
+					</view>
+				</template>
+				<template v-slot:right="{rightList}">
+					<view class="demo-warter rightbox" v-for="(item, index) in rightList" :key="index" @click="navto('/pages/server/server',item.id)">
+						
+						<u-lazy-load threshold="450" loading-img="/static/images/banner-height.gif" border-radius="10"
+							:image="item.image" ></u-lazy-load>
+						
+						<view class="boxStyle">
+							<view class="demo-title">
+								{{item.title}}
+							</view>
+							
+							<view class="flex-row demo-tag ">
+								<view class="demo-price flex-center">
+									<u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon>
+									{{item.price}}元
+								</view>
+								<view class="demo-shop flex-row flex-center">
+									<u-icon name="bag"></u-icon>
+									{{item.shop}}
+								</view>
+							</view>
+						</view>
+					</view>
+				</template>
+			</u-waterfall>
+			<!-- #endif -->
+		</view>
+		<view class="product" v-show="!waterfall">
+			<view class="item" v-for="(item,index) in flowList" :key="index" @click="navto('/pages/server/server',item.id)">
+				<view class="image">
+					<u-image height="180" width="220" :src="item.image"></u-image>
+				</view>
+				<view class="fillbox flex-col">
+					<view class="title">{{item.title}}</view>
+					<view class="flex-s u-m-t-40">
+						<view class="price flex-center">
+							<u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon>
+							<text>{{item.price}}元</text>
+						</view>
+						<view class="demo-shop flex-row">
+							<u-icon name="bag"></u-icon>
+							{{item.shop}}
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+		<u-loadmore :load-text="loadText" bg-color="rgb(255, 255, 255)" :status="loadStatus" @loadmore="addRandomData"></u-loadmore>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				id:0,
+				tabs: [{
+					name: '综合排序'
+				}, {
+					name: '销量优先'
+				}, {
+					name: '价格'
+				}],
+				current:0,
+				enable:true,
+				waterfall:true,
+				loadStatus: 'loadmore',
+				flowList: [],
+				datalist: [],
+				loadText: {
+					loadmore: '上拉加载',
+					loading: '正在加载，请喝杯茶',
+					nomore: '我也是有底线的'
+				}
+			};
+		},
+		onShow() {
+			this.enable = true
+			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
+				getApp().globalData.hasLaunch = false
+				this.getdata()
+			} else {
+				if(!getApp().globalData.hasLogin){
+					this.$u.route({
+						url: '/pages/home/login',
+					})
+				}
+			}
+		},
+		onLoad(e) {
+			this.option = e
+			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
+				this.getdata()
+			}
+		},
+		onHide() {
+			this.enable = false
+		},
+		onPullDownRefresh() {
+			console.log('refresh');
+			setTimeout(function () {
+				uni.stopPullDownRefresh();
+			}, 1000);
+		},
+		onReachBottom() {
+			this.loadStatus = 'loading';
+			setTimeout(() => {
+				this.addRandomData(this.current);
+				this.loadStatus = 'loadmore';
+			}, 500)
+		},
+		onReady() {
+		},
+		methods: {
+			getdata(){
+				this.datalist = this.$defalutdata.server
+				this.addRandomData(); 
+			},
+			navto(url,id){
+				this.$u.route({
+					url,
+					params: {
+						id: id,
+					}
+				})
+			},
+			
+			tabsChange(index) {
+				if(this.current == index) return
+				this.current = index
+				if(this.waterfall){
+					// #ifndef MP-WEIXIN
+					this.$refs.uWaterfall.clear();
+					// #endif
+					this.flowList = []
+				}else{
+					this.flowList = []
+				}
+				uni.showLoading({
+					title:'加载中',
+					mask:true
+				})
+				this.loadStatus = 'loading';
+				setTimeout(() => {
+					this.addRandomData(index)
+					uni.hideLoading()
+					this.loadStatus = 'loadmore';
+				}, 500)
+			},
+			addRandomData(type) {
+				let data = this.datalist
+				let list = JSON.parse(JSON.stringify(data))
+				let arr = this.flowList.concat(list)
+				this.flowList = arr
+				console.log(arr)
+			},
+		},
+	}
+</script>
+
+<style lang="scss">
+	.page{
+		background: #f9f9f9;
+	}
+	.changestyle{
+		padding: 20rpx;
+		background: #fff;
+	}
+	.u-waterfall {
+		background: #f9f9f9;
+		display: flex;
+		flex-wrap: wrap;
+		flex-direction: row;
+		.demo-warter{
+			width: 372rpx;
+		}
+	}
+	.titleNview-placing {
+		height: 44px;
+	}
+	.u-slot-content{
+		padding: 10px;
+	}
+	.leftbox{
+		padding: 12rpx;
+		padding-right: 6rpx;
+	}
+	.rightbox{
+		padding: 12rpx;
+		padding-left: 6rpx;
+	}
+	.ad-1{
+		width: 100%;
+		height: 210upx;
+		padding: 10upx 0;
+		background: linear-gradient(180deg, rgb(255, 255, 255), #f9f9f9);
+		image{
+			width:100%;
+			height: 100%; 
+		}
+	}
+	.demo-warter{
+		.boxStyle{
+			padding: 12rpx;
+			background: #fff;
+			.demo-title{
+				margin: 5rpx 0;
+				font-weight: bold;
+				height: 80rpx;
+				lines:2;
+				overflow: hidden;
+				-webkit-box-orient:vertical;
+				-webkit-line-clamp:2;
+				text-overflow:ellipsis;
+			}
+			.demo-price{
+				font-size: 30rpx;
+				font-weight: bold;
+				color: #fa3534;
+				margin: 5rpx 0;
+			}
+			.demo-tag{
+				margin: 5rpx 0;
+				.u-tag{
+					margin-right: 5px;
+				}
+			}
+			.demo-shop{
+				font-size: 20rpx;
+				color: #999;
+			}
+		}
+	}
+	.product{
+		.item{
+			background: #fff;
+			align-items: center;
+			flex-direction: row;
+			padding: 15rpx;
+			margin-bottom: 20rpx;
+			.title{
+				font-size: 28rpx;
+				line-height: 40rpx;
+				height: 80rpx;
+				overflow: hidden;
+				text-overflow: ellipsis;
+			}
+			.image{
+				margin-left: 0rpx;
+				margin-right: 20rpx;
+			}
+			.price{
+				margin-bottom: 15rpx;
+				font-size: 32rpx;
+				font-weight: bold;
+				color:#e80000;
+			}
+			.u-tag{
+				margin-right: 10rpx;
+			}
+			.demo-shop{
+				font-size: 20rpx;
+				color: #999;
+			}
+		}
+	}
+</style>

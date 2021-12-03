@@ -1,0 +1,12 @@
+view,
+label,
+swiper-item,
+scroll-view{display:flex;flex-direction:column;flex-shrink:0;flex-grow:0;flex-basis:auto;align-items:stretch;align-content:flex-start}view,
+image,
+input,
+scroll-view,
+swiper,
+swiper-item,
+text,
+textarea,
+video{position:relative;border:0 solid #000;box-sizing:border-box}swiper-item{position:absolute}button{margin:0}.content{display:flex;flex-direction:column;justify-content:center}.content .logo{margin-top:143rpx;margin-left:auto;margin-right:auto}.content .logo image{height:220rpx;width:220rpx}.content .pickname{margin-left:auto;margin-right:auto;font-size:20px;margin-top:10rpx}.content .list{display:flex;flex-direction:column;padding-top:120rpx;padding-left:100rpx;padding-right:100rpx}.content .list .item{display:flex;flex-direction:row;justify-content:space-between;align-items:center;height:100rpx;border-bottom:1rpx solid #e6e6e6}.content .list .item .icon{color:#ababab;margin-right:15rpx;font-size:40rpx}.content .list .item .input{flex:1;text-align:left;font-size:30rpx;margin-left:16rpx}.content .button{margin-top:100rpx;margin-left:0;margin-right:0}.content .other{display:flex;flex-direction:row;justify-content:center;align-items:center;font-size:30rpx;margin-top:60rpx;color:#8cc7b5;text-align:center;height:40rpx;line-height:40rpx}.content .other text{font-size:24rpx;margin-left:15rpx;margin-right:15rpx}

@@ -1,0 +1,419 @@
+<template>
+	<view class="page">
+		<view class="status">
+			<view class="title">
+				<view class="flex-center price u-m-b-20" v-if="data.status == 1" @click="setstatus(2)">
+					<u-icon name="setting"></u-icon>
+					待付款
+				</view>
+				<view class="flex-center" v-if="data.status == 2" @click="setstatus(3)">
+					<u-icon name="setting"></u-icon>
+					待发货
+				</view>
+				<view class="flex-center" v-if="data.status == 3" @click="setstatus(4)">
+					<u-icon name="setting"></u-icon>
+					待收货
+				</view>
+				<view class="flex-center" v-if="data.status == 4" @click="setstatus(1)">
+					<u-icon name="setting"></u-icon>
+					已完成
+				</view>
+			</view>
+			<view class="desc">
+				<view class="flex-center u-font-20 item" v-if="data.status == 1">
+					<view class="flex-center u-m-r-20">需付款：<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{data.zongjia}}</view>
+					<view class="flex-center">剩余：<u-count-down bg-color="#eee" separator-size="20" font-size="20" separator="zh" class="u-m-l-20" :timestamp="data.countdown" :show-border="false" color="#606266" border-color="#909399"></u-count-down></view>
+				</view>
+			</view>
+			<view class="btns">
+				<u-button type="error" size="medium" class="btn" shape="circle" v-if="data.status == 1">继续付款</u-button>
+			</view>
+		</view>
+		<view class="box" v-if="data.status == 1">
+			<view class="list">
+				<u-cell-group>
+					<u-cell-item class="cell flex-center" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
+						<view slot="title" class="customer flex-row flex-center">
+							<u-icon custom-prefix="iconfont icon-dingwei1"></u-icon>
+							<view class="u-m-r-10">{{data.wuliu.customer}}</view>
+							<view>{{data.wuliu.phone}}</view>
+						</view>
+						<view class="flex-row" slot="right-icon">
+							修改
+							<u-icon name="arrow-right"></u-icon>
+						</view>
+					</u-cell-item>
+					<view class="cell u-p-l-30 u-font-20 u-p-b-20">地址：{{data.wuliu.address}}</view>
+				</u-cell-group>
+			</view>
+		</view>
+		<view class="box">
+			<view class="order">
+				<view class="top">
+					<view class="left">
+						<u-icon v-if="false" name="home" :size="30" color="rgb(94,94,94)"></u-icon>
+						<u-tag size="mini" shape="circle" text="自营" type='error' mode="dark"></u-tag>
+						<view class="store">{{ data.store }}</view>
+					</view>
+				</view>
+				<view class="item" v-for="(item, index2) in data.goodsList" :key="index2">
+					<view class="left"><image :src="item.image" mode="aspectFill"></image></view>
+					<view class="content">
+						<view class="title u-line-2">{{ item.title }}</view>
+						<view class="type flex-center">
+							<view class="u-m-r-15">数量：{{ item.number }}</view>
+							<view>{{ item.type }}</view>
+						</view>
+						<view class="price flex-center">
+							￥{{priceInt(item.price)}}
+							<view class="decimal">.{{ priceDecimal(item.price) }}</view>
+						</view>
+						<view class="server">
+							<u-tag v-for="(tag,index3) in item.server" :key="index3" type="error" size="mini" :text="tag.name" shape="circle"></u-tag>
+						</view>
+					</view>
+				</view>
+				<view class="bottom">
+					<view class="btns">
+						<u-button :plain="true" shape="circle" size="mini" class="btn" v-if="data.status == 1">取消订单</u-button>
+						<u-button :plain="true" shape="circle" size="mini" class="btn" v-if="data.status == 1">修改订单</u-button>
+						<u-button :plain="true" shape="circle" size="mini" class="btn" v-if="data.status == 2">提醒发货</u-button>
+						<u-button :plain="true" shape="circle" size="mini" class="btn" v-if="data.status == 3">查看物流</u-button>
+						<u-button :plain="true" shape="circle" size="mini" class="btn" v-if="data.status == 2||data.status == 3||data.status == 4">退换/售后</u-button>
+						<u-button :plain="true" shape="circle" size="mini" class="btn" v-if="data.status == 4">评价</u-button>
+						<u-button :plain="true" type="error" shape="circle" size="mini" class="btn" v-if="data.status == 4">再次购买</u-button>
+					</view>
+				</view>
+			</view>
+		</view>
+		<view class="box">
+			<view class="list">
+				<u-cell-group>
+					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth" v-for="(item,index) in data.order" :key="index">
+						<view slot="title" class="title">
+							{{item.name}}
+						</view>
+						<view class="fillbox flex-start">
+							<view>{{item.value}}</view>
+						</view>
+					</u-cell-item>
+				</u-cell-group>
+			</view>
+		</view>
+		<view class="box" v-if="data.status !== 1">
+			<view class="list">
+				<u-cell-group title="配送信息">
+					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
+						<view slot="title" class="title">配送方式:</view>
+						<view class="fillbox flex-start">
+							<view v-if="data.wuliu.kuaidi!=''">{{data.wuliu.kuaidi}}</view>
+							<view v-else>普通快递</view>
+							<view class="color999" v-if="data.wuliu.kuaidiid!=''">单号：{{data.wuliu.kuaidiid}}</view>
+						</view>
+					</u-cell-item>
+					
+					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
+						<view slot="title" class="title">收货地址:</view>
+						<view class="fillbox flex-start">
+							<view>{{data.wuliu.customer}} {{data.wuliu.phone}}</view>
+							<view class="color999">{{data.wuliu.address}}</view>
+						</view>
+					</u-cell-item>
+				</u-cell-group>
+			</view>
+		</view>
+		<view class="box">
+			<view class="list">
+				<u-cell-group>
+					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
+						<view slot="title" class="title">商品总价:</view>
+						<view class="fillbox flex-end">
+							<view class="flex-center"><u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon><view>{{data.zongjia}}</view></view>
+						</view>
+					</u-cell-item>
+					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
+						<view slot="title" class="title">运费:</view>
+						<view class="fillbox flex-end">
+							<view class="flex-center">+ <u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon><view>{{data.yunfei}}</view></view>
+						</view>
+					</u-cell-item>
+					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
+						<view slot="title" class="title">优惠:</view>
+						<view class="fillbox flex-end">
+							<view class="flex-center">- <u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon><view>{{data.youhui}}</view></view>
+						</view>
+					</u-cell-item>
+					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
+						<view class="fillbox flex-end">
+							<view class="flex-center">
+								<view v-if="data.status == 1">需付款：</view><view v-else>实付款：</view>
+								<view class="price flex-center">
+									<u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon>{{data.shifu}}
+								</view>
+							</view>
+						</view>
+					</u-cell-item>
+				</u-cell-group>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script> 
+	export default {
+		data() {
+			return {
+				id:0,
+				labelwidth:'160',
+				
+				
+				
+				data:{
+					id: 2561,
+					countdown:1800,
+					store: '照相馆官方',
+					status: 4,
+					youhui:'0.00',
+					shifu:'697.16',
+					yunfei:'0.00',
+					zongjia: '697.16',
+					order:[
+						{name:'订单编号:',value:'2561'},
+						{name:'下单时间:',value:'2021-09-08 11:10:12'},
+						{name:'支付方式:',value:'在线支付'},
+						{name:'支付时间:',value:'2021-09-08 11:11:13'},
+					],
+					wuliu:{
+						kuaidi:"顺丰快递",
+						kuaidiid:'sf1563474896541354351435',
+						customer:'张三',
+						phone:'15798454534',
+						address:'广东省深圳市宝安区 自由路66号',
+						status:0,
+					},
+					goodsList: [
+						{
+							pid:4,
+							image: '/static/images/product/goods/n4/1.jpg',
+							title: '智汇 相册簿插页式相册本过塑5寸6寸7寸8寸混装照片收纳册大容量影集旅行情侣宝宝儿童成长记录纪念册 时光记（混装990张）',
+							type: '灰色，M，官方标配',
+							price: '348.58',
+							server:[
+								{name:'7天无理由退换货'},
+							],
+							number: 2
+						}
+					]
+				}
+			}
+		},
+		computed: {
+			// 价格小数
+			priceDecimal() {
+				return val => {
+					if (val !== parseInt(val)) return val.slice(-2);
+					else return '00';
+				};
+			},
+			// 价格整数
+			priceInt() {
+				return val => {
+					if (val !== parseInt(val)) return val.split('.')[0];
+					else return val;
+				};
+			}
+		},
+		onShow() {
+			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
+				getApp().globalData.hasLaunch = false
+				this.getdata()
+			} else {
+				if(!getApp().globalData.hasLogin){
+					this.$u.route({
+						url: '/pages/home/login',
+					})
+				}
+			}
+		},
+		onLoad(e) {
+			this.option = e
+			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
+				this.getdata()
+			}
+		},
+		onPullDownRefresh() {
+			console.log('refresh');
+			setTimeout(function () {
+				uni.stopPullDownRefresh();
+			}, 1000);
+		},
+		methods: {
+			getdata(){
+				
+			},
+			setstatus(i){
+				this.data.status = i
+				if(i==1|i==2){
+					this.data.wuliu.kuaidi = ""
+					this.data.wuliu.kuaidiid = ''
+				}else{
+					this.data.wuliu.kuaidi = "顺丰快递"
+					this.data.wuliu.kuaidiid = 'sf1563474896541354351435'
+				}
+			}
+		}
+	}
+</script>
+
+<style lang="scss">
+	.page{
+		background: #eee;
+		padding-bottom: 20rpx;
+	}
+	.box{
+		background: #fff;
+		margin: 15rpx 15rpx 0 15rpx;
+		border-radius: 20rpx;
+		overflow: hidden;		
+	}
+	.status{
+		padding: 20rpx;
+		align-content: center;
+		align-items: center;
+		.title{
+			font-size: 40rpx;
+			margin-top: 50rpx;
+			font-weight: bold;
+			.u-icon{
+				margin-right: 10rpx;
+			}
+			.price{
+				color: #e80000;
+			}
+		}
+		.desc{
+			.item{
+				margin-bottom: 20rpx;
+			}
+		}
+		.btns{
+			align-items: center;
+			justify-content: center;
+			flex-direction: row;
+			.btn{
+				margin:0 10rpx;
+			}
+		}
+	}
+	.order {
+		background-color: #ffffff;
+		border-radius: 20rpx;
+		box-sizing: border-box;		
+		padding: 20rpx;
+		font-size: 28rpx;
+		.top {
+			display: flex;
+			justify-content: space-between;
+			flex-direction: row;
+			.left {
+				display: flex;
+				align-items: center;
+				flex-direction: row;
+				.store {
+					margin: 0 10rpx;
+					font-size: 32rpx;
+					font-weight: bold;
+				}
+			}
+			.right {
+			}
+		}
+		.item {
+			display: flex;
+			margin: 20rpx 0 0;
+			flex-direction: row;
+			.left {
+				margin-right: 20rpx;
+				image {
+					width: 180rpx;
+					height: 180rpx;
+					border-radius: 10rpx;
+				}
+			}
+			.content {
+				flex: 1;
+				.title {
+					font-size: 28rpx;
+					line-height: 40rpx;
+					height: 80rpx;
+					font-weight: bold;
+				}
+				.type {
+					font-size: 20rpx;
+					line-height: 40rpx;
+					margin: 10rpx 0;
+					color: $u-tips-color;
+				}
+				.price{
+					color: #e80000;
+				}
+				.server {
+					align-items: flex-start;
+					margin-top: 15rpx;
+					.u-tag{
+						margin-right: 10rpx;
+					}
+				}
+				
+			}
+		}
+		.bottom {
+			display: flex;
+			margin-top: 30rpx;
+			justify-content: flex-end;
+			align-items: flex-end;
+			flex-direction: row;
+			.btns{
+				flex-direction: row;
+			}
+			.btn {
+				line-height: 52rpx;
+				width: 160rpx;
+				border-radius: 26rpx;
+				font-size: 26rpx;
+				text-align: center;
+				margin-left: 15rpx;
+			}
+		}
+	}
+	.list{
+		padding: 20rpx 0;
+		.cell{
+			padding-top: 10rpx;
+			padding-bottom: 0;
+			align-items: flex-start;
+			.price{
+				color: #e80000;
+				font-size: 30rpx;
+				.u-icon{
+					font-size: 20rpx;
+				}
+			}
+		}
+		.customer{
+			color: #000000;
+			.u-icon{
+				margin-right: 10rpx;
+				font-size: 40rpx;
+			}
+		}
+		.title{
+			color: #999;
+			font-size: 20rpx;
+		}
+		.fillbox{
+			color: #222;
+			font-size: 20rpx;
+		}
+	}
+</style>

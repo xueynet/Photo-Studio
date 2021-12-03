@@ -1,0 +1,180 @@
+<template>
+	<view class="page">
+		<view class="comment">
+			<view class="tagslist flex-center marginauto">
+				<u-tag type="error" mode="dark" shape="circle" size="default" :text="item.name" v-for="(item,index) in comment.taglist" :key="index"></u-tag>
+			</view>
+			<view class="list">
+				<view class="commentitem" v-for="(item,index) in comment.list" :key="index">
+					<view class="flex-center marginauto">
+						<u-avatar size="70" :src="item.avatar" mode="square"></u-avatar>
+						<view class="customer">
+							<view class="name">{{item.name}}</view>
+							<view class="date">{{item.adddate}}</view>
+						</view>
+					</view>
+					<view class="content ">
+						<view class="text-area marginauto">
+							{{item.comment}}
+						</view>
+						<view class="commentimages marginauto">
+							<u-image v-for="image in item.images" :key="index" width="150" height="150" :src="image" @click="showBigImg(image,item.images)"></u-image>
+						</view>
+						<view class="shoptype flex-center">
+							<view class="item" v-for="(type,index) in item.shoptype" :key="index">{{type.name}}</view>
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script>
+	export default {
+		data() {
+			return {
+				comment:{
+					number:999,
+					goodcomment:'100%',
+					taglist:[
+						{
+							name:'大方好用',
+							number:278
+						},
+						{
+							name:'便宜实惠',
+							number:999
+						}
+					],
+					list:[
+						{
+							avatar:'头像',
+							name:'小柯基',
+							adddate:'1天前',
+							shoptype:[
+								{
+									name:'官方标配',
+								},
+								{
+									name:'红色',
+								}
+							],
+							comment:'商品收到了，79两件，质量不错，我很喜欢',
+							images: [
+								'/static/images/goods/p1.jpg',
+								'/static/images/goods/p2.jpg',
+								'/static/images/goods/p3.jpg',
+							],
+						},
+						{
+							avatar:'头像',
+							name:'哈士奇',
+							adddate:'1天前',
+							shoptype:[
+								{
+									name:'官方标配',
+								},
+								{
+									name:'绿色',
+								}
+							],
+							comment:'商品收到了，79两件，质量不错，我很喜欢',
+							images: [
+								'/static/images/goods/p5.jpg',
+								'/static/images/goods/p4.jpg',
+							],
+						}
+					]
+				},
+				
+			}
+		},
+		onShow() {
+			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
+				getApp().globalData.hasLaunch = false
+				this.getdata()
+			} else {
+				if(!getApp().globalData.hasLogin){
+					this.$u.route({
+						url: '/pages/home/login',
+					})
+				}
+			}
+		},
+		onLoad(e) {
+			this.option = e
+			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
+				this.getdata()
+			}
+		},
+		onPullDownRefresh() {
+			console.log('refresh');
+			setTimeout(function () {
+				uni.stopPullDownRefresh();
+			}, 1000);
+		},
+		methods: {
+			getdata(){
+				
+			},
+			showBigImg(current,list){
+				if(list==undefined) list = this.data.banner
+				uni.previewImage({
+					current:current,
+					urls: list,
+					indicator: 'number',
+				})
+			},
+		}
+	}
+</script>
+
+<style lang="scss">
+	.page{
+		background: #fff;
+	}
+	.comment{
+		padding: 20rpx;
+	}
+	.marginauto{
+		margin-bottom: 20rpx;
+	}
+	.tagslist{
+		.u-tag{
+			margin-right: 10rpx;
+		}
+	}
+	.commentitem{
+		margin: 20rpx 0;
+		.customer{
+			margin-left: 20rpx;
+			.name{
+				font-weight: bold;
+				margin-bottom: 10rpx;
+				font-size: 24rpx;
+			}
+			.date{
+				color: #999;
+			}
+		}
+		.content{
+			line-height: 34rpx;
+			.text-area{
+				font-size: 26rpx;
+			}
+			.shoptype{
+				.item{
+					margin-right: 20rpx;
+					color:#999
+				}
+			}
+		}
+		.commentimages{
+			flex-direction: row;
+			.u-image{
+				margin-right: 20rpx;
+			}
+		}
+	}
+</style>
