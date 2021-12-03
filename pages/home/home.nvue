@@ -147,7 +147,7 @@
 			margin-bottom: 20rpx;
 			font-size: 60rpx;
 		}.red{
-			color: $uni-tt-df;
+			color: $photo-defalut;
 		}
 		
 	}

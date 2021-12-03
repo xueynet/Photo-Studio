@@ -9,7 +9,7 @@
 		<!-- #endif -->
 		<view class="topbox">
 			<u-line-progress :percent="progress" class="progress" :show-percent="false" height="5"
-				:active-color="progresstype" inactive-color="#e80000" :round="false">
+				:active-color="progresstype" inactive-color="#fff" :round="false">
 			</u-line-progress>
 			<u-swiper :height="350" :effect3d="true" bg-color="rgba(232, 0, 0,0)" :current="0" loading
 				indicatorMode="line" circular :list="swiperlist" keyName="image" :title="false">
@@ -119,7 +119,7 @@
 			return {
 				keyword: '照相馆',
 				pagenavbg: {
-					background: '#E80000'
+					background: '#fff'
 				},
 				progress: 0,
 				progresstype: '#19BE6B',
@@ -299,7 +299,7 @@
 					this.progress = this.progress + 20
 					if (this.progress >= 120) {
 						clearInterval(progress)
-						this.progresstype = '#e80000'
+						this.progresstype = '#fff'
 					}
 				}, 200)
 			},
@@ -326,7 +326,7 @@
 		}
 	}
 	.topbox {
-		background: linear-gradient(180deg, rgb(232, 0, 0), rgb(223, 74, 0));
+		background: linear-gradient(180deg, #fff, #f9f9f9);
 		padding-bottom: 20rpx;
 
 		.u-swiper-wrap {

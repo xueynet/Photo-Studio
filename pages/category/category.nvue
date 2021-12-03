@@ -2,11 +2,11 @@
 	<view class="page">
 		<u-navbar
 			:is-back="false"
-			:background="{background:'linear-gradient(45deg, rgb(232, 0, 0), rgb(223, 74, 0))'}">
+			:background="{background:'#fff'}">
 			<u-tabs-swiper ref="tabs" name="cate_name" count="cate_count" 
-			bg-color="rgba(232, 0, 0,0)" 
-			inactive-color="#fff" active-color="#fff" bar-width="100"
+			inactive-color="#333" active-color="#e80000" bar-width="100"
 			:list="tabs" 
+			:bold="false"
 			:current="current"
 			@change="tabsChange"
 			:is-scroll="false"></u-tabs-swiper>
@@ -18,13 +18,13 @@
 			<swiper-item class="swiper-item" v-for="(page,index0) in tabs" :key="index0">
 				<scroll-view scroll-y class="swiper_scroll" v-if="page.type === 'server'">
 					<view class="server" v-for="(item,index) in page.list" :key="index">
-						<view class="card" :style="{background:item.bg}">
+						<view class="card">
 							<view class="fillbox">
 								<view class="cardtitle">{{item.name}}</view>
 								<view class="carddesc">{{item.desc}}</view>
 							</view>
 							<view class="cardgo" @click="navto('pages/server/list',item.id)">
-								<u-icon size="40" class="gobtn" name="arrow-rightward"></u-icon>
+								<u-icon size="40" color="#999" class="gobtn" name="arrow-rightward"></u-icon>
 							</view>
 						</view>
 					</view>
@@ -364,7 +364,7 @@
 		.u-tab-item-active::before {
 			content: "";
 			position: absolute;
-			border-left: 4px solid $uni-bg-df;
+			border-left: 4px solid $photo-defalut;
 			height: 32rpx;
 			left: 0;
 			top: 39rpx;
@@ -433,8 +433,9 @@
 		padding: 15rpx;
 		border-radius: 10rpx;
 		flex-direction: row;
+		background: #fff;
 		align-items: center;
-		color:#fff;
+		color:#333;
 		.cardtitle{
 			font-size: 40rpx;
 			margin: 30rpx;

@@ -533,36 +533,30 @@ export default{
 			id:992,
 			name:'在线预约',
 			desc:'使用预约到店服务,省心你我他',
-			bg:'linear-gradient(45deg, rgb(255, 0, 0), rgb(255, 85, 0))',
 		},
 		{
 			id:52,
 			name:'预约上门服务',
 			desc:'使用预约到店服务,省心你我他',
-			bg:'linear-gradient(45deg, rgb(255, 170, 0), rgb(255, 255, 0))',
 		},
 		{
 			id:12,
 			name:'到店服务',
 			desc:'使用预约到店服务,省心你我他',
-			bg:'linear-gradient(45deg, rgb(255, 0, 127), rgb(255, 85, 127))',
 		},
 		{
 			id:942,
 			name:'其他服务',
 			desc:'使用预约到店服务,省心你我他',
-			bg:'linear-gradient(45deg, rgb(170, 85, 0), rgb(170, 170, 0))',
 		},
 		{
 			id:392,
 			name:'其他服务',
 			desc:'使用预约到店服务,省心你我他',
-			bg:'linear-gradient(45deg, rgb(85, 85, 255), rgb(85, 170, 255))',
 		},{
 			id:22,
 			name:'其他服务',
 			desc:'使用预约到店服务,省心你我他',
-			bg:'linear-gradient(45deg, rgb(28, 187, 180), rgb(141, 198, 63))',
 		},
 	],
 	category:[
