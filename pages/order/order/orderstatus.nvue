@@ -1,28 +1,29 @@
 <template>
 	<view class="page">
+		<full-loading :show="fullloading"></full-loading>
 		<view class="status">
 			<view class="title">
-				<view class="flex-center price u-m-b-20" v-if="data.status == 1" @click="setstatus(2)">
+				<view class="flex-center flex-row price u-m-b-20" v-if="data.status == 1" @click="setstatus(2)">
 					<u-icon name="setting"></u-icon>
 					待付款
 				</view>
-				<view class="flex-center" v-if="data.status == 2" @click="setstatus(3)">
+				<view class="flex-center flex-row" v-if="data.status == 2" @click="setstatus(3)">
 					<u-icon name="setting"></u-icon>
 					待发货
 				</view>
-				<view class="flex-center" v-if="data.status == 3" @click="setstatus(4)">
+				<view class="flex-center flex-row" v-if="data.status == 3" @click="setstatus(4)">
 					<u-icon name="setting"></u-icon>
 					待收货
 				</view>
-				<view class="flex-center" v-if="data.status == 4" @click="setstatus(1)">
+				<view class="flex-center flex-row" v-if="data.status == 4" @click="setstatus(1)">
 					<u-icon name="setting"></u-icon>
 					已完成
 				</view>
 			</view>
 			<view class="desc">
-				<view class="flex-center u-font-20 item" v-if="data.status == 1">
-					<view class="flex-center u-m-r-20">需付款：<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{data.zongjia}}</view>
-					<view class="flex-center">剩余：<u-count-down bg-color="#eee" separator-size="20" font-size="20" separator="zh" class="u-m-l-20" :timestamp="data.countdown" :show-border="false" color="#606266" border-color="#909399"></u-count-down></view>
+				<view class="flex-center flex-row u-font-20 item" v-if="data.status == 1">
+					<view class="flex-center flex-row u-m-r-20">需付款：<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{data.zongjia}}</view>
+					<view class="flex-center flex-row">剩余：<u-count-down bg-color="#eee" separator-size="20" font-size="20" separator="zh" class="u-m-l-20" :timestamp="data.countdown" :show-border="false" color="#606266" border-color="#909399"></u-count-down></view>
 				</view>
 			</view>
 			<view class="btns">
@@ -32,7 +33,7 @@
 		<view class="box" v-if="data.status == 1">
 			<view class="list">
 				<u-cell-group>
-					<u-cell-item class="cell flex-center" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
+					<u-cell-item class="cell flex-center flex-row" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
 						<view slot="title" class="customer flex-row flex-center">
 							<u-icon custom-prefix="iconfont icon-dingwei1"></u-icon>
 							<view class="u-m-r-10">{{data.wuliu.customer}}</view>
@@ -60,16 +61,16 @@
 					<view class="left"><image :src="item.image" mode="aspectFill"></image></view>
 					<view class="content">
 						<view class="title u-line-2">{{ item.title }}</view>
-						<view class="type flex-center">
+						<view class="type flex-center flex-row">
 							<view class="u-m-r-15">数量：{{ item.number }}</view>
 							<view>{{ item.type }}</view>
 						</view>
-						<view class="price flex-center">
+						<view class="price flex-center flex-row">
 							￥{{priceInt(item.price)}}
 							<view class="decimal">.{{ priceDecimal(item.price) }}</view>
 						</view>
-						<view class="server">
-							<u-tag v-for="(tag,index3) in item.server" :key="index3" type="error" size="mini" :text="tag.name" shape="circle"></u-tag>
+						<view class="server flex-box">
+							<u-tag class="u-m-b-10" v-for="(tag,index3) in item.server" :key="index3" type="error" size="mini" :text="tag.name" shape="circle"></u-tag>
 						</view>
 					</view>
 				</view>
@@ -105,7 +106,7 @@
 				<u-cell-group title="配送信息">
 					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
 						<view slot="title" class="title">配送方式:</view>
-						<view class="fillbox flex-start">
+						<view class="fillbox flex-top">
 							<view v-if="data.wuliu.kuaidi!=''">{{data.wuliu.kuaidi}}</view>
 							<view v-else>普通快递</view>
 							<view class="color999" v-if="data.wuliu.kuaidiid!=''">单号：{{data.wuliu.kuaidiid}}</view>
@@ -114,7 +115,7 @@
 					
 					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
 						<view slot="title" class="title">收货地址:</view>
-						<view class="fillbox flex-start">
+						<view class="fillbox flex-top">
 							<view>{{data.wuliu.customer}} {{data.wuliu.phone}}</view>
 							<view class="color999">{{data.wuliu.address}}</view>
 						</view>
@@ -128,26 +129,26 @@
 					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
 						<view slot="title" class="title">商品总价:</view>
 						<view class="fillbox flex-end">
-							<view class="flex-center"><u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon><view>{{data.zongjia}}</view></view>
+							<view class="flex-center flex-row"><u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon><view>{{data.zongjia}}</view></view>
 						</view>
 					</u-cell-item>
 					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
 						<view slot="title" class="title">运费:</view>
 						<view class="fillbox flex-end">
-							<view class="flex-center">+ <u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon><view>{{data.yunfei}}</view></view>
+							<view class="flex-center flex-row">+ <u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon><view>{{data.yunfei}}</view></view>
 						</view>
 					</u-cell-item>
 					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
 						<view slot="title" class="title">优惠:</view>
 						<view class="fillbox flex-end">
-							<view class="flex-center">- <u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon><view>{{data.youhui}}</view></view>
+							<view class="flex-center flex-row">- <u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon><view>{{data.youhui}}</view></view>
 						</view>
 					</u-cell-item>
 					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
 						<view class="fillbox flex-end">
-							<view class="flex-center">
+							<view class="flex-center flex-row">
 								<view v-if="data.status == 1">需付款：</view><view v-else>实付款：</view>
-								<view class="price flex-center">
+								<view class="price flex-center flex-row">
 									<u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon>{{data.shifu}}
 								</view>
 							</view>
@@ -165,7 +166,7 @@
 			return {
 				id:0,
 				labelwidth:'160',
-				
+				fullloading:true,
 				
 				
 				data:{
@@ -249,7 +250,9 @@
 		},
 		methods: {
 			getdata(){
-				
+				setTimeout(() => {
+					this.fullloading = false
+				}, 500);
 			},
 			setstatus(i){
 				this.data.status = i
@@ -266,7 +269,7 @@
 </script>
 
 <style lang="scss">
-	.page{
+	page, .page{
 		background: #eee;
 		padding-bottom: 20rpx;
 	}

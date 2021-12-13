@@ -1,9 +1,9 @@
 <template>
 	<view class="page">
 		<u-cell-group class="cell-group">
-			<u-cell-item @click="navto('/pages/home/set/personal')" title="个人资料"></u-cell-item>
-			<u-cell-item @click="navto('/pages/home/address/address')" title="收货地址"></u-cell-item>
-			<u-cell-item @click="navto('/pages/home/set/setphone')" title="手机号"></u-cell-item>
+			<u-cell-item @click="$navto('/pages/home/set/personal')" title="个人资料"></u-cell-item>
+			<u-cell-item @click="$navto('/pages/home/address/address')" title="收货地址"></u-cell-item>
+			<u-cell-item @click="$navto('/pages/home/set/setphone')" title="手机号"></u-cell-item>
 		</u-cell-group>
 		<u-cell-group class="cell-group">
 			<u-cell-item title="消息推送" :arrow='false'>
@@ -15,9 +15,9 @@
 				<view>{{huancun}}</view>
 			</u-cell-item>
 			<u-cell-item title="检查更新">
-				<view class="flex-s">
-					<view>
-						<u-tag v-if="false" size="mini" text="有新版本更新"></u-tag>
+				<view class="flex-row flex-space-between">
+					<view class="flex-center flex-row">
+						<u-tag class="u-m-l-10" v-if="false" type="error" size="mini" text="有新版本更新"></u-tag>
 					</view>
 					<view>
 						<view>{{banben}}</view>
@@ -86,14 +86,6 @@
 						url:"/pages/index/index"
 					})
 				},2000)
-			},
-			navto(url,id){
-				this.$u.route({
-					url,
-					params: {
-						id: id
-					}
-				})
 			},
 		}
 	}

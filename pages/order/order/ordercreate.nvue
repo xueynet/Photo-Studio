@@ -1,8 +1,9 @@
 <template>
 	<view class="page u-font-20">
-		<view class="box flex-center" @click="addressshow = !addressshow">
+		<full-loading :show="fullloading"></full-loading>
+		<view class="box flex-center flex-row" @click="addressshow = !addressshow">
 			<view class="fillbox">
-				<view class="site flex-center u-m-b-15">
+				<view class="site flex-center flex-row u-m-b-15">
 					<u-tag v-if="checkaddress.default" class="u-m-r-15" type="error" size="mini" text="默认" mode="dark"></u-tag>
 					<u-icon v-else custom-prefix="iconfont icon-dingwei1" class="u-font-30 u-m-r-15"></u-icon>
 					{{checkaddress.site}}
@@ -10,7 +11,7 @@
 				<view class="xq u-m-b-15 bold u-font-32">
 					{{checkaddress.address}}
 				</view>
-				<view class="customer flex-center">
+				<view class="customer flex-center flex-row">
 					{{checkaddress.name}} {{checkaddress.phone}}
 				</view>
 			</view>
@@ -18,11 +19,11 @@
 		</view>
 		<view class="box">
 			<view class="productitem">
-				<view class="shopname flex-center u-m-b-20 bold">
+				<view class="shopname flex-center flex-row u-m-b-20 bold">
 					<u-tag v-if="store.zy" class="u-m-r-15" size="mini" type="error" text="自营" mode="dark"></u-tag>
 					{{store.name}}
 				</view>
-				<view class="flex-center flex-start">
+				<view class="flex-space-between flex-row flex-start">
 					<u-image class='u-m-r-20' :src="product.image" width="200" height="200"></u-image>
 					<view class="fillbox">
 						<view class="pname u-m-b-15 bold u-font-28">
@@ -31,11 +32,11 @@
 						<view class="type u-m-b-15">
 							{{product.type}}
 						</view>
-						<view class="fillbox flex-s u-m-b-15">
-							<view class="price flex-center u-font-28">
+						<view class="fillbox flex-space-between flex-row u-m-b-15">
+							<view class="price flex-center flex-row u-font-28">
 								<u-icon class="u-font-20" custom-prefix="iconfont icon-yen-sign"></u-icon>{{product.price}}
 							</view>
-							<u-number-box @change="setzongjia" class="flex-center" :min="1" v-model="product.number"></u-number-box>
+							<u-number-box @change="setzongjia" class="flex-center flex-row" :min="1" v-model="product.number"></u-number-box>
 						</view>
 						<view class="server flex-start">
 							<u-tag v-for="(item,index) in product.server" :type="item.type" size="mini" :text="item.name" :key="index"></u-tag>
@@ -46,25 +47,25 @@
 		</view>
 		<u-cell-group>
 			<u-cell-item title="商品金额" :arrow="false" title-width="120">
-				<view class="fillbox flex-s">
+				<view class="fillbox flex-space-between flex-row">
 					<view></view>
-					<view class="flex-center">
+					<view class="flex-center flex-row">
 						<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{model.zongjia}}
 					</view>
 				</view>
 			</u-cell-item>
 			<u-cell-item title="运费" :arrow="false" title-width="120">
-				<view class="fillbox flex-s">
+				<view class="fillbox flex-space-between flex-row">
 					<view></view>
-					<view class="flex-center">
+					<view class="flex-center flex-row">
 						<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{model.yunfei}}
 					</view>
 				</view>
 			</u-cell-item>
 			<u-cell-item title="优惠卷" title-width="120" @click="youhuijuanshow = !youhuijuanshow">
-				<view class="fillbox flex-s">
+				<view class="fillbox flex-space-between flex-row">
 					<view></view>
-					<view class="flex-center" :class="(youhuinumber>0)?'price':''">
+					<view class="flex-center flex-row" :class="(youhuinumber>0)?'price':''">
 						<text v-if="model.youhuije===0">{{model.youhui}}</text>
 						<text v-else>- {{model.youhuije}}</text>
 					</view>
@@ -74,16 +75,16 @@
 				<u-input class="fillbox" v-model="model.beizhu" type="text" placeholder="请填写备注信息"></u-input>
 			</u-cell-item>
 		</u-cell-group>
-		<view class="submit flex-center">
+		<view class="submit flex-center flex-row">
 			<view class="fillbox">
-				<view class="orderprice flex-center">
+				<view class="orderprice flex-center flex-row">
 					<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{model.allzongjia}}
 				</view>
-				<view class="youhuiprice flex-center" v-if="model.youhuije != 0">
+				<view class="youhuiprice flex-center flex-row" v-if="model.youhuije != 0">
 					共省：<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{model.youhuije}}
 				</view>
 			</view>
-			<view class="orderbtn" @click="navto('/pages/order/pay/pay',model)">提交订单</view>
+			<view class="orderbtn" @click="$navto('/pages/order/pay/pay',model)">提交订单</view>
 		</view>
 		<u-popup v-model="addressshow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
@@ -93,7 +94,7 @@
 						<u-icon custom-prefix="iconfont icon-dingwei1"v-if="!item.check"></u-icon>
 						<u-icon color="#e80000" name="checkbox-mark" v-if="item.check"></u-icon>
 						<view class="fillbox">
-							<view class="label flex-center"><u-tag v-if="item.default" size="mini" type="error" class="u-m-r-15" text="默认" mode="dark"></u-tag>{{item.address}}</view>
+							<view class="label flex-center flex-row"><u-tag v-if="item.default" size="mini" type="error" class="u-m-r-15" text="默认" mode="dark"></u-tag>{{item.address}}</view>
 							<view class="desc u-m-b-10">{{item.site}}</view>
 							<view class="u-font-20">
 								{{item.name}} {{item.phone}}
@@ -102,7 +103,7 @@
 					</view>
 				</view>
 				<view class="popupbtn">
-					<u-button @click="navto('/pages/home/address/address')" :ripple="true" shape="circle">地址管理</u-button>
+					<u-button @click="$navto('/pages/home/address/address')" :ripple="true" shape="circle">地址管理</u-button>
 				</view>
 			</view>
 		</u-popup>
@@ -165,6 +166,7 @@
 	export default {
 		data() {
 			return {
+				fullloading:true,
 				page:{},
 				store:{
 					name:'照相馆自营',
@@ -276,14 +278,9 @@
 				this.setzongjia()
 				this.isyouhui()
 				this.setyunfei()
-			},
-			navto(url,id){
-				this.$u.route({
-					url,
-					params: {
-						id: id
-					}
-				})
+				setTimeout(() => {
+					this.fullloading = false
+				}, 500);
 			},
 			priceDecimal(val) {
 				if (parseInt(val) === parseFloat(val).toFixed(2)) return val + '.00'

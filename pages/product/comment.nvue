@@ -1,12 +1,12 @@
 <template>
 	<view class="page">
 		<view class="comment">
-			<view class="tagslist flex-center marginauto">
+			<view class="tagslist flex-box marginauto">
 				<u-tag type="error" mode="dark" shape="circle" size="default" :text="item.name" v-for="(item,index) in comment.taglist" :key="index"></u-tag>
 			</view>
 			<view class="list">
 				<view class="commentitem" v-for="(item,index) in comment.list" :key="index">
-					<view class="flex-center marginauto">
+					<view class="flex-center flex-row marginauto">
 						<u-avatar size="70" :src="item.avatar" mode="square"></u-avatar>
 						<view class="customer">
 							<view class="name">{{item.name}}</view>
@@ -20,7 +20,7 @@
 						<view class="commentimages marginauto">
 							<u-image v-for="image in item.images" :key="index" width="150" height="150" :src="image" @click="showBigImg(image,item.images)"></u-image>
 						</view>
-						<view class="shoptype flex-center">
+						<view class="shoptype flex-center flex-row">
 							<view class="item" v-for="(type,index) in item.shoptype" :key="index">{{type.name}}</view>
 						</view>
 					</view>

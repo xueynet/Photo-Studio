@@ -1,9 +1,10 @@
 <template>
 	<view>
+		<full-loading :show="fullloading"></full-loading>
 		<view class="wrap">
 			<u-toast ref="uToast"/>
-			<u-navbar
-				backText="返回">
+			<u-navbar :is-back="false">
+				<u-icon @click="$swithto('/pages/home/home')" size="40" class="u-m-20" custom-prefix="iconfont icon-chevron-left"></u-icon>
 				<u-search placeholder="搜索订单" v-model="keyword"></u-search>
 			</u-navbar>
 			<u-tabs-swiper bg-color="#fff" 
@@ -14,7 +15,7 @@
 				<swiper-item class="swiper-item" v-for="(page, index) in list" :key="index">
 					<scroll-view scroll-y style="height: 100%;width: 100%;" @scrolltolower="reachBottom">
 						<view class="page-box" v-if="page.list.length>0">
-							<view class="order" @click="navto('/pages/order/order/orderstatus',res.id)" v-for="(res, pindex) in page.list" :key="pindex">
+							<view class="order" @click="$navto('/pages/order/order/orderstatus',res.id)" v-for="(res, pindex) in page.list" :key="pindex">
 								<view class="top">
 									<view class="left">
 										<u-icon v-if="false" name="home" :size="30" color="rgb(94,94,94)"></u-icon>
@@ -65,13 +66,13 @@
 									<view class="more"><u-icon name="more-dot-fill" color="rgb(203,203,203)"></u-icon></view>
 									<view class="btns">
 										<u-button @click="closeorder(res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 1">取消订单</u-button>
-										<u-button @click="navto('/pages/order/order/ordercreate',res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 1">修改订单</u-button>
-										<u-button @click="navto('/pages/order/pay/pay',res.id)" :plain="true" type="error" shape="circle" size="mini" class="btn" v-if="res.status == 1">继续支付</u-button>
+										<u-button @click="$navto('/pages/order/order/ordercreate',res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 1">修改订单</u-button>
+										<u-button @click="$navto('/pages/order/pay/pay',res.id)" :plain="true" type="error" shape="circle" size="mini" class="btn" v-if="res.status == 1">继续支付</u-button>
 										<u-button @click="msgorder(res.pid)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 2">提醒发货</u-button>
-										<u-button @click="navto('/pages/order/wuliu/wuliu',res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 3">查看物流</u-button>
-										<u-button @click="navto('/pages/order/refund/refund',res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 2||res.status == 3||res.status == 4">退换/售后</u-button>
-										<u-button @click="navto('/pages/order/comment/addcomment',res.goodsList[0].pid)" :plain="true" type="warning" shape="circle" size="mini" class="btn" v-if="res.status == 4">评价</u-button>
-										<u-button @click="navto('/pages/product/product',res.goodsList[0].pid)" :plain="true" type="error" shape="circle" size="mini" class="btn" v-if="res.status == 4">再次购买</u-button>
+										<u-button @click="$navto('/pages/order/wuliu/wuliu',res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 3">查看物流</u-button>
+										<u-button @click="$navto('/pages/order/refund/refund',res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 2||res.status == 3||res.status == 4">退换/售后</u-button>
+										<u-button @click="$navto('/pages/order/comment/addcomment',res.goodsList[0].pid)" :plain="true" type="warning" shape="circle" size="mini" class="btn" v-if="res.status == 4">评价</u-button>
+										<u-button @click="$navto('/pages/product/product',res.goodsList[0].pid)" :plain="true" type="error" shape="circle" size="mini" class="btn" v-if="res.status == 4">再次购买</u-button>
 									</view>
 								</view>
 							</view>
@@ -84,7 +85,7 @@
 									您还没有相关的订单
 									<view class="tips">可以去看看有那些想买的</view>
 								</view>
-								<view class="btn" @click="navto('index')">随便逛逛</view>
+								<view class="btn" @click="$swithto('/pages/index/index')">随便逛逛</view>
 							</view>
 						</view>
 					</scroll-view>
@@ -98,6 +99,7 @@
 	export default {
 		data() {
 			return {
+				fullloading:true,
 				keyword:'',
 				list: [
 					{
@@ -195,20 +197,9 @@
 				this.current = parseInt(this.option.id)||0
 				this.swiperCurrent = parseInt(this.current)
 				this.getList();
-			},
-			navto(url,id){
-				var stype = 'navigateTo'
-				if(url === 'index') {
-					stype = "switchTab"
-					url = "/pages/index/index"
-				}
-				this.$u.route({
-					url:url,
-					type:stype,
-					params: {
-						id: id,
-					}
-				})
+				setTimeout(() => {
+					this.fullloading = false
+				}, 500);
 			},
 			closeorder(){
 				console.log('取消订单')
@@ -262,16 +253,11 @@
 	};
 </script>
 
-<style>
-/* #ifndef H5 */
+<style lang="scss">
 page {
 	height: 100%;
 	background-color: #f2f2f2;
 }
-/* #endif */
-</style>
-
-<style lang="scss" scoped>
 .order {
 	background-color: #ffffff;
 	margin: 15rpx 15rpx 0 15rpx;

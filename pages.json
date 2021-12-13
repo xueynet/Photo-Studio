@@ -6,45 +6,7 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				// #ifdef MP 
-				"navigationStyle": "custom",
-				// #endif 
-				"onReachBottomDistance":0,
-				"app-plus": {
-					"titleNView": {
-						"searchInput": {
-							"backgroundColor": "#eee",
-							"borderRadius": "16px",
-							"align":"left",
-							"placeholder": "点击输入商品名称",
-							"disabled": true,
-							"placeholderColor": "#666"
-						},
-						"buttons": [
-							{
-								"text": "定位",
-								"fontSize": "14",
-								"color": "#333",
-								"float": "left",
-								"background": "rgba(0,0,0,0)"
-							},{
-								"fontSrc": "/static/font/iconfont.ttf",
-								"text": "\ue6ad",
-								"fontSize": "26",
-								"color": "#333",
-								"float": "left",
-								"background": "rgba(0,0,0,0)"
-							},{
-								"fontSrc": "/static/font/iconfont.ttf",
-								"text": "\ue6b4",
-								"fontSize": "27",
-								"color": "#333",
-								"background": "rgba(0,0,0,0)",
-								"redDot": false
-							}
-						]
-					}
-				}
+				"navigationStyle": "custom"
 			}
 		}
 	    ,{
@@ -107,7 +69,7 @@
             "path" : "pages/search/search",
             "style" :                                                                                    
             {
-                "navigationBarTitleText": "搜索"
+				"navigationStyle":"custom"
             }
             
         }
@@ -323,6 +285,15 @@
 		    }
 		    
 		}
+        ,{
+            "path" : "components/fullloading",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "",
+                "enablePullDownRefresh": false
+            }
+            
+        }
     ],
 	"globalStyle": {
 		"navigationBarBackgroundColor": "#ffffff",

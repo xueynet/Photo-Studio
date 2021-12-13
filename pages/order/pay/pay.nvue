@@ -1,8 +1,8 @@
 <template>
 	<view class="page">
 		<u-toast ref="uToast"/>
-		<view class="pricebox flex-c u-p-20 u-font-20">
-			<view class="flex-center flex-jcenter u-m-30">
+		<view class="pricebox flex-center u-p-20 u-font-20">
+			<view class="flex-center flex-row u-m-30">
 				<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>
 				<text class="price">{{data.price}}</text>
 			</view>

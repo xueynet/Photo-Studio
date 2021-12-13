@@ -1,16 +1,17 @@
 <template>
 	<view class="page">
-		<!-- #ifdef MP -->
+		<full-loading :show="fullloading"></full-loading>
 		<u-navbar :is-back="false" :background="pagenavbg">
-			<view class="slot-content fillbox">
-				<u-search placeholder="点击输入商品名称" v-model="keyword" :show-action="false"></u-search>
+			<view class="slot-content fillbox flex-center flex-row">
+				<view class="flex-center flex-row u-m-20" @click="addressshow = !addressshow">
+					<u-icon size="50" custom-prefix="iconfont icon-dingwei1" class="u-m-r-10"></u-icon>
+					<view class="dingwei">{{dingwei}}</view>
+				</view>
+				<u-search @click="$navto('/pages/search/search')" :disabled="true" placeholder="点击输入商品名称" :show-action="false"></u-search>
+				<u-icon @click="$navto('/pages/home/notice')" size="50" custom-prefix="iconfont icon-xiaoxi1" class="u-m-20"></u-icon>
 			</view>
 		</u-navbar>
-		<!-- #endif -->
 		<view class="topbox">
-			<u-line-progress :percent="progress" class="progress" :show-percent="false" height="5"
-				:active-color="progresstype" inactive-color="#fff" :round="false">
-			</u-line-progress>
 			<u-swiper :height="350" :effect3d="true" bg-color="rgba(232, 0, 0,0)" :current="0" loading
 				indicatorMode="line" circular :list="swiperlist" keyName="image" :title="false">
 			</u-swiper>
@@ -18,7 +19,7 @@
 		<swiper v-if="(gridlist.length>8)">
 			<swiper-item v-for="(page,index) in gridpage" :key="index">
 				<u-grid :col="4" :border="false" hover-class="hover-class">
-					<u-grid-item @click="navto('/pages/'+item.to+'/list',item.id)" v-for="(item,index2) in page"
+					<u-grid-item @click="$navto('/pages/'+item.to+'/list',item.id)" v-for="(item,index2) in page"
 						:key="index2">
 						<u-image :src="item.icon" width="88rpx" height="88rpx"></u-image>
 						<view class="grid-text">{{item.name}}</view>
@@ -27,7 +28,7 @@
 			</swiper-item>
 		</swiper>
 		<u-grid v-else :col="4" :border="false" hover-class="hover-class">
-			<u-grid-item @click="navto('/pages/'+item.to+'/list',item.id)" v-for="(item,index2) in gridlist" :key="index2">
+			<u-grid-item @click="$navto('/pages/'+item.to+'/list',item.id)" v-for="(item,index2) in gridlist" :key="index2">
 				<u-image :src="item.icon" width="88rpx" height="88rpx"></u-image>
 				<view class="grid-text">{{item.name}}</view>
 			</u-grid-item>
@@ -35,81 +36,28 @@
 		<u-swiper class="ad-1" :height="200" bg-color="rgba(232, 0, 0,0)" :current="0" mode="none" :autoplay="false"
 			:list="cbanner" keyName="image" :title="false">
 		</u-swiper>
-		<!-- #ifdef MP-WEIXIN -->
-		<view class="u-waterfall">
-			<view class="demo-warter leftbox" v-for="(item, index) in flowList" :key="index" @click="navto('/pages/product/product',item.id)">
-				
-				<u-lazy-load threshold="450" loading-img="/static/images/banner-height.gif" border-radius="10"
-					:image="item.image" ></u-lazy-load>
-				
-				<view class="boxStyle">
-					<view class="demo-title">
-						{{item.title}}
-					</view>
-					<view class="flex-row demo-tag ">
-						<view class="demo-price">
-							{{item.price}}元
+		<view class="list">
+			<view class="item" v-for="(item,index) in datalist" :key="index" @click="$navto('/pages/product/product',item.id)">
+				<view class="image">
+					<u-image :src="item.image"></u-image>
+				</view>
+				<view class="fillbox flex-col flex-space-between">
+					<view class="title">{{item.title}}</view>
+					<view class="flex-space-between flex-row u-m-t-40">
+						<view class="price flex-center flex-row">
+							<u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon>
+							<text>{{item.price}}元</text>
 						</view>
-						<view class="demo-shop flex-row">
+						<view class="demo-shop flex-center flex-row">
 							<u-icon name="bag"></u-icon>
 							{{item.shop}}
 						</view>
 					</view>
 				</view>
 			</view>
+			<u-loadmore :load-text="loadText" :status="loadStatus" @loadmore="addRandomData"></u-loadmore>
 		</view>
-		<!-- #endif -->
-		<!-- #ifndef MP-WEIXIN -->
-		<u-waterfall :value="flowList" ref="uWaterfall" add-time="50">
-			<template v-slot:left="{leftList}">
-				<view class="demo-warter leftbox" v-for="(item, index) in leftList" :key="index" @click="navto('/pages/product/product',item.id)">
-					
-					<u-lazy-load threshold="450" loading-img="/static/images/banner-height.gif" border-radius="10"
-						:image="item.image" ></u-lazy-load>
-					
-					<view class="boxStyle">
-						<view class="demo-title">
-							{{item.title}}
-						</view>
-						<view class="flex-row demo-tag ">
-							<view class="demo-price">
-								{{item.price}}元
-							</view>
-							<view class="demo-shop flex-row">
-								<u-icon name="bag"></u-icon>
-								{{item.shop}}
-							</view>
-						</view>
-					</view>
-				</view>
-			</template>
-			<template v-slot:right="{rightList}">
-				<view class="demo-warter rightbox" v-for="(item, index) in rightList" :key="index" @click="navto('/pages/product/product',item.id)">
-					
-					<u-lazy-load threshold="450" loading-img="/static/images/banner-height.gif" border-radius="10"
-						:image="item.image" ></u-lazy-load>
-					
-					<view class="boxStyle">
-						<view class="demo-title">
-							{{item.title}}
-						</view>
-						<view class="flex-row demo-tag ">
-							<view class="demo-price flex-center">
-								<u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon>
-								{{item.price}}元
-							</view>
-							<view class="demo-shop flex-row">
-								<u-icon name="bag"></u-icon>
-								{{item.shop}}
-							</view>
-						</view>
-					</view>
-				</view>
-			</template>
-		</u-waterfall>
-		<!-- #endif -->
-		
-		<u-loadmore bg-color="rgb(255, 255, 255)" :status="loadStatus" @loadmore="addRandomData"></u-loadmore>
+		<u-picker @confirm="xzaddress" v-model="addressshow" mode="region" :safe-area-inset-bottom="true" title="选择城市"></u-picker>
 	</view>
 </template>
 
@@ -117,18 +65,17 @@
 	export default {
 		data() {
 			return {
-				keyword: '照相馆',
-				pagenavbg: {
-					background: '#fff'
-				},
-				progress: 0,
-				progresstype: '#19BE6B',
+				pagenavbg: getApp().globalData.pagenavbg,
+				dingwei:getApp().globalData.area || '地区',
+				loadStatus: 'loadmore',
+				loadText: getApp().globalData.loadText,
+				fullloading:true,
+				
+				addressshow:false,
 				swiperlist: [],
 				cbanner: [],
 				gridpage: [],
 				gridlist: [],
-				loadStatus: 'loadmore',
-				flowList: [],
 				datalist: [],
 			}
 		},
@@ -234,7 +181,9 @@
 				}
 				this.datalist = this.$defalutdata.goods
 				this.addRandomData(); 
-				this.getprogress(0)
+				setTimeout(function() {
+					$this.fullloading = false
+				}, 500);
 			},
 			getbanner(id){
 				var $this = this
@@ -284,30 +233,20 @@
 					}
 				})
 			},
-			navto(url, id) {
-				this.$u.route({
-					url,
-					params: {
-						id: id
-					}
-				})
-			
-			},
-			getprogress(n) {
-				this.progress = n
-				const progress = setInterval(() => {
-					this.progress = this.progress + 20
-					if (this.progress >= 120) {
-						clearInterval(progress)
-						this.progresstype = '#fff'
-					}
-				}, 200)
+			xzaddress(e){
+				this.dingwei = e.area.label
+				getApp().globalData.province = e.province.label
+				getApp().globalData.city = e.city.label
+				getApp().globalData.area = e.area.label
+				uni.setStorageSync('province',e.province.label)
+				uni.setStorageSync('city',e.city.label)
+				uni.setStorageSync('area',e.area.label)
 			},
 			addRandomData() {
 				let data = this.datalist
 				let list = JSON.parse(JSON.stringify(data))
-				let arr = this.flowList.concat(list)
-				this.flowList = arr
+				let arr = this.datalist.concat(list)
+				this.datalist = arr
 				console.log(arr)
 			},
 		
@@ -316,90 +255,22 @@
 </script>
 
 <style lang="scss">
-	.u-waterfall {
-		background: #f9f9f9;
-		display: flex;
-		flex-wrap: wrap;
-		flex-direction: row;
-		.demo-warter{
-			width: 372rpx;
-		}
+	.dingwei{
+		max-width:160rpx
 	}
 	.topbox {
 		background: linear-gradient(180deg, #fff, #f9f9f9);
 		padding-bottom: 20rpx;
-
 		.u-swiper-wrap {
 			padding-bottom: 50rpx;
 		}
 	}
-
-	.titleNview-placing {
-		height: 44px;
-	}
-
-	.u-slot-content {
-		padding: 10px;
-	}
-
-	.leftbox {
-		padding: 12rpx;
-		padding-right: 6rpx;
-	}
-
-	.rightbox {
-		padding: 12rpx;
-		padding-left: 6rpx;
-	}
-
 	.ad-1 {
 		margin: 12rpx;
 		background: linear-gradient(180deg, rgb(255, 255, 255), #f9f9f9);
 		image {
 			width: 100%;
 			height: 100%;
-		}
-	}
-
-	.demo-warter {
-		.boxStyle {
-			padding: 12rpx;
-			background: #fff;
-
-			.demo-title {
-				margin: 5rpx 0;
-				height: 80rpx;
-				font-weight: bold;
-				lines: 2;
-				overflow: hidden;
-				-webkit-box-orient: vertical;
-				-webkit-line-clamp: 2;
-				text-overflow: ellipsis;
-			}
-
-			.demo-price {
-				font-size: 30rpx;
-				font-weight: bold;
-				color: #fa3534;
-				margin: 5rpx 0;
-			}
-
-			.demo-tag {
-				margin: 5rpx 0;
-
-				.u-tag {
-					margin-right: 5px;
-				}
-			}
-
-			.demo-shop {
-				font-size: 20rpx;
-				color: #999;
-				margin-top: 10rpx;
-				.u-icon {
-					margin-top: -10rpx;
-				}
-			}
 		}
 	}
 </style>

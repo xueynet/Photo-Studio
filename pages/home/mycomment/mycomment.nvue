@@ -1,6 +1,7 @@
 <template>
 	<view class="page">
-		<view class="item u-p-20" v-for="(item,index) in list" :key="index">
+		<full-loading :show="fullloading"></full-loading>
+		<view @click="$navto('/pages/'+item.type+'/'+item.type,item.id)" class="item u-p-20" v-for="(item,index) in datalist" :key="index">
 			<view class="top u-m-b-20">
 				<view class="coment">
 					<view class="u-line-2">{{item.comment.comment}}</view>
@@ -8,16 +9,18 @@
 			</view>
 			<view class="bottom">
 				<view class="flex-col">
-					<view class="flex-center pbox u-m-b-20">
+					<view class="flex-center flex-row pbox fillbox u-m-b-20">
 						<u-image width="120rpx" height="120rpx" :src="item.image"></u-image>
-						<view class="title u-line-2">
+						<view class="title fillbox u-line-2 u-m-l-20">
 							{{item.title}}
 						</view>
 					</view>
-					<view class="flex-c">创建时间</view>
+					<view class="flex-c">2022-10-10</view>
 				</view>
 			</view>
 		</view>
+		<u-loadmore :load-text="loadText" :status="loadStatus" @loadmore="addRandomData"></u-loadmore>
+		
 	</view>
 </template>
 
@@ -25,7 +28,10 @@
 	export default {
 		data() {
 			return {
-				list:[]
+				loadStatus: 'loadmore',
+				loadText: getApp().globalData.loadText,
+				fullloading:true,
+				datalist:[]
 			}
 		},
 		onShow() {
@@ -52,19 +58,48 @@
 				uni.stopPullDownRefresh();
 			}, 1000);
 		},
+		onReachBottom() {
+			this.loadStatus = 'loading';
+			setTimeout(() => {
+				this.addRandomData();
+				this.loadStatus = 'loadmore';
+			}, 500)
+		},
 		methods: {
 			getdata(){
-				this.list = this.$defalutdata.goods
-			}
+				this.datalist = this.$defalutdata.goods
+				var $this = this
+				setTimeout(function() {
+					$this.fullloading = false
+				}, 500);
+			},
+			addRandomData() {
+				let data = this.datalist
+				let list = JSON.parse(JSON.stringify(data))
+				let arr = this.datalist.concat(list)
+				this.datalist = arr
+				console.log(arr)
+			},
 		}
 	}
 </script>
 
 <style lang="scss">
+	.page{
+		background: #eee;
+	}
 	.item{
+		margin: 20rpx 20rpx 0 20rpx;
+		background: #fff;
+		border-radius: 10rpx;
 		.pbox{
 			background: #eee;
 			padding: 10rpx;
+		}
+		.bottom{
+			.title{
+				height:80rpx;
+			}
 		}
 	}
 </style>

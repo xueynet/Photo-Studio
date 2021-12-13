@@ -1,22 +1,25 @@
 <template>
 	<view class="page">
-		<view class="item" v-for="(res, index) in siteList" :key="res.id">
-			<view class="fillbox">
-				<view class="top">
-					<view class="tag">
-						<text v-for="(item, index) in res.tag" :key="index"
-							:class="{red:item.tagText=='默认'}">{{ item.tagText }}</text>
+		<full-loading :show="fullloading"></full-loading>
+		<view class="address">
+			<view class="item" @click="$navto('/pages/home/address/setaddress',res.id)" v-for="(res, index) in addressList" :key="res.id">
+				<view class="fillbox">
+					<view class="top">
+						<view class="tag">
+							<text v-for="(item, index) in res.tag" :key="index"
+								:class="{red:item.tagText=='默认'}">{{ item.tagText }}</text>
+						</view>
+						<view class="fillbox">{{res.site}}</view>
 					</view>
-					<view class="fillbox">{{res.site}}</view>
+					<view class="bottom">
+						<view class="name">{{ res.name }}</view>
+						<view class="phone">{{ res.phone }}</view>
+					</view>
 				</view>
-				<view class="bottom">
-					<view class="name">{{ res.name }}</view>
-					<view class="phone">{{ res.phone }}</view>
-				</view>
+				<u-icon custom-prefix="iconfont icon-chakan" size="40"></u-icon>
 			</view>
-			<u-icon @tap="toAddSite(res.id)" custom-prefix="iconfont icon-biaoqian" size="40"></u-icon>
 		</view>
-		<u-button type="error" shape="circle" class="addSite" @tap="toAddSite()" color="#ffffff" :ripple="true">
+		<u-button type="error" shape="circle" class="addSite" @tap="$navto('/pages/home/address/setaddress')" color="#ffffff" :ripple="true">
 			<u-icon name="plus" color="#ffffff" class="icon" :size="30"></u-icon>新建收货地址
 		</u-button>
 	</view>
@@ -26,7 +29,8 @@
 	export default {
 		data() {
 			return {
-				siteList: []
+				fullloading:true,
+				addressList: getApp().globalData.addressList
 			};
 		},
 		onShow() {
@@ -55,45 +59,43 @@
 		},
 		methods: {
 			getdata() {
-				this.siteList = [{
-						id: 1,
-						name: '游X',
-						phone: '183****5523',
-						tag: [{
-								tagText: '默认'
-							},
-							{
-								tagText: '家'
-							}
-						],
-						site: '广东省深圳市宝安区 自由路66号'
-					},
-					{
-						id: 2,
-						name: '李XX',
-						phone: '183****5555',
-						tag: [{
-							tagText: '公司'
-						}],
-						site: '广东省深圳市宝安区 翻身路xx号'
-					},
-					{
-						id: 3,
-						name: '王YY',
-						phone: '153****5555',
-						tag: [],
-						site: '广东省深圳市宝安区 平安路13号'
-					}
-				];
-			},
-			toAddSite(id) {
-				let url = '/pages/home/address/setaddress'
-				this.$u.route({
-					url,
-					params: {
-						id: id
-					}
-				})
+				if(this.addressList.length == 0){
+					this.addressList = [
+						{
+							id: 1,
+							name: '游X',
+							phone: '183****5523',
+							tag: [{
+									tagText: '默认'
+								},
+								{
+									tagText: '家'
+								}
+							],
+							site: '广东省深圳市宝安区 自由路66号'
+						},
+						{
+							id: 2,
+							name: '李XX',
+							phone: '183****5555',
+							tag: [{
+								tagText: '公司'
+							}],
+							site: '广东省深圳市宝安区 翻身路xx号'
+						},
+						{
+							id: 3,
+							name: '王YY',
+							phone: '153****5555',
+							tag: [],
+							site: '广东省深圳市宝安区 平安路13号'
+						}
+					]
+					getApp().globalData.addressList = this.addressList
+				}
+				setTimeout(() => {
+					this.fullloading = false
+				}, 500);
 			},
 		}
 	};
@@ -103,64 +105,6 @@
 	.page {
 		background: #fff;
 	}
-
-	.item {
-		padding: 40rpx 20rpx;
-		flex-direction: row;
-
-		.top {
-			display: flex;
-			font-weight: bold;
-			font-size: 34rpx;
-			justify-content: center;
-			align-items: flex-start;
-			flex-direction: row;
-
-			.phone {
-				margin-left: 60rpx;
-			}
-
-			.tag {
-				display: flex;
-				font-weight: normal;
-				margin-top: 10rpx;
-				justify-content: center;
-				align-items: center;
-				flex-direction: row;
-
-				text {
-					display: block;
-					width: 60rpx;
-					height: 34rpx;
-					line-height: 34rpx;
-					color: #ffffff;
-					font-size: 20rpx;
-					border-radius: 6rpx;
-					text-align: center;
-					margin-right: 10rpx;
-					background-color: rgb(49, 145, 253);
-				}
-
-				.red {
-					background-color: red
-				}
-			}
-		}
-
-		.bottom {
-			display: flex;
-			margin-top: 20rpx;
-			font-size: 28rpx;
-			align-items: center;
-			flex-direction: row;
-			color: #999999;
-
-			.name {
-				margin-right: 20rpx;
-			}
-		}
-	}
-
 	.addSite {
 		margin: 30rpx 20rpx;
 	}

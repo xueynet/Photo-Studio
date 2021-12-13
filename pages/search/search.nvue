@@ -1,6 +1,46 @@
 <template>
-	<view>
-		
+	<view class="page">
+		<full-loading :show="fullloading"></full-loading>
+		<u-navbar>
+			<view class="slot-content fillbox u-p-20">
+				<u-search @focus="searching = false" @search="search" @custom="search" input-align="center" :focus="true" placeholder="点击输入商品名称" v-model="keyword" :show-action="true"></u-search>
+			</view>
+		</u-navbar>
+		<view class="keyword u-p-20" v-show="!searching">
+			<view class="title u-m-b-10">
+				关键字
+			</view>
+			<u-line color="info" />
+			<view class="labels flex-box">
+				<u-tag type="info" v-for="(item,index) in sitekeywords" :key="index"
+				:text="item.name" @click="checkkeyword(item.name)" class="u-m-t-20 u-m-r-20">
+				</u-tag>
+			</view>
+		</view>
+		<view class="searchbox" v-show="searching">
+			<view class="list" v-show="!localloading">
+				<view class="item" v-for="(item,index) in datalist" :key="index" @click="$navto('/pages/product/product',item.id)">
+					<view class="image">
+						<u-image :src="item.image"></u-image>
+					</view>
+					<view class="fillbox flex-col flex-space-between">
+						<view class="title">{{item.title}}</view>
+						<view class="flex-space-between flex-row u-m-t-40">
+							<view class="price flex-center flex-row">
+								<u-icon custom-prefix="iconfont icon-yen-sign" size="20"></u-icon>
+								<text>{{item.price}}元</text>
+							</view>
+							<view class="demo-shop flex-center flex-row">
+								<u-icon name="bag"></u-icon>
+								{{item.shop}}
+							</view>
+						</view>
+					</view>
+				</view>
+				<u-loadmore :load-text="loadText" :status="loadStatus" @loadmore="addRandomData"></u-loadmore>
+			</view>
+			<local-loading v-show="localloading"></local-loading>
+		</view>
 	</view>
 </template>
 
@@ -8,7 +48,22 @@
 	export default {
 		data() {
 			return {
+				fullloading:false,
+				localloading:true,
+				loadStatus: 'loadmore',
+				loadText: getApp().globalData.loadText,
 				
+				keyword:'',
+				searching:false,
+				sitekeywords:[
+					{name:'大地馆'},
+					{name:'天津馆'},
+					{name:'日月馆'},
+					{name:'大海照相馆'},
+					{name:'星辰相馆'},
+					{name:'小胖照相馆'},
+				],
+				datalist:[],
 			}
 		},
 		onShow() {
@@ -25,6 +80,7 @@
 		},
 		onLoad(e) {
 			this.option = e
+			if(e.id!=undefined) this.keyword = e.id
 			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
 				this.getdata()
 			}
@@ -35,15 +91,48 @@
 				uni.stopPullDownRefresh();
 			}, 1000);
 		},
+		onReachBottom() {
+			this.loadStatus = 'loading';
+			setTimeout(() => {
+				this.addRandomData(this.current);
+				this.loadStatus = 'loadmore';
+			}, 500)
+		},
 		methods: {
 			getdata(){
-				
+				this.datalist = this.$defalutdata.goods
+				if(this.keyword!='') this.search()
+				var $this = this
+				setTimeout(function() {
+					$this.fullloading = false
+				}, 500);
 			},
-			
+			checkkeyword(name){
+				this.keyword = name
+				this.search()
+			},
+			search(){
+				if(this.keyword!=''){
+					this.localloading = true
+					this.searching = true
+					console.log('搜索'+ this.keyword)
+					//网络请求
+					var $this = this
+					setTimeout(function() {
+						$this.localloading = false
+					}, 500);
+				}
+			},
+			addRandomData() {
+				let data = this.datalist
+				let list = JSON.parse(JSON.stringify(data))
+				let arr = this.datalist.concat(list)
+				this.datalist = arr
+				console.log(arr)
+			},
 		}
 	}
 </script>
 
-<style>
-
+<style lang='scss'>
 </style>

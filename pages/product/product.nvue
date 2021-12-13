@@ -1,5 +1,6 @@
 <template>
 	<view class="page">
+		<full-loading :show="fullloading"></full-loading>
 		<u-swiper
 			bg-color="#ffffff"
 			:height="750"
@@ -10,28 +11,28 @@
 		</u-swiper>
 		<view class="boxgroup">
 			<view class="box">
-				<view class="flex-center marginauto">
+				<view class="flex-center flex-row marginauto">
 					<view class="price"><u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{data.price}}</view>
 					<view class="old-price"><u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{data.oldprice}}</view>
 				</view>
-				<view class="flex-s marginauto color999">
-					<view class="tags flex-center">
+				<view class="flex-space-between  flex-row marginauto color999">
+					<view class="tags flex-center flex-row">
 						<u-tag mode="dark" size="mini" v-for="(tag,index) in data.tags" :key="index" :type="tag.type" :text="tag.name"></u-tag>
 					</view>
-					<view class="flex-center">月销 {{data.salesVolume}}</view>
+					<view class="flex-center flex-row">月销 {{data.salesVolume}}</view>
 				</view>
 				<view class="title marginauto">
 					{{data.title}}
 				</view>
-				<view class="flex-s color999">
-					<view class="flex-center" :class="data.star?'active':''"><u-icon custom-prefix="iconfont icon-aixin"></u-icon>收藏</view>
-					<view class="flex-center"><u-icon custom-prefix="iconfont icon-gongxiang"></u-icon>分享</view>
+				<view class="flex-space-between flex-row color999">
+					<view class="flex-center flex-row" :class="data.star?'active':''"><u-icon custom-prefix="iconfont icon-aixin"></u-icon>收藏</view>
+					<view class="flex-center flex-row"><u-icon custom-prefix="iconfont icon-gongxiang"></u-icon>分享</view>
 				</view>
 			</view>
 			<view class="box toolsbox">
 				<u-cell-group>
 					<u-cell-item @click="typeshow=true" title="已选" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
-						<view class="fillbox flex-center">
+						<view class="fillbox flex-center flex-row">
 							<view class="label" v-if="model.checktype.name != ''">{{model.checktype.name}}</view>
 							<view v-else class="label flex-center" v-for="(item,index) in data.type" :key="index"><text class="xg" v-if="index>0">/</text>{{item.name}}</view>
 						</view>
@@ -44,16 +45,16 @@
 					</u-cell-item>
 					<u-cell-item @click="servershow=true" title="服务" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
 						<view class="fillbox flex-start">
-							<view class="flex-center">
+							<view class="flex-box">
 								<view class="label" v-if="item.main" :class="!item.main?'mainlabel':''" v-for="(item,index) in data.server" :key="index"><u-icon size="12" custom-prefix="iconfont icon-o"></u-icon> {{item.name}}</view>
 							</view>
-							<view class="flex-center">
+							<view class="flex-box">
 								<view class="label" v-if="!item.main" :class="!item.main?'mainlabel':''" v-for="(item,index) in data.server" :key="index"><u-icon size="12" custom-prefix="iconfont icon-o"></u-icon> {{item.name}}</view>
 							</view>
 						</view>
 					</u-cell-item>
 					<u-cell-item @click="parametershow=true" title="参数" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
-						<view class="fillbox flex-center">
+						<view class="fillbox flex-center flex-row">
 							<view class="label" v-for="(item,index) in data.parameter" v-if="index<2" :key="index">{{item.name}}</view>
 							<view v-if="data.parameter.length>2">···</view>
 						</view>
@@ -61,16 +62,16 @@
 				</u-cell-group>
 			</view>
 			<view class="box comment">
-				<view class="flex-s marginauto">
+				<view class="flex-space-between flex-row marginauto">
 					<view class="title">商品评价({{data.comment.number}})</view>
-					<view @click="navto('pages/product/comment','comment')" class="more flex-center">好评率 {{data.comment.goodcomment}} <u-icon custom-prefix="iconfont icon-chevron-right"></u-icon></view>
+					<view @click="navto('pages/product/comment','comment')" class="more flex-center flex-row">好评率 {{data.comment.goodcomment}} <u-icon custom-prefix="iconfont icon-chevron-right"></u-icon></view>
 				</view>
-				<view class="tagslist flex-center marginauto">
+				<view class="tagslist flex-box marginauto">
 					<u-tag @click="navto('pages/product/comment','comment')" type="error" shape="circle" size="default" :text="item.name" v-for="(item,index) in data.comment.taglist" :key="index">{{item.number}}</u-tag>
 				</view>
 				<view class="list">
 					<view class="commentitem" v-for="(item,index) in data.comment.list" :key="index">
-						<view class="flex-center marginauto">
+						<view class="flex-center flex-row marginauto">
 							<u-avatar size="70" :src="item.avatar" mode="square"></u-avatar>
 							<view class="customer">
 								<view class="name">{{item.name}}</view>
@@ -84,8 +85,8 @@
 							<view class="commentimages marginauto">
 								<u-image v-for="(image,index2) in item.images" :key="index2" width="150" height="150" :src="image" @click="showBigImg(image,item.images)"></u-image>
 							</view>
-							<view class="shoptype flex-center">
-								<view class="item" v-for="(type,index2) in item.shoptype" :key="index2">{{type.name}}</view>
+							<view class="shoptype flex-row flex-center">
+								<view class="color999 u-m-r-20" v-for="(type,index2) in item.shoptype" :key="index2">{{type.name}}</view>
 							</view>
 						</view>
 					</view>
@@ -134,7 +135,7 @@
 							<view @click="settype(index,index2)" :class="item.check?'active':''" class="tag" v-for="(item,index2) in typeitem.list" :key="index2">{{item.name}}</view>
 						</view>
 					</view>
-					<view class="popupitem flex-s">
+					<view class="popupitem flex-space-between flex-row">
 						<view class="linetitle">数量</view>
 						<u-number-box class="flex-center" :min="1" v-model="model.pnumber"></u-number-box>
 					</view>
@@ -195,6 +196,7 @@
 	export default {
 		data() {
 			return {
+				fullloading:true,
 				page:0,
 				typeshow:false,
 				addressshow:false,
@@ -424,6 +426,11 @@
 				this.model.pid = this.page
 				this.redayaddress()
 				this.redaytype()
+				
+				var $this = this
+				setTimeout(function() {
+					$this.fullloading = false
+				}, 500);
 			},
 			navto(url,name){
 				var params = {}

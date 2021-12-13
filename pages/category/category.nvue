@@ -1,5 +1,6 @@
 <template>
 	<view class="page">
+		<full-loading :show="fullloading"></full-loading>
 		<u-navbar
 			:is-back="false"
 			:background="{background:'#fff'}">
@@ -23,7 +24,7 @@
 								<view class="cardtitle">{{item.name}}</view>
 								<view class="carddesc">{{item.desc}}</view>
 							</view>
-							<view class="cardgo" @click="navto('pages/server/list',item.id)">
+							<view class="cardgo" @click="$navto('/pages/server/list',item.id)">
 								<u-icon size="40" color="#999" class="gobtn" name="arrow-rightward"></u-icon>
 							</view>
 						</view>
@@ -44,7 +45,7 @@
 									<text>{{item.name}}</text>
 								</view>
 								<view class="item-container">
-									<view @click="navto('pages/product/list',item1.id)" class="thumb-box" v-for="(item1, index1) in item.foods" :key="index1">
+									<view @click="$navto('/pages/product/list',item1.id)" class="thumb-box" v-for="(item1, index1) in item.foods" :key="index1">
 										<image class="item-menu-image" :src="item1.icon" mode=""></image>
 										<view class="item-menu-name">{{item1.name}}</view>
 									</view>
@@ -62,10 +63,10 @@
 						:current="newscurrent" 
 						@change="newstabsChange" 
 						:is-scroll="false"></u-tabs-swiper>
-					<scroll-view class="swiper_scroll" scroll-y>
-						<view class="newspage">
-							<view class="newsitem flex-row" v-for="(item,index) in newslist" :key="index">
-								<view class="fillbox flex-col">
+					<scroll-view class="swiper_scroll" scroll-y @scrolltolower="getnewsmore()" v-show="newscurrent == 0">
+						<view class="news">
+							<view class="item flex-row" v-for="(item,index) in tabs[2].tablist[0].newslist" :key="index">
+								<view class="fillbox flex-col flex-space-between">
 									<view class="title">{{item.title}}</view>
 									<view class="flex-row">
 										<view>{{item.soure}}</view>
@@ -73,9 +74,27 @@
 									</view>
 								</view>
 								<view class="image">
-									<u-image height="180" width="220" :src="item.image"></u-image>
+									<u-image :src="item.image"></u-image>
 								</view>
 							</view>
+							<u-loadmore :load-text="loadText" :status="loadStatus_news" @loadmore="addRandomData_news"></u-loadmore>
+						</view>
+					</scroll-view>
+					<scroll-view class="swiper_scroll" scroll-y @scrolltolower="getnewsmore()" v-show="newscurrent == 1">
+						<view class="news">
+							<view class="item flex-row" v-for="(item,index) in tabs[2].tablist[1].newslist" :key="index">
+								<view class="fillbox flex-col flex-space-between">
+									<view class="title">{{item.title}}</view>
+									<view class="flex-row">
+										<view>{{item.soure}}</view>
+										<view>{{item.adddate}}</view>
+									</view>
+								</view>
+								<view class="image">
+									<u-image :src="item.image"></u-image>
+								</view>
+							</view>
+							<u-loadmore :load-text="loadText" :status="loadStatus_news" @loadmore="addRandomData_news"></u-loadmore>
 						</view>
 					</scroll-view>
 				</view>
@@ -88,6 +107,24 @@
 	export default {
 		data() {
 			return {
+				loadStatus_news: 'loadmore',
+				loadText: getApp().globalData.loadText,
+				fullloading:true,
+				
+				current: 0,
+				swiperCurrent: 0,
+				newscurrent: 0,
+				newstop:0,
+				scrollTop: 0,
+				oldScrollTop: 0,
+				categorycurrent: 0,
+				menuHeight: 0,
+				menuItemHeight: 0,
+				itemId: '',
+				menuItemPos: [],
+				arr: [],
+				scrollRightTop: 0,
+				timer: null,
 				tabs: [
 					{
 						cate_name: '服务',
@@ -111,20 +148,6 @@
 						],
 					},
 				],
-				current: 0,
-				swiperCurrent: 0,
-				newscurrent: 0,
-				scrollTop: 0, //tab标题的滚动条位置
-				oldScrollTop: 0,
-				categorycurrent: 0, // 预设当前项的值
-				menuHeight: 0, // 左边菜单的高度
-				menuItemHeight: 0, // 左边菜单item的高度
-				itemId: '', // 栏目右边scroll-view用于滚动的id
-				menuItemPos: [],
-				arr: [],
-				scrollRightTop: 0, // 右边栏目scroll-view的滚动条高度
-				timer: null, // 定时器
-				newslist:[]
 			}
 		},
 		onShow() {
@@ -159,18 +182,10 @@
 				this.tabs[2].tablist[1].newslist = this.$defalutdata.news.reverse()
 				this.current = parseInt(this.option.id)||0
 				this.swiperCurrent = this.current
-				this.newslist = this.tabs[2].tablist[0].newslist
 				setTimeout(() => {
 					this.getMenuItemTop();
+					this.fullloading = false
 				}, 500);
-			},
-			navto(url,id){
-				this.$u.route({
-					url,
-					params: {
-						id: id
-					}
-				})
 			},
 			tabsChange(index) {
 				this.swiperCurrent = index;
@@ -187,11 +202,8 @@
 			},
 			newstabsChange(index) {
 				this.newscurrent = index;
-				this.newslist = []
-				var that = this
-				setTimeout(function() {
-					that.newslist = that.tabs[2].tablist[index].newslist
-				}, 1000);
+				this.newslist = this.tabs[2].tablist[index].newslist
+				this.newstop = 0
 			},
 			// 点击左边的栏目切换
 			async swichMenu(index) {
@@ -296,7 +308,23 @@
 						}
 					}
 				}, 10)
-			}
+			},
+			
+			
+			getnewsmore(n){
+				this.loadStatus_news = 'loading';
+				setTimeout(() => {
+					this.addRandomData_news();
+					this.loadStatus_news = 'loadmore';
+				}, 500)
+			},
+			addRandomData_news() {
+				let i = this.newscurrent
+				let data = this.tabs[2].tablist[i].newslist
+				let list = JSON.parse(JSON.stringify(data))
+				let arr = this.tabs[2].tablist[i].newslist.concat(list)
+				this.tabs[2].tablist[i].newslist = arr
+			},
 		}
 	}
 </script>
@@ -457,28 +485,5 @@
 		height: 100%;
 		padding-bottom: 60rpx;
 	}
-	.newspage{
-		background: #f9f9f9;
-		padding: 20rpx;
-		.newsitem{
-			background: #fff;
-			padding: 15rpx;
-			margin-bottom: 20rpx;
-			color: #777;
-			.title{
-				font-size: 36rpx;
-				line-height: 60rpx;
-				height: 120rpx;
-				lines:2;
-				overflow: hidden;
-				-webkit-box-orient:vertical;
-				-webkit-line-clamp:2;
-				text-overflow:ellipsis;
-				color: #333;
-			}
-			.image{
-				margin-left: 20rpx;
-			}
-		}
-	}
+	
 </style>

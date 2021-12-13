@@ -1,6 +1,7 @@
 <template>
 	<view>
-		<view class="notice-item" v-for="(item,index) in list" :key="index">
+		<full-loading :show="fullloading"></full-loading>
+		<view @click="$navto('/pages/news/newsitem',item.id)" class="notice-item" v-for="(item,index) in list" :key="index">
 			<text class="time">{{item.adddate}}</text>
 			<view class="content">
 				<text class="title">{{item.title}}</text>
@@ -27,6 +28,8 @@
 	export default {
 		data() {
 			return {
+				fullloading:true,
+				
 				list:[
 					{
 						adddate:'1小时前',
@@ -85,7 +88,9 @@
 		},
 		methods: {
 			getdata(){
-				
+				setTimeout(() => {
+					this.fullloading = false
+				}, 500);
 			}
 		}
 	}

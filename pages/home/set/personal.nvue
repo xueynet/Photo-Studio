@@ -1,6 +1,7 @@
 <template>
 	<view class="page">
-		<view class="flex-c">
+		<full-loading :show="fullloading"></full-loading>
+		<view class="flex-center">
 			<u-avatar :src="avatar" mode="square" size="200" @tap="chooseAvatar"></u-avatar>
 		</view>
 		<u-form :model="model" :rules="rules" :errorType="errorType" ref="uForm">
@@ -33,6 +34,7 @@
 	export default {
 		data() {
 			return {
+				fullloading:true,
 				labelPosition: 'top',
 				border: false,
 				check: false,
@@ -41,15 +43,13 @@
 				pickerShow: false,
 				codeTips: '',
 				avatar: '',
-				showUploadList:false,
-				lists:[],
 				
 				model: {
-					name: '',
-					sex: '',
-					intro: '',
+					name: '小七',
+					sex: '女',
+					intro: '最爱吃牛奶',
 					agreement: false,
-					address: '',
+					address: '重庆市',
 				},
 				rules: {
 					name: [
@@ -59,7 +59,7 @@
 							trigger: 'blur' ,
 						},
 						{
-							min: 3,
+							min: 2,
 							max: 12,
 							message: '呢称长度在3到12个字符',
 							trigger: ['change','blur'],
@@ -133,7 +133,9 @@
 		},
 		methods: {
 			getdata(){
-				
+				setTimeout(() => {
+					this.fullloading = false
+				}, 500);
 			},
 			submit() {
 				this.$refs.uForm.validate(valid => {
