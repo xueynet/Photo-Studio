@@ -531,32 +531,15 @@ export default{
 	servergory:[
 		{
 			id:992,
-			name:'在线预约',
-			desc:'使用预约到店服务,省心你我他',
+			name:'冲印系列',
+			desc:'打印、冲印、洗照片',
+			image:'/static/images/icon/gg.png'
 		},
 		{
 			id:52,
-			name:'预约上门服务',
-			desc:'使用预约到店服务,省心你我他',
-		},
-		{
-			id:12,
-			name:'到店服务',
-			desc:'使用预约到店服务,省心你我他',
-		},
-		{
-			id:942,
-			name:'其他服务',
-			desc:'使用预约到店服务,省心你我他',
-		},
-		{
-			id:392,
-			name:'其他服务',
-			desc:'使用预约到店服务,省心你我他',
-		},{
-			id:22,
-			name:'其他服务',
-			desc:'使用预约到店服务,省心你我他',
+			name:'Gunn广告系列',
+			desc:'平面设计、广告设计，模特，写真',
+			image:'/static/images/icon/xz.png'
 		},
 	],
 	category:[

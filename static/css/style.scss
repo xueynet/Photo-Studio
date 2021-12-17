@@ -85,7 +85,27 @@ uni-page-body, page{
 .u-cell-item-box{
 	flex-direction: column !important;
 }
-
+.u-grid {
+	/* #ifdef MP */
+	display: inherit !important;
+	/* #endif */
+}
+.bold{
+	font-weight: bold;
+}
+.color-dark{
+	color: #bcbcbc;
+}
+.bg-tm{
+	background: #ffffff00 !important;
+}
+.border-radius{
+	border-radius: 10rpx;
+	overflow: hidden !important;
+}
+.box-shadow{
+	box-shadow: 0 20rpx 20rpx #51515110;
+}
 
 .list{
 	.item{

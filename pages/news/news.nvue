@@ -1,6 +1,52 @@
 <template>
-	<view>
-		
+	<view class="page">
+		<full-loading :show="fullloading"></full-loading>
+		<u-navbar :is-back="false" :background="pagenavbg" :immersive="true">
+			<view class="slot-content fillbox flex-center flex-row">
+				<view class="flex-center flex-row">
+					<u-icon size="50" custom-prefix="iconfont icon-shuji" class="u-m-20"></u-icon>
+				</view>
+				<view class="flex-center flex-row" v-show="titleshow">
+					新闻资讯
+				</view>
+			</view>
+			<view slot="right">
+				<view class="flex-center flex-row">
+					<u-icon @click="$navto('/pages/search/search')" size="50" name="search" class="u-m-20"></u-icon>
+				</view>
+			</view>
+		</u-navbar>
+		<view class="newsbg">
+			<u-image width="750" height="400" src="/static/images/cbanner/newsbg.png"></u-image>
+		</view>
+		<u-sticky :enable="enable" :offset-top="offsettop" :h5-nav-height="0" class="sxbox u-m-b-20" bg-color="#ffffff00">
+			<view class="flex-center flex-row sticky">
+				<view class="fillbox box-shadow border-radius">
+					<u-tabs-swiper
+						ref="newstabs" 
+						inactive-color="#333" active-color="#da3c03" bar-width="100"
+						:list="newsgory" 
+						:current="current" 
+						@change="newsChange" 
+						:is-scroll="false"></u-tabs-swiper>
+				</view>
+			</view>
+		</u-sticky>
+		<view class="news">
+			<view class="item flex-row" v-for="(item,index) in datalist" :key="index">
+				<view class="fillbox flex-col flex-space-between">
+					<view class="title">{{item.title}}</view>
+					<view class="flex-row">
+						<view>{{item.soure}}</view>
+						<view>{{item.adddate}}</view>
+					</view>
+				</view>
+				<view class="image">
+					<u-image :src="item.image"></u-image>
+				</view>
+			</view>
+			<u-loadmore :load-text="loadText" :status="loadStatus" @loadmore="addRandomData"></u-loadmore>
+		</view>
 	</view>
 </template>
 
@@ -8,10 +54,42 @@
 	export default {
 		data() {
 			return {
-				
+				loadStatus: 'loadmore',
+				loadText: getApp().globalData.loadText,
+				fullloading:true,
+				current:0,
+				pagenavbg: {
+					background: '#ffffff00',
+					color:'#fff'
+				},
+				enable:true,
+				titleshow:false,
+				offsettop:0,
+				datalist:[],
+				newsgory:[
+					{
+						name: '店铺新闻'
+					}, 
+					{
+						name: '相关新闻'
+					}, 
+					{
+						name: '相馆资讯'
+					},
+					{
+						name: '行业资讯'
+					}, 
+					{
+						name: '优惠活动'
+					},
+					{
+						name: '线下互动'
+					}, 
+				]
 			}
 		},
 		onShow() {
+			this.enable = true
 			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
 				getApp().globalData.hasLaunch = false
 				this.getdata()
@@ -28,6 +106,12 @@
 			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
 				this.getdata()
 			}
+			
+			var n = getApp().globalData.systeminfo
+			this.offsettop = n.statusBarHeight + 44
+		},
+		onHide() {
+			this.enable = false
 		},
 		onPullDownRefresh() {
 			console.log('refresh');
@@ -35,22 +119,58 @@
 				uni.stopPullDownRefresh();
 			}, 1000);
 		},
+		onReachBottom() {
+			this.loadStatus = 'loading';
+			setTimeout(() => {
+				this.addRandomData();
+				this.loadStatus = 'loadmore';
+			}, 500)
+		},
+		onPageScroll(e){
+			var number = e.scrollTop/200
+			var color = '#fff'
+			if(e.scrollTop<100){
+				var color = '#fff'
+				this.titleshow = false
+			}else{
+				var color = '#000'
+				this.titleshow = true
+			}
+			this.pagenavbg = {
+				background: 'rgba(255,255,255,'+number+')',
+				color:color
+			}
+		},
 		methods: {
 			getdata(){
-				
+				this.datalist = this.$defalutdata.news
+				var $this = this
+				setTimeout(function() {
+					$this.fullloading = false
+				}, 500);
+				this.current = this.option.id || 0
 			},
-			navto(url,id){
-				this.$u.route({
-					url,
-					params: {
-						id: id
-					}
-				})
+			newsChange(index){
+				this.current = index;
+				this.datalist = this.datalist
+				this.$refs.newstabs.setFinishCurrent(index);
 			},
+			addRandomData(){
+				let data = this.datalist
+				let list = JSON.parse(JSON.stringify(data))
+				let arr = this.datalist.concat(list)
+				this.datalist = arr
+				console.log(arr)
+			}
 		}
 	}
 </script>
 
-<style>
-
+<style lang="scss">
+page{
+	background: #f8f8f8;
+}
+.topnav{
+	width: 600rpx;
+}
 </style>

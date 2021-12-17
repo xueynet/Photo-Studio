@@ -1,105 +1,46 @@
 <template>
 	<view class="page">
 		<full-loading :show="fullloading"></full-loading>
-		<u-navbar
-			:is-back="false"
-			:background="{background:'#fff'}">
-			<u-tabs-swiper ref="tabs" name="cate_name" count="cate_count" 
-			inactive-color="#333" active-color="#e80000" bar-width="100"
-			:list="tabs" 
-			:bold="false"
-			:current="current"
-			@change="tabsChange"
-			:is-scroll="false"></u-tabs-swiper>
+		<u-navbar :is-back="false">
+			<view class="slot-content fillbox flex-center flex-row">
+				<view class="flex-center flex-row">
+					<u-icon size="50" name="list-dot" class="u-m-20"></u-icon>
+				</view>
+				<view class="flex-center flex-row">
+					百货商店
+				</view>
+			</view>
+			<view slot="right">
+				<view class="flex-center flex-row">
+					<u-icon @click="$navto('/pages/search/search')" size="50" name="search" class="u-m-20"></u-icon>
+				</view>
+			</view>
 		</u-navbar>
-		<swiper class="tabswiper" 
-			:current="swiperCurrent" 
-			@transition="transition" 
-			@animationfinish="animationfinish">
-			<swiper-item class="swiper-item" v-for="(page,index0) in tabs" :key="index0">
-				<scroll-view scroll-y class="swiper_scroll" v-if="page.type === 'server'">
-					<view class="server" v-for="(item,index) in page.list" :key="index">
-						<view class="card">
-							<view class="fillbox">
-								<view class="cardtitle">{{item.name}}</view>
-								<view class="carddesc">{{item.desc}}</view>
-							</view>
-							<view class="cardgo" @click="$navto('/pages/server/list',item.id)">
-								<u-icon size="40" color="#999" class="gobtn" name="arrow-rightward"></u-icon>
+		<view class="u-menu-wrap">
+			<scroll-view scroll-y scroll-with-animation class="u-tab-view menu-scroll-view" :scroll-top="scrollTop"
+			 :scroll-into-view="itemId">
+				<view v-for="(item,index) in tabs" :key="index" class="u-tab-item" :class="[categorycurrent == index ? 'u-tab-item-active' : '']"
+				 @tap.stop="swichMenu(index)">
+					<text class="u-line-1">{{item.name}}</text>
+				</view>
+			</scroll-view>
+			<scroll-view :scroll-top="scrollRightTop" scroll-y scroll-with-animation class="right-box" @scroll="rightScroll">
+				<view class="page-view">
+					<view class="class-item" :id="'item' + index" v-for="(item,index) in tabs" :key="index">
+						<view class="item-title">
+							<text>{{item.name}}</text>
+						</view>
+						<view class="item-container">
+							<view @click="$navto('/pages/product/list',item1.id)" class="thumb-box" v-for="(item1, index1) in item.foods" :key="index1">
+								<image class="item-menu-image" :src="item1.icon" mode=""></image>
+								<view class="item-menu-name">{{item1.name}}</view>
 							</view>
 						</view>
 					</view>
-				</scroll-view>
-				<view class="u-menu-wrap" v-if="page.type === 'product'">
-					<scroll-view scroll-y scroll-with-animation class="u-tab-view menu-scroll-view" :scroll-top="scrollTop"
-					 :scroll-into-view="itemId">
-						<view v-for="(item,index) in page.tabbar" :key="index" class="u-tab-item" :class="[categorycurrent == index ? 'u-tab-item-active' : '']"
-						 @tap.stop="swichMenu(index)">
-							<text class="u-line-1">{{item.name}}</text>
-						</view>
-					</scroll-view>
-					<scroll-view :scroll-top="scrollRightTop" scroll-y scroll-with-animation class="right-box" @scroll="rightScroll">
-						<view class="page-view">
-							<view class="class-item" :id="'item' + index" v-for="(item,index) in page.tabbar" :key="index">
-								<view class="item-title">
-									<text>{{item.name}}</text>
-								</view>
-								<view class="item-container">
-									<view @click="$navto('/pages/product/list',item1.id)" class="thumb-box" v-for="(item1, index1) in item.foods" :key="index1">
-										<image class="item-menu-image" :src="item1.icon" mode=""></image>
-										<view class="item-menu-name">{{item1.name}}</view>
-									</view>
-								</view>
-							</view>
-						</view>
-					</scroll-view>
 				</view>
-				<view class="news_scroll" v-if="page.type === 'news'">
-					<u-tabs-swiper 
-						name="name" count="count"
-						ref="newstabs" 
-						inactive-color="#333" active-color="#da3c03" bar-width="100"
-						:list="page.tablist" 
-						:current="newscurrent" 
-						@change="newstabsChange" 
-						:is-scroll="false"></u-tabs-swiper>
-					<scroll-view class="swiper_scroll" scroll-y @scrolltolower="getnewsmore()" v-show="newscurrent == 0">
-						<view class="news">
-							<view class="item flex-row" v-for="(item,index) in tabs[2].tablist[0].newslist" :key="index">
-								<view class="fillbox flex-col flex-space-between">
-									<view class="title">{{item.title}}</view>
-									<view class="flex-row">
-										<view>{{item.soure}}</view>
-										<view>{{item.adddate}}</view>
-									</view>
-								</view>
-								<view class="image">
-									<u-image :src="item.image"></u-image>
-								</view>
-							</view>
-							<u-loadmore :load-text="loadText" :status="loadStatus_news" @loadmore="addRandomData_news"></u-loadmore>
-						</view>
-					</scroll-view>
-					<scroll-view class="swiper_scroll" scroll-y @scrolltolower="getnewsmore()" v-show="newscurrent == 1">
-						<view class="news">
-							<view class="item flex-row" v-for="(item,index) in tabs[2].tablist[1].newslist" :key="index">
-								<view class="fillbox flex-col flex-space-between">
-									<view class="title">{{item.title}}</view>
-									<view class="flex-row">
-										<view>{{item.soure}}</view>
-										<view>{{item.adddate}}</view>
-									</view>
-								</view>
-								<view class="image">
-									<u-image :src="item.image"></u-image>
-								</view>
-							</view>
-							<u-loadmore :load-text="loadText" :status="loadStatus_news" @loadmore="addRandomData_news"></u-loadmore>
-						</view>
-					</scroll-view>
-				</view>
-			</swiper-item>
-		</swiper>
+			</scroll-view>
+		</view>
+				
 	</view>
 </template>
 
@@ -107,47 +48,18 @@
 	export default {
 		data() {
 			return {
-				loadStatus_news: 'loadmore',
-				loadText: getApp().globalData.loadText,
 				fullloading:true,
 				
-				current: 0,
-				swiperCurrent: 0,
-				newscurrent: 0,
-				newstop:0,
 				scrollTop: 0,
 				oldScrollTop: 0,
 				categorycurrent: 0,
 				menuHeight: 0,
 				menuItemHeight: 0,
 				itemId: '',
-				menuItemPos: [],
 				arr: [],
 				scrollRightTop: 0,
 				timer: null,
-				tabs: [
-					{
-						cate_name: '服务',
-						cate_count: 0,
-						type:'server',
-						list:[],
-					}, {
-						cate_name: '产品',
-						cate_count: 0,
-						type:'product',
-						tabbar:[]
-					}, {
-						cate_name: '新闻',
-						cate_count: 0,
-						type:'news',
-						tablist:[
-							{name:'相馆新闻',count: 0,
-							newslist:[]},
-							{name:'行业新闻',count: 0,
-							newslist:[]},
-						],
-					},
-				],
+				tabs:[]
 			}
 		},
 		onShow() {
@@ -176,36 +88,12 @@
 		},
 		methods: {
 			getdata(){
-				this.tabs[0].list = this.$defalutdata.servergory
-				this.tabs[1].tabbar = this.$defalutdata.category
-				this.tabs[2].tablist[0].newslist = this.$defalutdata.news
-				this.tabs[2].tablist[1].newslist = this.$defalutdata.news.reverse()
-				this.current = parseInt(this.option.id)||0
-				this.swiperCurrent = this.current
+				this.tabs = this.$defalutdata.category
 				setTimeout(() => {
 					this.getMenuItemTop();
 					this.fullloading = false
 				}, 500);
 			},
-			tabsChange(index) {
-				this.swiperCurrent = index;
-			},
-			transition(e) {
-				let dx = e.detail.dx;
-				this.$refs.tabs.setDx(dx);
-			},
-			animationfinish(e) {
-				let current = e.detail.current;
-				this.$refs.tabs.setFinishCurrent(current);
-				this.swiperCurrent = current;
-				this.current = current;
-			},
-			newstabsChange(index) {
-				this.newscurrent = index;
-				this.newslist = this.tabs[2].tablist[index].newslist
-				this.newstop = 0
-			},
-			// 点击左边的栏目切换
 			async swichMenu(index) {
 				if(this.arr.length == 0) {
 					await this.getMenuItemTop();
@@ -218,7 +106,6 @@
 					this.leftMenuStatus(index);
 				})
 			},
-			// 获取一个目标元素的高度
 			getElRect(elClass, dataVal) {
 				new Promise((resolve, reject) => {
 					const query = uni.createSelectorQuery().in(this);
@@ -237,7 +124,6 @@
 					}).exec();
 				})
 			},
-			// 观测元素相交状态
 			async observer() {
 				this.tabs[1].tabbar.map((val, index) => {
 					let observer = uni.createIntersectionObserver(this);
@@ -253,7 +139,6 @@
 					})
 				})
 			},
-			// 设置左边菜单的滚动状态
 			async leftMenuStatus(index) {
 				this.categorycurrent = index;
 				// 如果为0，意味着尚未初始化
@@ -264,7 +149,6 @@
 				// 将菜单活动item垂直居中
 				this.scrollTop = index * this.menuItemHeight + this.menuItemHeight / 2 - this.menuHeight / 2;
 			},
-			// 获取右边菜单每个item到顶部的距离
 			getMenuItemTop() {
 				new Promise(resolve => {
 					let selectorQuery = uni.createSelectorQuery();
@@ -284,7 +168,6 @@
 					}).exec()
 				})
 			},
-			// 右边菜单滚动
 			async rightScroll(e) {
 				this.oldScrollTop = e.detail.scrollTop;
 				if(this.arr.length == 0) {
@@ -309,22 +192,6 @@
 					}
 				}, 10)
 			},
-			
-			
-			getnewsmore(n){
-				this.loadStatus_news = 'loading';
-				setTimeout(() => {
-					this.addRandomData_news();
-					this.loadStatus_news = 'loadmore';
-				}, 500)
-			},
-			addRandomData_news() {
-				let i = this.newscurrent
-				let data = this.tabs[2].tablist[i].newslist
-				let list = JSON.parse(JSON.stringify(data))
-				let arr = this.tabs[2].tablist[i].newslist.concat(list)
-				this.tabs[2].tablist[i].newslist = arr
-			},
 		}
 	}
 </script>
@@ -336,12 +203,6 @@
 	.page{
 		flex: 1;
 		background: #f9f9f9;
-		.tabswiper{
-			flex: 1;
-			.swiper_scroll{
-				height: 100%;
-			}
-		}
 	}
 	
 	.u-menu-wrap {
@@ -370,7 +231,6 @@
 		
 		.u-tab-item {
 			height: 110rpx;
-			background: #f6f6f6;
 			box-sizing: border-box;
 			display: flex;
 			align-items: center;
@@ -454,36 +314,4 @@
 			height: 120rpx;
 		}
 	}
-	
-	
-	.card{
-		margin: 15rpx;
-		padding: 15rpx;
-		border-radius: 10rpx;
-		flex-direction: row;
-		background: #fff;
-		align-items: center;
-		color:#333;
-		.cardtitle{
-			font-size: 40rpx;
-			margin: 30rpx;
-		}
-		.carddesc{
-			font-size: 20rpx;
-			margin: 30rpx;
-		}
-		.cardgo{
-			width: 80rpx;
-			height: 80rpx;
-			padding: 20rpx;
-			border-radius: 50%;
-			background: rgba(0,0,0,.05);
-		}
-	}
-	
-	.news_scroll{
-		height: 100%;
-		padding-bottom: 60rpx;
-	}
-	
 </style>

@@ -101,10 +101,10 @@
 			initObserver() {
 				if (!this.enable) return;
 				// #ifdef H5
-				this.stickyTop = this.offsetTop != 0 ? uni.upx2px(this.offsetTop) + this.h5NavHeight : this.h5NavHeight;
+				this.stickyTop = this.offsetTop != 0 ? this.offsetTop + this.h5NavHeight : this.h5NavHeight;
 				// #endif
 				// #ifndef H5
-				this.stickyTop = this.offsetTop != 0 ? uni.upx2px(this.offsetTop) : 0;
+				this.stickyTop = this.offsetTop != 0 ? this.offsetTop : 0;
 				// #endif
 
 				this.disconnectObserver('contentObserver');

@@ -51,12 +51,6 @@
 			
 		</u-grid>
 		<u-cell-group class="cell-group">
-			<u-cell-item :iconStyle="{color:'#e07472'}" iconSize="40" custom-prefix="iconfont icon-wallet" title="钱包">
-				<text>您的会员还有三天内到期</text>
-			</u-cell-item>
-		</u-cell-group>
-	
-		<u-cell-group class="cell-group">
 			<u-cell-item @click="$navto('/pages/home/collect')" :iconStyle="{color:'#54b4ef'}" iconSize="40" custom-prefix="iconfont icon-shoucang" title="我的收藏"></u-cell-item>
 			<u-cell-item @click="$navto('/pages/home/mycomment/mycomment')" :iconStyle="{color:'#ee883b'}" iconSize="40" icon="chat" title="我的评论">
 				<text>您还有多条未评论</text>

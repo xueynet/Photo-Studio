@@ -1,25 +1,38 @@
 <template>
 	<view class="page">
 		<full-loading :show="fullloading"></full-loading>
-		<u-navbar :is-back="false" :background="pagenavbg">
-			<view class="slot-content fillbox flex-center flex-row">
+		<u-navbar :is-back="false" :background="pagenavbg" :immersive="true">
+			<view class="slot-content fillbox flex-space-between flex-row" >
 				<view class="flex-center flex-row u-m-20" @click="addressshow = !addressshow">
 					<u-icon size="50" custom-prefix="iconfont icon-dingwei1" class="u-m-r-10"></u-icon>
 					<view class="dingwei">{{dingwei}}</view>
 				</view>
-				<u-search @click="$navto('/pages/search/search')" :disabled="true" placeholder="点击输入商品名称" :show-action="false"></u-search>
-				<u-icon @click="$navto('/pages/home/notice')" size="50" custom-prefix="iconfont icon-xiaoxi1" class="u-m-20"></u-icon>
+				<view class="flex-center flex-row">
+					<u-icon @click="$navto('/pages/search/search')" size="50" name="search" class="u-m-20"></u-icon>
+					<u-icon @click="$navto('/pages/home/notice')" size="50" custom-prefix="iconfont icon-xiaoxi1" class="u-m-20"></u-icon>
+				</view>
 			</view>
 		</u-navbar>
-		<view class="topbox">
-			<u-swiper :height="350" :effect3d="true" bg-color="rgba(232, 0, 0,0)" :current="0" loading
-				indicatorMode="line" circular :list="swiperlist" keyName="image" :title="false">
-			</u-swiper>
+		<u-swiper class="banner" :height="750" bg-color="rgba(232, 0, 0,0)" mode="number" indicator-pos="bottomRight" :current="0" loading
+			indicatorMode="line" circular :list="swiperlist" keyName="image" :title="false">
+		</u-swiper>
+		<view class="cards flex-center flex-row u-m-b-25 box-shadow">
+			<view class="card flex-row-center flex-center">
+				<u-image width="120" height="120" src="/static/images/icon/shop.png"></u-image>
+				<view class="title">预约服务</view>
+				<view class="desc">提前预约，省心省事</view>
+			</view>
+			<u-line color="info" direction="col"/>
+			<view class="card flex-row-center flex-center">
+				<u-image width="120" height="120"  src="/static/images/icon/shoping.png"></u-image>
+				<view class="title">在线购物</view>
+				<view class="desc">日用好货，尽在此刻</view>
+			</view>
 		</view>
 		<swiper v-if="(gridlist.length>8)">
 			<swiper-item v-for="(page,index) in gridpage" :key="index">
 				<u-grid :col="4" :border="false" hover-class="hover-class">
-					<u-grid-item @click="$navto('/pages/'+item.to+'/list',item.id)" v-for="(item,index2) in page"
+					<u-grid-item class="bg-tm" @click="$navto('/pages/'+item.to+'/list',item.id)" v-for="(item,index2) in page"
 						:key="index2">
 						<u-image :src="item.icon" width="88rpx" height="88rpx"></u-image>
 						<view class="grid-text">{{item.name}}</view>
@@ -28,16 +41,17 @@
 			</swiper-item>
 		</swiper>
 		<u-grid v-else :col="4" :border="false" hover-class="hover-class">
-			<u-grid-item @click="$navto('/pages/'+item.to+'/list',item.id)" v-for="(item,index2) in gridlist" :key="index2">
+			<u-grid-item class="bg-tm" @click="$navto('/pages/'+item.to+'/list',item.id)" v-for="(item,index2) in gridlist" :key="index2">
 				<u-image :src="item.icon" width="88rpx" height="88rpx"></u-image>
 				<view class="grid-text">{{item.name}}</view>
 			</u-grid-item>
 		</u-grid>
-		<u-swiper class="ad-1" :height="200" bg-color="rgba(232, 0, 0,0)" :current="0" mode="none" :autoplay="false"
-			:list="cbanner" keyName="image" :title="false">
-		</u-swiper>
+		<view class="flex-center flex-row flex-row-center u-m-40">
+			<u-image width="40" height="40" src="/static/images/icon/sptj.png"></u-image>
+			<view class="u-font-40 bold u-m-l-20">商品推荐</view>
+		</view>
 		<view class="list">
-			<view class="item" v-for="(item,index) in datalist" :key="index" @click="$navto('/pages/product/product',item.id)">
+			<view class="item u-m-15 box-shadow border-radius" v-for="(item,index) in datalist" :key="index" @click="$navto('/pages/product/product',item.id)">
 				<view class="image">
 					<u-image :src="item.image"></u-image>
 				</view>
@@ -65,7 +79,10 @@
 	export default {
 		data() {
 			return {
-				pagenavbg: getApp().globalData.pagenavbg,
+				pagenavbg: {
+					background: '#ffffff00',
+					color:'#fff'
+				},
 				dingwei:getApp().globalData.area || '地区',
 				loadStatus: 'loadmore',
 				loadText: getApp().globalData.loadText,
@@ -73,7 +90,6 @@
 				
 				addressshow:false,
 				swiperlist: [],
-				cbanner: [],
 				gridpage: [],
 				gridlist: [],
 				datalist: [],
@@ -111,6 +127,27 @@
 				this.loadStatus = 'loadmore';
 			}, 500)
 		},
+		onPageScroll(e){
+			var number = e.scrollTop/300
+			var color = '#fff'
+			if(e.scrollTop<150){
+				var color = '#fff'
+			}else{
+				var color = '#000'
+			}
+			if(number>1){
+				this.pagenavbg = {
+					background: 'rgba(255,255,255)',
+					'box-shadow': '0 20rpx 20rpx #51515110',
+					color:color
+				}
+			}else{
+				this.pagenavbg = {
+					background: 'rgba(255,255,255,'+number+')',
+					color:color
+				}
+			}
+		},
 		onReady() {
 		},
 		methods: {
@@ -145,8 +182,6 @@
 							//请求轮播图,广告图
 							if(res[i].indexName === 'banner') {
 								$this.getbanner(res[i].id)
-							}else if(res[i].indexName === 'cbanner'){
-								$this.getcbanner(res[i].id)
 							}
 						}
 						
@@ -209,30 +244,6 @@
 					}
 				})
 			},
-			getcbanner(id){
-				var $this = this
-				this.$app.request({
-					url:$this.$api.contents,
-					method:'POST',
-					data:{
-						siteid:getApp().globalData.siteid,
-						channelId:id,
-					},
-					success(res) {
-						let data_list = res.contents.map((data) => {
-							return {
-								id: data.id,
-								guid:data.guid,
-								image:data.imageUrl,
-							};
-						})
-						$this.cbanner = data_list
-					},
-					fail(err){
-						console.log(err)
-					}
-				})
-			},
 			xzaddress(e){
 				this.dingwei = e.area.label
 				getApp().globalData.province = e.province.label
@@ -255,22 +266,41 @@
 </script>
 
 <style lang="scss">
+	.page{
+		background: #F8F8F8;
+	}
 	.dingwei{
 		max-width:160rpx
 	}
-	.topbox {
-		background: linear-gradient(180deg, #fff, #f9f9f9);
-		padding-bottom: 20rpx;
-		.u-swiper-wrap {
-			padding-bottom: 50rpx;
-		}
+	.banner{
+		 filter: contrast(60%);
 	}
-	.ad-1 {
-		margin: 12rpx;
-		background: linear-gradient(180deg, rgb(255, 255, 255), #f9f9f9);
-		image {
-			width: 100%;
-			height: 100%;
+	.cards{
+		background: #ffffff;
+		width: 700rpx;
+		border-radius: 10rpx;
+		margin: auto;
+		overflow:hidden;
+		margin-top: -100rpx;
+		padding: 50rpx 0;
+		.u-line{
+			opacity: .2;
+			min-height: 200rpx !important;
+			flex:unset
+		}u-line{
+			flex: unset;
+		}
+		.card{
+			flex: 1;
+			padding: 0 50rpx;
+			background: #fff;
+			.title{
+				font-weight: bold;
+				font-size: 40rpx;
+				margin: 20rpx 0;
+			}.desc{
+				font-size: 20rpx;
+			}
 		}
 	}
 </style>

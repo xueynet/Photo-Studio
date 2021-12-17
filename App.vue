@@ -1,6 +1,7 @@
 <script>
 	export default {
 		globalData:{
+			systeminfo:uni.getSystemInfoSync(),
 			hasLaunch:true,
 			hasLogin: uni.getStorageSync('haslogin')||false,
 			logo: uni.getStorageSync('logo'),
@@ -18,7 +19,7 @@
 				nomore: '我也是有底线的'
 			},
 			pagenavbg: {
-				background: '#fff'
+				background: '#ffffff'
 			},
 			addressList:uni.getStorageSync('addressList')||[]
 		},

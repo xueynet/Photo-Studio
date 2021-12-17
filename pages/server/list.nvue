@@ -1,9 +1,42 @@
 <template>
 	<view class="page">
 		<full-loading :show="fullloading"></full-loading>
-		<u-sticky :enable="enable">
-			<view class="flex-center flex-row">
-				<view class="fillbox">
+		<u-navbar :is-back="false" :background="pagenavbg" :immersive="true">
+			<view class="slot-content fillbox flex-center flex-row">
+				<view class="flex-center flex-row">
+					<u-icon @click="checklist = !checklist" size="50" name="list-dot" class="u-m-20"></u-icon>
+				</view>
+				<view class="flex-center flex-row" v-show="titleshow">
+					在线预约
+				</view>
+				
+			</view>
+			<view slot="right">
+				<view class="flex-center flex-row">
+					<u-icon @click="$navto('/pages/search/search')" size="50" name="search" class="u-m-20"></u-icon>
+				</view>
+			</view>
+		</u-navbar>
+		<u-popup v-model="checklist" mode="left">
+			<view class="lanmubox">
+				<view class="title">
+					服务类型
+				</view>
+				<view @click="checklist = !checklist" class="item flex-center flex-row flex-start box-shadow border-radius" v-for="(item,index) in serverlist">
+					<u-image width="60" height="60" class="u-m-r-20" :src="item.image"></u-image>
+					<view class="fillbox ">
+						<view class="bold u-m-b-20">{{item.name}}</view>		
+						<view class="color-dark u-font-10 u-line-2">{{item.desc}}</view>
+					</view>
+				</view>
+			</view>
+		</u-popup>
+		<view class="serverbg">
+			<u-image width="750" height="400" src="/static/images/cbanner/serverbg.png"></u-image>
+		</view>
+		<u-sticky :enable="enable" :offset-top="offsettop" :h5-nav-height="0" class="sxbox u-m-b-20" bg-color="#ffffff00">
+			<view class="flex-center flex-row sticky">
+				<view class="fillbox box-shadow border-radius">
 					<u-tabs-swiper
 						ref="tabs" 
 						inactive-color="#333" 
@@ -18,7 +51,7 @@
 			</view>
 		</u-sticky>
 		<view class="list">
-			<view class="item" v-for="(item,index) in datalist" :key="index" @click="$navto('/pages/server/server',item.id)">
+			<view class="item u-m-15 box-shadow border-radius" v-for="(item,index) in datalist" :key="index" @click="$navto('/pages/server/server',item.id)">
 				<view class="image">
 					<u-image :src="item.image"></u-image>
 				</view>
@@ -46,6 +79,11 @@
 		data() {
 			return {
 				id:0,
+				pagenavbg: {
+					background: '#ffffff00',
+					color:'#fff'
+				},
+				titleshow:false,
 				tabs: [{
 					name: '综合排序'
 				}, {
@@ -53,11 +91,14 @@
 				}, {
 					name: '价格'
 				}],
+				checklist:false,
 				current:0,
 				fullloading:true,
+				offsettop:0,
 				enable:true,
 				loadStatus: 'loadmore',
 				datalist: [],
+				serverlist:[],
 				loadText:getApp().globalData.loadText
 			};
 		},
@@ -73,12 +114,15 @@
 					})
 				}
 			}
+			
 		},
 		onLoad(e) {
 			this.option = e
 			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
 				this.getdata()
 			}
+			var n = getApp().globalData.systeminfo
+			this.offsettop = n.statusBarHeight + 44
 		},
 		onHide() {
 			this.enable = false
@@ -96,11 +140,27 @@
 				this.loadStatus = 'loadmore';
 			}, 500)
 		},
+		onPageScroll(e){
+			var number = e.scrollTop/200
+			var color = '#fff'
+			if(e.scrollTop<100){
+				var color = '#fff'
+				this.titleshow = false
+			}else{
+				var color = '#000'
+				this.titleshow = true
+			}
+			this.pagenavbg = {
+				background: 'rgba(255,255,255,'+number+')',
+				color:color
+			}
+		},
 		onReady() {
 		},
 		methods: {
 			getdata(){
 				this.datalist = this.$defalutdata.server
+				this.serverlist = this.$defalutdata.servergory
 				this.addRandomData(); 
 				var $this = this
 				setTimeout(function() {
@@ -133,4 +193,32 @@
 </script>
 
 <style lang="scss">
+	page{
+		background: #f8f8f8;
+	}
+	.sxbox{
+		margin-top: -50rpx;
+		background: #ffffff00;
+		.sticky{
+			width: 700rpx;		
+			margin: auto;
+			touch-action: none
+		}
+	}
+	.lanmubox{
+		width: 450rpx;
+		background: #f8f8f8;
+		min-height:100%;
+		.title{
+			margin: 50rpx auto;
+			font-size: 40rpx;
+			font-weight: bold;
+		}
+		.item{
+			margin: 20rpx 20rpx 0 20rpx;
+			padding: 20rpx;
+			background: #fff;
+		}
+	}
+	
 </style>

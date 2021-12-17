@@ -28,7 +28,7 @@
             
         }
         ,{
-            "path" : "pages/order/order/order",
+            "path" : "pages/order/order",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "我的订单",
@@ -53,7 +53,7 @@
             "path" : "pages/news/news",
             "style" :                                                                                    
             {
-                "navigationBarTitleText": "新闻列表"
+               "navigationStyle":"custom"
             }
             
         }
@@ -91,7 +91,7 @@
             
         }
         ,{
-            "path" : "pages/home/address/address",
+            "path" : "pages/home/address",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "地址管理"
@@ -99,7 +99,7 @@
             
         }
         ,{
-            "path" : "pages/home/address/setaddress",
+            "path" : "pages/home/setaddress",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "设置地址",
@@ -108,7 +108,7 @@
             
         }
         ,{
-            "path" : "pages/home/set/set",
+            "path" : "pages/home/set",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "设置"
@@ -116,7 +116,7 @@
             
         }
         ,{
-            "path" : "pages/home/set/personal",
+            "path" : "pages/home/personal",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "个人资料",
@@ -124,7 +124,7 @@
             }
             
         },{
-            "path" : "pages/home/set/setphone",
+            "path" : "pages/home/setphone",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "更新手机号",
@@ -165,12 +165,12 @@
             "path" : "pages/server/list",
             "style" :                                                                                    
             {
-                "navigationBarTitleText": "服务列表"
+				"navigationStyle":"custom"
             }
             
         }
         ,{
-            "path" : "pages/order/order/ordercreate",
+            "path" : "pages/order/ordercreate",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "创建订单",
@@ -180,7 +180,7 @@
             
         }
         ,{
-            "path" : "pages/order/pay/pay",
+            "path" : "pages/order/pay",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "支付",
@@ -189,7 +189,7 @@
             
         }
         ,{
-            "path" : "pages/order/pay/paystatus",
+            "path" : "pages/order/paystatus",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "支付成功",
@@ -198,7 +198,7 @@
             
         }
         ,{
-            "path" : "pages/order/refund/refund",
+            "path" : "pages/order/refund",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "退换/售后"
@@ -206,7 +206,7 @@
             
         }
         ,{
-            "path" : "pages/order/order/orderstatus",
+            "path" : "pages/order/orderstatus",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "订单详情",
@@ -220,7 +220,7 @@
             
         }
         ,{
-            "path" : "pages/order/refund/refundstatus",
+            "path" : "pages/order/refundstatus",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "退款/售后详情"
@@ -252,7 +252,7 @@
             
         }
         ,{
-            "path" : "pages/order/wuliu/wuliu",
+            "path" : "pages/order/wuliu",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "物流"
@@ -260,7 +260,7 @@
             
         }
         ,{
-            "path" : "pages/home/mycomment/mycomment",
+            "path" : "pages/home/mycomment",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "我的评论"
@@ -268,25 +268,16 @@
             
         }
         ,{
-            "path" : "pages/order/comment/addcomment",
+            "path" : "pages/comment/comment",
             "style" :                                                                                    
             {
-                "navigationBarTitleText": "添加评论",
+                "navigationBarTitleText": "",
                 "enablePullDownRefresh": false
-				
             }
             
         }
-		,{
-		    "path" : "pages/home/wallet/wallet",
-		    "style" :                                                                                    
-		    {
-		        "navigationBarTitleText": "钱包"
-		    }
-		    
-		}
         ,{
-            "path" : "components/fullloading",
+            "path" : "pages/comment/addcomment",
             "style" :                                                                                    
             {
                 "navigationBarTitleText": "",
@@ -304,25 +295,37 @@
 	},
 	"tabBar": {
 		"color": "#555555",
-		"selectedColor": "#e80000",
+		"selectedColor": "#0055ff",
 		"borderStyle": "black",
 		"backgroundColor": "#ffffff",
 		"list": [{
 				"pagePath": "pages/index/index",
-				"iconPath": "static/images/shouye2.png",
-				"selectedIconPath": "static/images/shouye.png",
+				"iconPath": "static/images/icon/sy2.png",
+				"selectedIconPath": "static/images/icon/sy.png",
 				"text": "首页"
 			},
 			{
+				"pagePath": "pages/server/list",
+				"iconPath": "static/images/icon/fl2.png",
+				"selectedIconPath": "static/images/icon/fl.png",
+				"text": "服务"
+			},
+			{
 				"pagePath": "pages/category/category",
-				"iconPath": "static/images/fenlei2.png",
-				"selectedIconPath": "static/images/fenlei.png",
-				"text": "发现"
+				"iconPath": "static/images/icon/sd2.png",
+				"selectedIconPath": "static/images/icon/sd.png",
+				"text": "百货"
+			},
+			{
+				"pagePath": "pages/news/news",
+				"iconPath": "static/images/icon/fx2.png",
+				"selectedIconPath": "static/images/icon/fx.png",
+				"text": "资讯"
 			},
 			{
 				"pagePath": "pages/home/home",
-				"iconPath": "static/images/wode2.png",
-				"selectedIconPath": "static/images/wode.png",
+				"iconPath": "static/images/icon/wd2.png",
+				"selectedIconPath": "static/images/icon/wd.png",
 				"text": "我的"
 			}
 		]
