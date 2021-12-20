@@ -6,8 +6,8 @@
 				<view class="flex-center flex-row">
 					<u-icon @click="checklist = !checklist" size="50" name="list-dot" class="u-m-20"></u-icon>
 				</view>
-				<view class="flex-center flex-row" v-show="titleshow">
-					在线预约
+				<view class="flex-center flex-row bold" v-show="titleshow" @click="checklist = !checklist">
+					选择服务
 				</view>
 				
 			</view>

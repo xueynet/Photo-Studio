@@ -1,50 +1,51 @@
 <template>
 	<view class="page">
 		<full-loading :show="fullloading"></full-loading>
-		<u-navbar :is-back="false" title="我的" :border-bottom="false">
-			<!-- #ifdef MP -->
-			<view class="flex-row">
-				<u-icon @click="$navto('/pages/home/set/set')" name="setting" class="navbtn u-m-l-20" color="#969799" size="48"></u-icon>
-				<u-icon @click="$navto('/pages/home/notice')" custom-prefix="iconfont icon-xiaoxi1" class="navbtn u-m-l-20" color="#969799" size="48"></u-icon>
+		<u-navbar :is-back="false" :background="pagenavbg" :border-bottom="false" :immersive="true">
+			<view class="slot-content fillbox flex-center flex-row">
+				<view class="flex-center flex-row">
+					<u-icon @click="$navto('/pages/home/personal')" size="50" custom-prefix="iconfont icon-wode" class="u-m-20"></u-icon>
+				</view>
+				<view @click="$navto('/pages/home/personal')" class="flex-center flex-row bold" v-show="titleshow">
+					我的
+				</view>
 			</view>
-			<!-- #endif -->
-			<!-- #ifndef MP -->
 			<view slot="right" class="flex-row">
-				<u-icon @click="$navto('/pages/home/notice')" custom-prefix="iconfont icon-xiaoxi1" class="navbtn u-m-r-20" color="#969799" size="48"></u-icon>
-				<u-icon @click="$navto('/pages/home/set/set')" name="setting" class="navbtn u-m-r-20" color="#969799" size="48"></u-icon>
+				<u-icon @click="$navto('/pages/home/notice')" custom-prefix="iconfont icon-xiaoxi1" class="navbtn u-m-r-20" size="48"></u-icon>
+				<u-icon @click="$navto('/pages/home/set')" name="setting" class="navbtn u-m-r-20" size="48"></u-icon>
 			</view>
-			<!-- #endif -->
 		</u-navbar>
-		<view class="flex-center flex-row user-box" @click="$navto('/pages/home/set/personal')">
-			<view class="item">
-				<u-avatar :src="pic" size="140"></u-avatar>
+		<view class="grzxbg">
+			<view class="flex-row-center flex-center user-box" @click="$navto('/pages/home/personal')">
+				<view class="item u-m-b-20">
+					<u-avatar :src="pic" size="140"></u-avatar>
+				</view>
+				<view class="item flex-center">
+					<view class="u-font-18 u-m-b-20">uView ui</view>
+					<view class="u-font-14">会员号:helang_uView</view>
+				</view>
 			</view>
-			<view class="fillbox item">
-				<view class="u-font-18 u-p-b-20">uView ui</view>
-				<view class="u-font-14 u-tips-color">会员号:helang_uView</view>
-			</view>
-			<view class="item">
-				<u-icon name="arrow-right" color="#969799" size="28"></u-icon>
-			</view>
+			<u-image class="imgbg" width="750" height="400" src="/static/images/cbanner/grzx.jpg"></u-image>
 		</view>
-		<u-grid class="order" :col="5" :border="false">
-			<u-grid-item @click="$navto('/pages/order/order/order',0)">
+		
+		<u-grid class="order border-radius box-shadow" :col="5" :border="false">
+			<u-grid-item @click="$navto('/pages/order/order',0)">
 				<u-icon custom-prefix="iconfont icon-dingdan1" color="#e07472"></u-icon>
 				<text>全部</text>
 			</u-grid-item>
-			<u-grid-item @click="$navto('/pages/order/order/order',1)">
+			<u-grid-item @click="$navto('/pages/order/order',1)">
 				<u-icon custom-prefix="iconfont icon-daifukuan" color="#333"></u-icon>
 				<text>待付款</text>
 			</u-grid-item>
-			<u-grid-item @click="$navto('/pages/order/order/order',2)">
+			<u-grid-item @click="$navto('/pages/order/order',2)">
 				<u-icon custom-prefix="iconfont icon-daishouhuo" color="#333"></u-icon>
 				<text>待收货</text>
 			</u-grid-item>
-			<u-grid-item @click="$navto('/pages/order/order/order',3)">
+			<u-grid-item @click="$navto('/pages/order/order',3)">
 				<u-icon custom-prefix="iconfont icon-weishiyong" color="#333"></u-icon>
 				<text>已完成</text>
 			</u-grid-item>
-			<u-grid-item @click="$navto('/pages/order/order/order',4)">
+			<u-grid-item @click="$navto('/pages/order/order',4)">
 				<u-icon custom-prefix="iconfont icon-remen" color="#333"></u-icon>
 				<text>待评价</text>
 			</u-grid-item>
@@ -52,17 +53,17 @@
 		</u-grid>
 		<u-cell-group class="cell-group">
 			<u-cell-item @click="$navto('/pages/home/collect')" :iconStyle="{color:'#54b4ef'}" iconSize="40" custom-prefix="iconfont icon-shoucang" title="我的收藏"></u-cell-item>
-			<u-cell-item @click="$navto('/pages/home/mycomment/mycomment')" :iconStyle="{color:'#ee883b'}" iconSize="40" icon="chat" title="我的评论">
+			<u-cell-item @click="$navto('/pages/home/mycomment')" :iconStyle="{color:'#ee883b'}" iconSize="40" icon="chat" title="我的评论">
 				<text>您还有多条未评论</text>
 			</u-cell-item>
 			<u-cell-item :iconStyle="{color:'#9789f7'}" iconSize="40" custom-prefix="iconfont icon-gongxiang" title="分享">
 				<text>邀请好友赢百万大礼</text>
 			</u-cell-item>
-			<u-cell-item @click="$navto('/pages/home/address/address')" :iconStyle="{color:'#5fcda2'}" iconSize="40" custom-prefix="iconfont icon-dingwei1" title="地址管理"></u-cell-item>
+			<u-cell-item @click="$navto('/pages/home/address')" :iconStyle="{color:'#5fcda2'}" iconSize="40" custom-prefix="iconfont icon-dingwei1" title="地址管理"></u-cell-item>
 		</u-cell-group>
-	
+		
 		<u-cell-group class="cell-group">
-			<u-cell-item @click="$navto('/pages/home/set/set')" icon="setting" iconSize="40" :iconStyle="{color:'#e07472'}" title="设置"></u-cell-item>
+			<u-cell-item @click="$navto('/pages/home/set')" icon="setting" iconSize="40" :iconStyle="{color:'#e07472'}" title="设置"></u-cell-item>
 		</u-cell-group>
 	</view>
 </template>
@@ -74,6 +75,11 @@
 				pic:'https://uviewui.com/common/logo.png',
 				show:true,
 				fullloading:true,
+				pagenavbg: {
+					background: '#ffffff00',
+					color:'#fff'
+				},
+				titleshow:false
 			}
 		},
 		onShow() {
@@ -100,6 +106,21 @@
 				uni.stopPullDownRefresh();
 			}, 1000);
 		},
+		onPageScroll(e){
+			var number = e.scrollTop/200
+			var color = '#fff'
+			if(e.scrollTop<100){
+				var color = '#fff'
+				this.titleshow = false
+			}else{
+				var color = '#000'
+				this.titleshow = true
+			}
+			this.pagenavbg = {
+				background: 'rgba(255,255,255,'+number+')',
+				color:color
+			}
+		},
 		methods: {
 			getdata(){
 				setTimeout(() => {
@@ -112,22 +133,32 @@
 
 <style lang="scss">
 	page{
-		background: #f9f9f9;
+		background: #f8f8f8;
 		.page{
 			flex: 1;
 		}
 	}
-	.user-box{
-		background-color: #fff;
-		padding: 20rpx;
-		.item{
-			margin-right: 10rpx;
+	.grzxbg{
+		overflow: hidden;
+		.u-image{
+			position: absolute;	
+			transform: scale(1.1);
+		}
+		.user-box{
+			height: 400rpx;
+			padding: 20rpx;
+			z-index:1;
+			margin: auto;
+			color: #fff;
 		}
 	}
 	.cell-group{
 		margin-top: 20rpx;
 	}
 	.order{
+		width: 700rpx;
+		margin: auto;
+		margin-top: -40rpx;
 		.u-icon, .iconfont{
 			color:#333;
 			margin-bottom: 20rpx;

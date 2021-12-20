@@ -4,10 +4,10 @@
 		<u-navbar :is-back="false">
 			<view class="slot-content fillbox flex-center flex-row">
 				<view class="flex-center flex-row">
-					<u-icon size="50" name="list-dot" class="u-m-20"></u-icon>
+					<u-icon size="50" custom-prefix="iconfont icon-shop" class="u-m-20"></u-icon>
 				</view>
-				<view class="flex-center flex-row">
-					百货商店
+				<view class="flex-center flex-row bold">
+					百货分类
 				</view>
 			</view>
 			<view slot="right">
@@ -26,7 +26,7 @@
 			</scroll-view>
 			<scroll-view :scroll-top="scrollRightTop" scroll-y scroll-with-animation class="right-box" @scroll="rightScroll">
 				<view class="page-view">
-					<view class="class-item" :id="'item' + index" v-for="(item,index) in tabs" :key="index">
+					<view class="class-item box-shadow" :id="'item' + index" v-for="(item,index) in tabs" :key="index">
 						<view class="item-title">
 							<text>{{item.name}}</text>
 						</view>
@@ -202,7 +202,8 @@
 	}
 	.page{
 		flex: 1;
-		background: #f9f9f9;
+		height: 100%;
+		position: absolute;
 	}
 	
 	.u-menu-wrap {
@@ -210,6 +211,7 @@
 		display: flex;
 		overflow: hidden;
 		flex-direction: row;
+		height: 100%;
 		.u-search-inner {
 			background-color: rgb(234, 234, 234);
 			border-radius: 100rpx;
@@ -263,7 +265,7 @@
 		}
 		
 		.right-box {
-			background-color: rgb(250, 250, 250);
+			background-color: #f8f8f8;
 			flex: 1;
 		}
 		

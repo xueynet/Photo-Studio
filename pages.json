@@ -152,12 +152,7 @@
             "path" : "pages/server/server",
             "style" :
             {
-                "navigationBarTitleText": "服务详情",
-            	"app-plus": {
-            		"titleNView": {
-            			"type":"transparent"
-            		}
-            	}
+                "navigationStyle":"custom"
             }
             
         }

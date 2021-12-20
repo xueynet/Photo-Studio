@@ -23,6 +23,12 @@ Vue.prototype.$swithto = (url,id)=>{
 		url,
 	})
 }
+Vue.prototype.$back = (id)=>{
+	if(id==undefined) id = 1
+	uni.navigateBack({
+		delta: id,
+	})
+}
 Vue.component('full-loading',fullloading)
 Vue.component('local-loading',localloading)
 Vue.config.productionTip = false

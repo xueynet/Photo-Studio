@@ -5,7 +5,7 @@
 			<view class="slot-content fillbox flex-space-between flex-row" >
 				<view class="flex-center flex-row u-m-20" @click="addressshow = !addressshow">
 					<u-icon size="50" custom-prefix="iconfont icon-dingwei1" class="u-m-r-10"></u-icon>
-					<view class="dingwei">{{dingwei}}</view>
+					<view class="dingwei bold">{{dingwei}}</view>
 				</view>
 				<view class="flex-center flex-row">
 					<u-icon @click="$navto('/pages/search/search')" size="50" name="search" class="u-m-20"></u-icon>
@@ -17,13 +17,13 @@
 			indicatorMode="line" circular :list="swiperlist" keyName="image" :title="false">
 		</u-swiper>
 		<view class="cards flex-center flex-row u-m-b-25 box-shadow">
-			<view class="card flex-row-center flex-center">
+			<view @click="$swithto('/pages/server/list')" class="card flex-row-center flex-center">
 				<u-image width="120" height="120" src="/static/images/icon/shop.png"></u-image>
 				<view class="title">预约服务</view>
 				<view class="desc">提前预约，省心省事</view>
 			</view>
 			<u-line color="info" direction="col"/>
-			<view class="card flex-row-center flex-center">
+			<view @click="$swithto('/pages/category/category')" class="card flex-row-center flex-center">
 				<u-image width="120" height="120"  src="/static/images/icon/shoping.png"></u-image>
 				<view class="title">在线购物</view>
 				<view class="desc">日用好货，尽在此刻</view>
@@ -32,7 +32,7 @@
 		<swiper v-if="(gridlist.length>8)">
 			<swiper-item v-for="(page,index) in gridpage" :key="index">
 				<u-grid :col="4" :border="false" hover-class="hover-class">
-					<u-grid-item class="bg-tm" @click="$navto('/pages/'+item.to+'/list',item.id)" v-for="(item,index2) in page"
+					<u-grid-item class="bg-tm" @click="sgoto(item.to,item.id)" v-for="(item,index2) in page"
 						:key="index2">
 						<u-image :src="item.icon" width="88rpx" height="88rpx"></u-image>
 						<view class="grid-text">{{item.name}}</view>
@@ -41,7 +41,7 @@
 			</swiper-item>
 		</swiper>
 		<u-grid v-else :col="4" :border="false" hover-class="hover-class">
-			<u-grid-item class="bg-tm" @click="$navto('/pages/'+item.to+'/list',item.id)" v-for="(item,index2) in gridlist" :key="index2">
+			<u-grid-item class="bg-tm" @click="sgoto(item.to,item.id)" v-for="(item,index2) in gridlist" :key="index2">
 				<u-image :src="item.icon" width="88rpx" height="88rpx"></u-image>
 				<view class="grid-text">{{item.name}}</view>
 			</u-grid-item>
@@ -260,7 +260,19 @@
 				this.datalist = arr
 				console.log(arr)
 			},
-		
+			sgoto(type,id){
+				var totype = 'to'
+				if(type==="server"){
+					totype = 'tab'
+				}
+				this.$u.route({
+					type:totype,
+					url:'/pages/'+type+'/list',
+					params:{
+						id:id
+					}
+				})
+			}
 		}
 	}
 </script>

@@ -6,7 +6,7 @@
 				<view class="flex-center flex-row">
 					<u-icon size="50" custom-prefix="iconfont icon-shuji" class="u-m-20"></u-icon>
 				</view>
-				<view class="flex-center flex-row" v-show="titleshow">
+				<view class="flex-center flex-row bold" v-show="titleshow">
 					新闻资讯
 				</view>
 			</view>

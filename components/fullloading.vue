@@ -18,7 +18,6 @@
 		},
 		watch:{
 			show(newVal, oldVal) {
-				console.log(newVal)
 			}
 		},
 		methods: {

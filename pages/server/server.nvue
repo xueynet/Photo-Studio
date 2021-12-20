@@ -1,7 +1,19 @@
 <template>
 	<view class="page">
 		<full-loading :show="fullloading"></full-loading>
+		<u-navbar :is-back="false" :background="pagenavbg" :immersive="true">
+			<view class="slot-content fillbox flex-space-between flex-center flex-row">
+				<view class="flex-center flex-row">
+					<u-icon @click="$back()" size="50" custom-prefix="iconfont icon-chevron-left" class="u-m-20"></u-icon>
+				</view>
+				<u-subsection @change="toplistchange" class="topname" :style="[toplistshow]" :list="toplist" button-color="#eee" bg-color="#ffffff00" :current="topcurrent"></u-subsection>
+				<view class="flex-center flex-row">
+					<u-icon @click="$navto('/pages/search/search')" size="50" custom-prefix="iconfont icon-gongxiang" class="u-m-20"></u-icon>
+				</view>
+			</view>
+		</u-navbar>
 		<u-swiper
+			class="getTop banner"
 			bg-color="#ffffff"
 			:height="750"
 			:current="0"
@@ -73,7 +85,7 @@
 					</u-cell-item>
 				</u-cell-group>
 			</view>
-			<view class="box comment">
+			<view class="box comment getTop">
 				<view class="flex-space-between flex-row marginauto">
 					<view class="title">服务评价({{data.comment.number}})</view>
 					<view @click="navto('pages/product/comment','comment')" class="more flex-center flex-row">好评率 {{data.comment.goodcomment}} <u-icon custom-prefix="iconfont icon-chevron-right"></u-icon></view>
@@ -104,7 +116,7 @@
 					</view>
 				</view>
 			</view>
-			<view class="shopdesc">
+			<view class="shopdesc getTop">
 				<view class="title">
 					<view class="line">
 						图文详情
@@ -203,6 +215,12 @@
 		data() {
 			return {
 				fullloading:true,
+				pagenavbg: {
+					background: '#ffffff00',
+					color:'#fff'
+				},
+				titleshow:false,
+				
 				page:0,
 				huoqutype:null,
 				typeshow:false,
@@ -214,6 +232,19 @@
 				datedefault:[],
 				datelist:[],
 				addresslist:[],
+				toplistshow:{
+					opacity: 0,
+				},
+				toplist:[{
+						name: '商品',
+					}, 
+					{
+						name: '评价',
+					}, 
+					{
+						name: '详情',
+					}],
+				topcurrent:0,
 				data:{
 					banner: [],
 					price:'',
@@ -383,6 +414,11 @@
 					})
 				}
 			}
+			uni.createSelectorQuery().select('.banner').boundingClientRect(scrollOffset => {
+				console.log(scrollOffset)
+			}).exec()
+			
+			
 		},
 		onLoad(e) {
 			this.option = e
@@ -395,6 +431,30 @@
 			setTimeout(function () {
 				uni.stopPullDownRefresh();
 			}, 1000);
+		},
+		onPageScroll(e){
+			var height = uni.upx2px(750)
+			var number = e.scrollTop/height
+			var color = '#fff'
+			if(e.scrollTop<100){
+				var color = '#fff'
+				this.titleshow = false
+			}else{
+				var color = '#000'
+				this.titleshow = true
+			}
+			this.toplistshow = {
+				opacity: number,
+			},
+			this.pagenavbg = {
+				background: 'rgba(255,255,255,'+number+')',
+				color:color
+			}
+			for (let i in this.toplist) {
+				if(e.scrollTop>=(this.toplist[i].top - 50)){
+					this.topcurrent = i
+				}
+			}
 		},
 		methods: {
 			getdata(){
@@ -412,6 +472,7 @@
 				var $this = this
 				setTimeout(function() {
 					$this.fullloading = false
+					$this.getBoxTop();
 				}, 500);
 				//this.redaytype()
 			},
@@ -575,6 +636,30 @@
 				this.data.star = !this.data.star
 				//网络请求
 			},		
+			getBoxTop() {
+				new Promise(resolve => {
+					let selectorQuery = uni.createSelectorQuery();
+					selectorQuery.selectAll('.getTop').boundingClientRect((rects) => {
+						if(!rects.length) {
+							setTimeout(() => {
+								this.getBoxTop();
+							}, 10);
+							return ;
+						}
+						for (let i in rects) {
+							this.toplist[i]['top'] = rects[i].top - rects[0].top;
+							resolve();
+						}
+					}).exec()
+				})
+			},
+			toplistchange(index){
+				this.topcurrent = index
+				uni.pageScrollTo({
+				    scrollTop: this.toplist[index].top - 50,
+				    duration: 0
+				});
+			}
 		}
 	}
 </script>
@@ -589,6 +674,10 @@
 		font-size: 30rpx;
 		text-align: center;
 		margin: 30rpx 0 0;
+	}
+	
+	.topname{
+		width: 400rpx;
 	}
 	
 	.nav-submit{
