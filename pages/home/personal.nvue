@@ -105,22 +105,11 @@
 			}
 		},
 		onShow() {
-			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
-				getApp().globalData.hasLaunch = false
-				this.getdata()
-			} else {
-				if(!getApp().globalData.hasLogin){
-					this.$u.route({
-						url: '/pages/home/login',
-					})
-				}
-			}
+			this.$isLogin()&&this.getdata()
 		},
 		onLoad(e) {
 			this.option = e
-			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
-				this.getdata()
-			}
+			this.$firstGet()&&this.getdata()
 		},
 		onReady() {
 			this.$refs.uForm.setRules(this.rules);

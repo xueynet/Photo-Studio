@@ -18,11 +18,11 @@
 			</view>
 		</u-navbar>
 		<u-popup v-model="checklist" mode="left">
-			<view class="lanmubox">
+			<view class="slidebox">
 				<view class="title">
 					服务类型
 				</view>
-				<view @click="checklist = !checklist" class="item flex-center flex-row flex-start box-shadow border-radius" v-for="(item,index) in serverlist">
+				<view @click="checklist = !checklist" class="item flex-center flex-row flex-start box-shadow border-radius" v-for="(item,index) in serverlist" :key="index">
 					<u-image width="60" height="60" class="u-m-r-20" :src="item.image"></u-image>
 					<view class="fillbox ">
 						<view class="bold u-m-b-20">{{item.name}}</view>		
@@ -31,10 +31,10 @@
 				</view>
 			</view>
 		</u-popup>
-		<view class="serverbg">
+		<view class="serverbg banner">
 			<u-image width="750" height="400" src="/static/images/cbanner/serverbg.png"></u-image>
 		</view>
-		<u-sticky :enable="enable" :offset-top="offsettop" :h5-nav-height="0" class="sxbox u-m-b-20" bg-color="#ffffff00">
+		<u-sticky :enable="enable" :offset-top="offsettop" :h5-nav-height="0" class="stickybox u-m-b-20" bg-color="#ffffff00">
 			<view class="flex-center flex-row sticky">
 				<view class="fillbox box-shadow border-radius">
 					<u-tabs-swiper
@@ -104,25 +104,18 @@
 		},
 		onShow() {
 			this.enable = true
-			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
-				getApp().globalData.hasLaunch = false
-				this.getdata()
-			} else {
-				if(!getApp().globalData.hasLogin){
-					this.$u.route({
-						url: '/pages/home/login',
-					})
-				}
-			}
-			
+			this.$isLogin()&&this.getdata()
+			var $this = this
+			setTimeout(function() {
+				uni.createSelectorQuery().select('.banner').boundingClientRect((size) => {
+					$this.$setnav($this,size.top*-1,size.height,true)
+				}).exec()
+			}, 0);
 		},
 		onLoad(e) {
 			this.option = e
-			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
-				this.getdata()
-			}
-			var n = getApp().globalData.systeminfo
-			this.offsettop = n.statusBarHeight + 44
+			this.$firstGet()&&this.getdata()
+			this.offsettop = getApp().globalData.systeminfo.statusBarHeight + 44
 		},
 		onHide() {
 			this.enable = false
@@ -141,19 +134,7 @@
 			}, 500)
 		},
 		onPageScroll(e){
-			var number = e.scrollTop/200
-			var color = '#fff'
-			if(e.scrollTop<100){
-				var color = '#fff'
-				this.titleshow = false
-			}else{
-				var color = '#000'
-				this.titleshow = true
-			}
-			this.pagenavbg = {
-				background: 'rgba(255,255,255,'+number+')',
-				color:color
-			}
+			this.$setnav(this,e.scrollTop,uni.upx2px(400),true)
 		},
 		onReady() {
 		},
@@ -167,6 +148,7 @@
 					$this.fullloading = false
 				}, 500);
 			},
+			//点击栏目切换数据
 			tabsChange(index) {
 				if(this.current == index) return
 				this.current = index
@@ -182,6 +164,7 @@
 					this.loadStatus = 'loadmore';
 				}, 500)
 			},
+			//加载更多
 			addRandomData(type) {
 				let data = this.$defalutdata.server
 				let list = JSON.parse(JSON.stringify(data))
@@ -196,29 +179,4 @@
 	page{
 		background: #f8f8f8;
 	}
-	.sxbox{
-		margin-top: -50rpx;
-		background: #ffffff00;
-		.sticky{
-			width: 700rpx;		
-			margin: auto;
-			touch-action: none
-		}
-	}
-	.lanmubox{
-		width: 450rpx;
-		background: #f8f8f8;
-		min-height:100%;
-		.title{
-			margin: 50rpx auto;
-			font-size: 40rpx;
-			font-weight: bold;
-		}
-		.item{
-			margin: 20rpx 20rpx 0 20rpx;
-			padding: 20rpx;
-			background: #fff;
-		}
-	}
-	
 </style>

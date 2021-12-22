@@ -11,6 +11,13 @@
 				
 			}
 		},
+		onShow() {
+			this.$isLogin()&&this.getdata()
+		},
+		onLoad(e) {
+			this.option = e
+			this.$firstGet()&&this.getdata()
+		},
 		methods: {
 			
 		}

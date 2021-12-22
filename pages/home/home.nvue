@@ -15,7 +15,7 @@
 				<u-icon @click="$navto('/pages/home/set')" name="setting" class="navbtn u-m-r-20" size="48"></u-icon>
 			</view>
 		</u-navbar>
-		<view class="grzxbg">
+		<view class="grzxbg banner">
 			<view class="flex-row-center flex-center user-box" @click="$navto('/pages/home/personal')">
 				<view class="item u-m-b-20">
 					<u-avatar :src="pic" size="140"></u-avatar>
@@ -82,23 +82,19 @@
 				titleshow:false
 			}
 		},
+		
 		onShow() {
-			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
-				getApp().globalData.hasLaunch = false
-				this.getdata()
-			} else {
-				if(!getApp().globalData.hasLogin){
-					this.$u.route({
-						url: '/pages/home/login',
-					})
-				}
-			}
+			this.$isLogin()&&this.getdata()
+			var $this = this
+			setTimeout(function() {
+				uni.createSelectorQuery().select('.banner').boundingClientRect((size) => {
+					$this.$setnav($this,size.top*-1,size.height,true)
+				}).exec()
+			}, 0);
 		},
 		onLoad(e) {
 			this.option = e
-			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
-				this.getdata()
-			}
+			this.$firstGet()&&this.getdata()
 		},
 		onPullDownRefresh() {
 			console.log('refresh');
@@ -107,19 +103,7 @@
 			}, 1000);
 		},
 		onPageScroll(e){
-			var number = e.scrollTop/200
-			var color = '#fff'
-			if(e.scrollTop<100){
-				var color = '#fff'
-				this.titleshow = false
-			}else{
-				var color = '#000'
-				this.titleshow = true
-			}
-			this.pagenavbg = {
-				background: 'rgba(255,255,255,'+number+')',
-				color:color
-			}
+			this.$setnav(this,e.scrollTop,uni.upx2px(400),true)
 		},
 		methods: {
 			getdata(){

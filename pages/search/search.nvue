@@ -3,7 +3,7 @@
 		<full-loading :show="fullloading"></full-loading>
 		<u-navbar>
 			<view class="slot-content fillbox u-p-20">
-				<u-search @focus="searching = false" @search="search" @custom="search" input-align="center" :focus="true" placeholder="点击输入商品名称" v-model="keyword" :show-action="true"></u-search>
+				<u-search @focus="searching = false" @blur="searchblur" @search="search" @custom="search" input-align="center" :focus="true" placeholder="点击输入商品名称" v-model="keyword" :show-action="true"></u-search>
 			</view>
 		</u-navbar>
 		<view class="keyword u-p-20" v-show="!searching">
@@ -67,23 +67,12 @@
 			}
 		},
 		onShow() {
-			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
-				getApp().globalData.hasLaunch = false
-				this.getdata()
-			} else {
-				if(!getApp().globalData.hasLogin){
-					this.$u.route({
-						url: '/pages/home/login',
-					})
-				}
-			}
+			this.$isLogin()&&this.getdata()
 		},
 		onLoad(e) {
 			this.option = e
 			if(e.id!=undefined) this.keyword = e.id
-			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
-				this.getdata()
-			}
+			this.$firstGet()&&this.getdata()
 		},
 		onPullDownRefresh() {
 			console.log('refresh');
@@ -107,10 +96,18 @@
 					$this.fullloading = false
 				}, 500);
 			},
+			//输入框控制
 			checkkeyword(name){
 				this.keyword = name
 				this.search()
 			},
+			searchblur(){
+				if(!this.searching&&this.keyword!=''){
+					!this.searching
+					this.search()
+				}
+			},
+			//搜索
 			search(){
 				if(this.keyword!=''){
 					this.localloading = true
@@ -123,6 +120,7 @@
 					}, 500);
 				}
 			},
+			//加载更多
 			addRandomData() {
 				let data = this.datalist
 				let list = JSON.parse(JSON.stringify(data))

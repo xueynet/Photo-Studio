@@ -95,23 +95,19 @@
 				datalist: [],
 			}
 		},
+		
 		onShow() {
-			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
-				getApp().globalData.hasLaunch = false
-				this.getdata()
-			} else {
-				if(!getApp().globalData.hasLogin){
-					this.$u.route({
-						url: '/pages/home/login',
-					})
-				}
-			}
+			this.$isLogin()&&this.getdata()
+			var $this = this
+			setTimeout(function() {
+				uni.createSelectorQuery().select('.banner').boundingClientRect((size) => {
+					$this.$setnav($this,size.top*-1,size.height,true)
+				}).exec()
+			}, 0);
 		},
 		onLoad(e) {
 			this.option = e
-			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
-				this.getdata()
-			}
+			this.$firstGet()&&this.getdata()
 		},
 		onPullDownRefresh() {
 			console.log('refresh');
@@ -128,25 +124,7 @@
 			}, 500)
 		},
 		onPageScroll(e){
-			var number = e.scrollTop/300
-			var color = '#fff'
-			if(e.scrollTop<150){
-				var color = '#fff'
-			}else{
-				var color = '#000'
-			}
-			if(number>1){
-				this.pagenavbg = {
-					background: 'rgba(255,255,255)',
-					'box-shadow': '0 20rpx 20rpx #51515110',
-					color:color
-				}
-			}else{
-				this.pagenavbg = {
-					background: 'rgba(255,255,255,'+number+')',
-					color:color
-				}
-			}
+			this.$setnav(this,e.scrollTop,uni.upx2px(650),true)
 		},
 		onReady() {
 		},

@@ -6,7 +6,7 @@
 				<view class="flex-center flex-row">
 					<u-icon @click="$back()" size="50" custom-prefix="iconfont icon-chevron-left" class="u-m-20"></u-icon>
 				</view>
-				<u-subsection @change="toplistchange" class="topname" :style="[toplistshow]" :list="toplist" button-color="#eee" bg-color="#ffffff00" :current="topcurrent"></u-subsection>
+				<u-subsection @change="toplistchange" class="toplistbox" :style="[toplistshow]" :list="toplist" button-color="#eee" bg-color="#ffffff00" :current="topcurrent"></u-subsection>
 				<view class="flex-center flex-row">
 					<u-icon @click="$navto('/pages/search/search')" size="50" custom-prefix="iconfont icon-gongxiang" class="u-m-20"></u-icon>
 				</view>
@@ -19,7 +19,7 @@
 			:current="0"
 			:autoplay="false"
 			:list="data.banner" 
-			:title="false" @click="showBigImg">
+			:title="false" @click="$showBigImg(data.banner,0)">
 		</u-swiper>
 		<view class="boxgroup">
 			<view class="box">
@@ -43,37 +43,51 @@
 			</view>
 			<view class="box toolsbox">
 				<u-cell-group>
-					<u-cell-item @click="checktype()" title="已选" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
+					<u-cell-item @click="typeShow = !typeShow" title="类型" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
 						<view class="fillbox flex-center flex-row">
-							<view class="label" v-if="model.checktype.name != ''">{{model.checktype.name}}</view>
-							<view v-else class="label flex-center flex-row" v-for="(item,index) in data.type" :key="index"><text class="xg" v-if="index>0">/</text>{{item.name}}</view>
+							<view v-if="item.value == model.typeId" class="label flex-center flex-row" v-for="(item,index) in data.typeList" :key="index">{{item.label}}</view>
+						</view>
+					</u-cell-item>
+				</u-cell-group>
+				<u-cell-group>
+					<u-cell-item @click="openSku()" title="已选" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
+						<view class="fillbox flex-center flex-row">
+							<view class="label" v-for="(item,index) in model.sku" :key="index"><text class="xg" v-if="index>0">/</text>{{item.name}}</view>
+							<view class="label" v-if="model.skuName!=''">{{model.number}} 件</view>
+							<view class="label" v-else>请选择服务</view>
+						</view>
+					</u-cell-item>
+					<u-cell-item @click="openPhoto()" title="上传" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
+						<view class="fillbox flex-center flex-row">
+							<view class="label" v-if="model.photoList.length>0">已选择{{model.photoList.length}}张照片</view>
+							<view class="label" v-else>请上传图片</view>
 						</view>
 					</u-cell-item>
 				</u-cell-group>
 			</view>
 			<view class="box toolsbox">
-				<u-cell-group v-if="huoqutype==0">
-					<u-cell-item @click="dateshow=true" title="日期" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
+				<u-cell-group v-if="model.typeId==0">
+					<u-cell-item @click="dateShow=true" title="日期" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
 						<view class="fillbox flex-center flex-row">
-							<view class="label">{{model.date}}</view>
+							<view class="label">{{model.date||'选择日期'}}</view>
 						</view>
 					</u-cell-item>
-					<u-cell-item @click="addressshow=true" title="门店" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
+					<u-cell-item @click="storeAddressShow=true" title="门店" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
 						<view class="fillbox flex-center flex-row">
-							<view class="label">{{model.mendian}}</view>
+							<view class="label">{{model.mendian||'请选择门店'}}</view>
 						</view>
 					</u-cell-item>
 				</u-cell-group>
-				<u-cell-group v-if="huoqutype==1">
-					<u-cell-item @click="addressshow2=true" title="发货" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
+				<u-cell-group v-if="model.typeId==1">
+					<u-cell-item @click="expressAddressShow=true" title="发货" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
 						<view class="fillbox flex-start">
-							<view class="label">{{data.shopAddres}} | 快递：{{data.express}}</view>
-							<view class="express">配送至：{{model.myAddress}}</view>
+							<view class="label">{{data.storeAddress||'中国'}} | 快递：{{data.express||'免运费'}}</view>
+							<view class="express">配送至：{{model.address||'请添加地址'}}</view>
 						</view>
 					</u-cell-item>
 				</u-cell-group>
 				<u-cell-group>
-					<u-cell-item @click="servershow=true" title="说明" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
+					<u-cell-item @click="serverShow=true" title="服务" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
 						<view class="fillbox flex-start">
 							<view class="flex-box">
 								<view class="label" v-if="item.main" :class="!item.main?'mainlabel':''" v-for="(item,index) in data.server" :key="index"><u-icon size="12" custom-prefix="iconfont icon-o"></u-icon> {{item.name}}</view>
@@ -88,10 +102,10 @@
 			<view class="box comment getTop">
 				<view class="flex-space-between flex-row marginauto">
 					<view class="title">服务评价({{data.comment.number}})</view>
-					<view @click="navto('pages/product/comment','comment')" class="more flex-center flex-row">好评率 {{data.comment.goodcomment}} <u-icon custom-prefix="iconfont icon-chevron-right"></u-icon></view>
+					<view @click="$navto('/pages/product/comment',id)" class="more flex-center flex-row">好评率 {{data.comment.goodcomment}} <u-icon custom-prefix="iconfont icon-chevron-right"></u-icon></view>
 				</view>
 				<view class="tagslist flex-box marginauto">
-					<u-tag @click="navto('pages/product/comment','comment')" type="error" shape="circle" size="default" :text="item.name" v-for="(item,index) in data.comment.taglist" :key="index">{{item.number}}</u-tag>
+					<u-tag @click="$navto('/pages/product/comment',id)" type="error" shape="circle" size="default" :text="item.name" v-for="(item,index) in data.comment.taglist" :key="index">{{item.number}}</u-tag>
 				</view>
 				<view class="list">
 					<view class="commentitem" v-for="(item,index) in data.comment.list" :key="index">
@@ -107,7 +121,7 @@
 								{{item.comment}}
 							</view>
 							<view class="commentimages marginauto">
-								<u-image v-for="(image,index2) in item.images" :key="index2" width="150" height="150" :src="image" @click="showBigImg(image,item.images)"></u-image>
+								<u-image v-for="(image,index2) in item.images" :key="index2" width="150" height="150" :src="image" @click="$showBigImg(item.images,image)"></u-image>
 							</view>
 							<view class="shoptype flex-box">
 								<view class="color999 u-m-r-20" v-for="(type,index2) in item.shoptype" :key="index2">{{type.name}}</view>
@@ -125,7 +139,7 @@
 			</view>
 			<u-parse class="parse" :use-cache="true" :show-with-animation="true" :lazy-load="true" :html="data.parse"></u-parse>
 		</view>
-		<view class="nav-submit">
+		<view class="tabbar-submit">
 			<view class="item" :class="data.star?'active':''" @click="addstar()">
 				<u-icon custom-prefix="iconfont icon-shoucang"></u-icon>
 				<view class="label">收藏</view>
@@ -135,42 +149,55 @@
 				<view class="label">客服</view>
 			</view>
 			<view class="item btn">
-				<view class="shopbtn" v-if="huoqutype==0">预约上门</view>
-				<view class="shopbtn" v-else>立即购买</view>
+				<view @click="createOrder()" class="shopbtn" v-if="model.typeId==0">预约到店</view>
+				<view @click="createOrder()" class="shopbtn" v-else>立即购买</view>
 			</view>
 		</view>
-		<u-popup v-model="typeshow" mode="bottom" border-radius="20" :closeable="true">
+		<u-select v-model="typeShow" :list="data.typeList" @confirm="getType" :default-value="[model.typeId]"></u-select>
+		<u-popup v-model="skuShow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
 				<view class="popuptitle popuptop">
-					<u-image width="180" height="180" :src="model.checktype.image"></u-image>
+					<u-image width="180" height="180" :src="model.skuImage"></u-image>
 					<view class="fillbox">
 						<view class="price">
 							<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>
-							{{model.checktype.price}}
+							{{model.skuPrice}}
 						</view>
-						<view class="type">
-							{{model.checktype.name}}
+						<view class="sku">
+							{{model.skuName}} x {{model.number}}
 						</view>
 					</view>
 				</view>
-				<view class="popuplist popuptype">
-					<view class="popupitem" v-for="(typeitem,index) in data.type" :key="index">
-						<view class="linetitle">{{typeitem.name}}</view>
+				<view class="popuplist popupSku">
+					<view class="popupitem" v-for="(sku,index) in data.sku" :key="index">
+						<view class="linetitle">{{sku.name}}</view>
 						<view class="tags">
-							<view @click="settype(index,index2,item.huoqutype)" :class="item.check?'active':''" class="tag" v-for="(item,index2) in typeitem.list" :key="index2">{{item.name}}</view>
+							<view @click="checkSku(index,index2)" :class="item.active?'active':''" class="tag" v-for="(item,index2) in sku.list" :key="index2">{{item.name}}</view>
 						</view>
 					</view>
 					<view class="popupitem flex-s">
 						<view class="linetitle">数量</view>
-						<u-number-box class="flex-center" :min="1" v-model="model.pnumber"></u-number-box>
+						<u-number-box class="flex-center" :min="1" v-model="model.number"></u-number-box>
 					</view>
 				</view>
 				<view class="popupbtn">
-					<u-button @click="typeshow = false" :ripple="true" shape="circle">确定</u-button>
+					<u-button @click="skuShow = false" :ripple="true" shape="circle">确定</u-button>
 				</view>
 			</view>
 		</u-popup>
-		<u-popup v-model="servershow" mode="bottom" border-radius="20" :closeable="true">
+		<u-popup v-model="photoShow" mode="bottom" border-radius="20" :closeable="true">
+			<view class="popupbox">
+				<view class="popuptitle">上传图片</view>
+				<view class="popuplist">
+					<view class="linetitle">图片列表</view>
+					<u-upload class="touchnone" ref="photoUpload" @on-success="photoUploadok" @on-list-change="photolistchange" width="210" height="210" :action="photoUpload" :max-size="10 * 1024 * 1024" :auto-upload="false" :file-list="model.photoList"></u-upload>
+				</view>
+				<view class="popupbtn">
+					<u-button :ripple="true" shape="circle" @click="photoShow=false">确定</u-button>
+				</view>
+			</view>
+		</u-popup>
+		<u-popup v-model="serverShow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
 				<view class="popuptitle">说明</view>
 				<view class="popuplist">
@@ -185,11 +212,11 @@
 				</view>
 			</view>
 		</u-popup>
-		<u-popup v-model="addressshow2" mode="bottom" border-radius="20" :closeable="true">
+		<u-popup v-model="expressAddressShow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
 				<view class="popuptitle">配送至</view>
 				<view class="popuplist">
-					<view class="addressitem" @click="setaddress(item,index)" v-for="(item,index) in data.myAddresslist" :key="index">
+					<view class="addressitem" @click="setaddress(item,index)" v-for="(item,index) in data.expressAddressList" :key="index">
 						<u-icon custom-prefix="iconfont icon-dingwei1"v-if="!item.default"></u-icon>
 						<u-icon color="#e80000" name="checkbox-mark" v-if="item.default"></u-icon>
 						<view class="fillbox">
@@ -199,14 +226,12 @@
 					</view>
 				</view>
 				<view class="popupbtn">
-					<u-button @click="navto('/pages/home/address/address','addres')" :ripple="true" shape="circle">地址管理</u-button>
+					<u-button @click="$navto('/pages/home/address')" :ripple="true" shape="circle">地址管理</u-button>
 				</view>
 			</view>
 		</u-popup>
-		
-		
-		<u-select v-model="addressshow" @confirm="confirmaddress" :default-value="addressdefault" :list="addresslist" title="选择附近门店" :safe-area-inset-bottom="true"></u-select>
-		<u-select v-model="dateshow" @confirm="confirmdate" :default-value="datedefault" :list="datelist" label-name="value" label-value="extra" mode="mutil-column" title="选择预约日期" :safe-area-inset-bottom="true"></u-select>
+		<u-select v-model="storeAddressShow" @confirm="confirmaddress" :default-value="storeaddressDefault" :list="data.storeaddresslist" title="选择附近门店" :safe-area-inset-bottom="true"></u-select>
+		<u-select v-model="dateShow" @confirm="confirmdate" :default-value="storedateDefault" :list="data.datelist" label-name="value" label-value="extra" mode="mutil-column" title="选择预约日期" :safe-area-inset-bottom="true"></u-select>
 	</view>
 </template>
 
@@ -214,24 +239,14 @@
 	export default {
 		data() {
 			return {
+				//页面动效
+				id:0,
 				fullloading:true,
 				pagenavbg: {
 					background: '#ffffff00',
 					color:'#fff'
 				},
 				titleshow:false,
-				
-				page:0,
-				huoqutype:null,
-				typeshow:false,
-				dateshow:false,
-				addressshow:false,
-				addressshow2:false,
-				servershow:false,
-				addressdefault:[],
-				datedefault:[],
-				datelist:[],
-				addresslist:[],
 				toplistshow:{
 					opacity: 0,
 				},
@@ -245,6 +260,19 @@
 						name: '详情',
 					}],
 				topcurrent:0,
+				
+				//控制弹出框显示
+				typeShow:false,
+				skuShow:false,
+				photoShow:false,
+				storeAddressShow:false,
+				expressAddressShow:false,
+				dateShow:false,
+				serverShow:false,
+				storeaddressDefault:[],
+				storedateDefault:[],
+				
+				//获取数据
 				data:{
 					banner: [],
 					price:'',
@@ -262,74 +290,52 @@
 					salesVolume:'999+',
 					title:'',
 					star:true,
-					shopAddres:'广东 东莞',
-					express:'免运费',
-					myAddresslist:[
-						{
-							id: 0,
-							default:false,
-							site: '重庆市 渝北区 龙塔街道',
-							address:"龙塔街道179号"
-						},
-						{
-							id: 1,
-							default:true,
-							site: '广东省 深圳市 宝安区',
-							address:"自由路66号"
-						},
-						{
-							id: 2,
-							default:false,
-							site: '广东省 深圳市 宝安区',
-							address:'自由路68号'
-						},
-						{
-							id: 3,
-							default:false,
-							site: '广东省 深圳市 宝安区',
-							address:'平安路13号'
-						}
+					typeList:[
+						{label:'预约到店',value:0},
+						{label:'快递方式',value:1},
 					],
-					type:[
-						{
-							id:1,
-							name:'服务类型',
+					datelist:[],
+					storeAddress:'广东 东莞',
+					storeaddresslist:[],
+					express:'20',
+					expressAddressList:getApp().globalData.addressList,
+					sku:[{
+							id:0,
+							name:'服务',
 							list:[
 								{
+									id:0,
+									active:true,
 									name:'PS',
-									check:true,
 									image:'',
-									price:'5.00',
 								},
 								{
+									id:1,
+									active:false,
 									name:'制作简历',
-									check:false,
 									image:'',
-									price:'50.00',
 								},
 								{
+									id:2,
+									active:false,
 									name:'打印',
-									check:false,
 									image:'',
-									price:'5.00',
 								}
 							]
 						},
 						{
-							id:2,
-							name:'获取方式',
+							id:1,
+							name:'其他',
 							list:[
-								{
-									name:'预约上门',
-									price:'5.00',
-									check:true,
-									huoqutype:0,
+								{	
+									id:0,
+									active:true,
+									name:'标配',
 								},
-								{
-									name:'物流快递',
-									price:'5.00',
-									check:false,
-									huoqutype:1,
+								{	
+									id:1,
+									active:false,
+									name:'顶配',
 								}
 							]
 						}
@@ -368,7 +374,7 @@
 								avatar:'头像',
 								name:'小柯基',
 								adddate:'1天前',
-								shoptype:[
+								shopSku:[
 									{
 										name:'官方标配',
 									},
@@ -387,74 +393,51 @@
 					},
 					parse:'<img src="/static/images/banner/1.jpg"/><img src="/static/images/banner/2.jpg"/><img src="/static/images/banner/3.jpg"/><img src="/static/images/banner/4.jpg"/><img src="/static/images/banner/5.jpg"/>'
 				},
+				
+				//发送数据
 				model:{
-					sid:'',
-					checktype:{
-						image:'',
-						price:'',
-						name:'',
-					},
-					date:'选择日期',
-					mendian:'请选择门店',
-					mendianid:0,
-					myAddressid:null,
-					myAddress:'',
-					pnumber:1,
-				}
+					pid:0,
+					typeId:0,
+					
+					sku:[],
+					photoList:[],
+					skuName:null,
+					skuPrice:null,
+					skuImage:null,
+					number:1,
+					
+					date:null,
+					mendian:null,
+					mendianid:null,
+					
+					address:null,
+					addressid:null,
+				},
+				
+				//上传图片
+				photoUpload:'上传地址',
 			}
 		},
 		onShow() {
-			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
-				getApp().globalData.hasLaunch = false
-				this.getdata()
-			} else {
-				if(!getApp().globalData.hasLogin){
-					this.$u.route({
-						url: '/pages/home/login',
-					})
-				}
-			}
-			uni.createSelectorQuery().select('.banner').boundingClientRect(scrollOffset => {
-				console.log(scrollOffset)
-			}).exec()
-			
-			
+			this.$isLogin()&&this.getdata()
+			var $this = this
+			setTimeout(function() {
+				uni.createSelectorQuery().select('.banner').boundingClientRect((size) => {
+					$this.$setnav($this,size.top*-1,size.height,false)
+				}).exec()
+			}, 0);
 		},
 		onLoad(e) {
 			this.option = e
-			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
-				this.getdata()
-			}
+			this.$firstGet()&&this.getdata()
 		},
 		onPullDownRefresh() {
-			console.log('refresh');
 			setTimeout(function () {
 				uni.stopPullDownRefresh();
 			}, 1000);
 		},
 		onPageScroll(e){
-			var height = uni.upx2px(750)
-			var number = e.scrollTop/height
-			var color = '#fff'
-			if(e.scrollTop<100){
-				var color = '#fff'
-				this.titleshow = false
-			}else{
-				var color = '#000'
-				this.titleshow = true
-			}
-			this.toplistshow = {
-				opacity: number,
-			},
-			this.pagenavbg = {
-				background: 'rgba(255,255,255,'+number+')',
-				color:color
-			}
-			for (let i in this.toplist) {
-				if(e.scrollTop>=(this.toplist[i].top - 50)){
-					this.topcurrent = i
-				}
-			}
+			this.$setnav(this,e.scrollTop,uni.upx2px(750),false)
 		},
 		methods: {
 			getdata(){
@@ -464,113 +447,7 @@
 				this.data.oldprice = this.$defalutdata.server[id].price*2
 				this.data.salesVolume = this.$defalutdata.server[id].shop
 				this.data.title = this.$defalutdata.server[id].title
-				
-				this.page = this.option.page||this.option.id
-				this.model.pid = this.page
-				this.defalutkey()
-				this.redayaddress()
-				var $this = this
-				setTimeout(function() {
-					$this.fullloading = false
-					$this.getBoxTop();
-				}, 500);
-				//this.redaytype()
-			},
-			navto(url,name){
-				var params = {}
-				if(name=="createorder"){
-					params['pid'] = this.model.pid
-					params['number'] = this.model.pnumber
-					params['addressid'] = this.model.myAddressid
-					params['checktype'] = this.model.checktype.name
-				}else if(name=="comment"){
-					params['page'] = this.page
-				}
-				this.$u.route({
-					url,
-					params
-				})
-			},
-			showBigImg(current,list){
-				if(list==undefined) list = this.data.banner
-				uni.previewImage({
-					current:current,
-					urls: list,
-					indicator: 'number',
-				})
-			},
-			checktype(){
-				this.typeshow = true
-				for (var i = 0; i < this.data.type.length; i++) {
-					for (var p = 0; p < this.data.type[i].list.length; p++) {
-						if(this.data.type[i].list[p].check&&this.data.type[i].list[p].huoqutype!=undefined){
-							this.huoqutype = parseInt(this.data.type[i].list[p].huoqutype)
-						}
-					}
-				}
-				this.redaytype()
-			},
-			redaytype(){
-				this.model.checktype.name = ''
-				for (var o = 0; o < this.data.type.length; o++) {
-					for (var i = 0; i < this.data.type[o].list.length; i++) {
-						if(this.data.type[o].list[i].check){
-							if(this.data.type[o].list[i].image){
-								this.model.checktype.image = this.data.type[o].list[i].image
-							}
-							if(this.data.type[o].list[i].price){
-								this.model.checktype.price = this.data.type[o].list[i].price
-							}
-							if(o==0&&i==0){
-								this.model.checktype.name = this.data.type[o].list[i].name
-							}else{
-								this.model.checktype.name = this.model.checktype.name+' '+this.data.type[o].list[i].name
-							}
-						}
-					}
-				}
-			},
-			
-			settype(i1,i2,huoqutype){
-				for (var i = 0; i < this.data.type[i1].list.length; i++) {
-					this.data.type[i1].list[i].check = false
-				}
-				this.data.type[i1].list[i2].check = true
-				this.huoqutype = parseInt(huoqutype)
-				this.redaytype()
-			},
-			redayaddress(){
-				for (var i = 0; i < this.data.myAddresslist.length; i++) {
-					if(this.data.myAddresslist[i].default){
-						this.model.myAddress = this.data.myAddresslist[i].site
-						this.model.myAddressid = this.data.myAddresslist[i].id
-					}
-				}
-			},
-			setaddress(data,index){
-				this.addressshow2 = false
-				for (var i = 0; i < this.data.myAddresslist.length; i++) {
-					this.data.myAddresslist[i].default = false
-				}
-				this.data.myAddresslist[index].default = true
-				this.model.myAddress = this.data.myAddresslist[index].site
-				this.model.myAddressid = this.data.myAddresslist[index].id
-			},
-			confirmdate(e){
-				this.model.date = ''
-				var datedefault = []
-				for (var i = 0; i < e.length; i++) {
-					datedefault.push(e[i].extra||0)
-					this.model.date += ((e.length-1) == i?' ':'') + e[i].value
-				}
-				this.datedefault = datedefault
-			},
-			confirmaddress(e){
-				this.addressdefault = [e[0].extra||0]
-				this.model.mendian = e[0].label
-			},
-			defalutkey(){
-				this.datelist = [
+				this.data.datelist = [
 					[
 						{value:'2021年'}
 					],
@@ -602,7 +479,7 @@
 						{value:'20:00'},
 					]
 				]
-				this.addresslist = [
+				this.data.storeaddresslist = [
 					{
 						value:1,
 						label:'门店1',
@@ -620,22 +497,142 @@
 						label:'门店4',
 					}
 				]
-				for (var i = 0; i < this.addresslist.length; i++) {
-					this.addresslist[i]['extra'] = i
+				
+				this.id = this.option.id
+				this.model.pid = this.id
+				this.redaydata()
+				var $this = this
+				setTimeout(function() {
+					$this.fullloading = false
+					$this.getBoxTop();
+				}, 500);
+				//this.redaytype()
+			},
+			//初始化数据
+			redaydata(){
+				for (var i in this.data.expressAddressList) {
+					if(this.data.expressAddressList[i].default){
+						this.model.address = this.data.expressAddressList[i].site
+						this.model.addressid = this.data.expressAddressList[i].id
+					}
 				}
-				for (var p = 0; p < this.datelist.length; p++) {
-					for (var i = 0; i < this.datelist[p].length; i++) {
-						this.datelist[p][i]['extra'] = i
+				for (var i in this.data.storeaddresslist) {
+					this.data.storeaddresslist[i]['extra'] = i
+				}
+				for (var p in this.data.datelist) {
+					for (var i in this.data.datelist[p]) {
+						this.data.datelist[p][i]['extra'] = i
 					}
 				}
 			},
-			carateorder(){
-				this
+			//选择预约或快递
+			getType(e){
+				this.model.typeId = e[0].value
 			},
+			//打开photo框
+			openPhoto(){
+				this.photoShow = true
+			},
+			//设置photo图片
+			photolistchange(){
+				this.model.photoList = this.$refs.photoUpload.lists;
+			},
+			//打开sku框
+			openSku(){
+				this.skuShow = true
+				this.setSku()
+			},
+			//设置sku商品
+			setSku(){
+				this.model.sku = []
+				for (var o in this.data.sku) {
+					for (var i in this.data.sku[o].list) {
+						if(this.data.sku[o].list[i].active){
+							this.model.sku.push(this.data.sku[o].list[i])
+						}
+					}
+				}
+				this.model.skuName = ''
+				for (var i in this.model.sku){
+					this.model.skuName += ' ' + this.model.sku[i].name
+				}
+				this.model.skuPrice = '99'
+				this.model.skuImage = '/static/images/product/server/s1/1.jpg'
+			},
+			//选择sku商品
+			checkSku(i1,i2){
+				for (var i in this.data.sku[i1].list) {
+					this.data.sku[i1].list[i].active = false
+				}
+				this.data.sku[i1].list[i2].active = true
+				this.setSku()
+			},
+			//选择邮寄地址
+			setaddress(data,index){
+				this.expressAddressShow = false
+				for (var i in this.data.expressAddressList) {
+					this.data.expressAddressList[i].default = false
+				}
+				this.data.expressAddressList[index].default = true
+				this.model.address = this.data.expressAddressList[index].site
+				this.model.addressid = this.data.expressAddressList[index].id
+			},
+			//选择预约日期
+			confirmdate(e){
+				this.model.date = ''
+				this.storedateDefault = []
+				for (var i in e) {
+					this.storedateDefault.push(parseInt(e[i].extra))
+					this.model.date += e[i].value
+				}
+			},
+			//选择预约门店
+			confirmaddress(e){
+				this.storeaddressDefault = [parseInt(e[0].extra)]
+				this.model.mendian = e[0].label
+				this.model.mendianid = e[0].value
+			},
+			//收藏
 			addstar(){
 				this.data.star = !this.data.star
 				//网络请求
 			},		
+			
+			//创建订单
+			createOrder(){
+				if(this.$u.test.isEmpty(this.model.sku)) return this.openSku()
+				if(this.$u.test.isEmpty(this.model.photoList)) return this.openPhoto()
+				if(this.model.typeId==0){
+					if(this.$u.test.isEmpty(this.model.date)) return this.dateShow = !this.dateShow
+					if(this.$u.test.isEmpty(this.model.mendian)) return this.storeAddressShow = !this.storeAddressShow
+					
+				}else{
+					if(this.$u.test.isEmpty(this.model.address)) return this.expressAddressShow = !this.expressAddressShow
+						
+				}
+				//this.$refs.photoUpload.upload();
+				//测试 
+				this.photoUploadok()
+			},
+			//上传订单图片成功
+			photoUploadok(){
+				var sku = ''
+				for (let i in this.model.sku) {
+					sku += this.model.sku[i].id + ','
+				}
+				var params = {
+					pid:this.model.pid,
+					typeId:this.model.typeId,
+					sku:sku,
+					number:this.model.number,
+					date:this.model.date,
+					mendianid:this.model.mendianid,
+					addressid:this.model.addressid,
+				}
+				this.$navto('/pages/order/ordercreate',this.$u.queryParams(params))
+			},
+			
+			//页面动画
 			getBoxTop() {
 				new Promise(resolve => {
 					let selectorQuery = uni.createSelectorQuery();
@@ -655,11 +652,8 @@
 			},
 			toplistchange(index){
 				this.topcurrent = index
-				uni.pageScrollTo({
-				    scrollTop: this.toplist[index].top - 50,
-				    duration: 0
-				});
-			}
+				this.$pageScrollTo(this.toplist[index].top - 50) 
+			},
 		}
 	}
 </script>
@@ -668,320 +662,5 @@
 	.page{
 		background: #eee;
 		padding-bottom:100rpx ;
-	}
-	
-	.datetitle{
-		font-size: 30rpx;
-		text-align: center;
-		margin: 30rpx 0 0;
-	}
-	
-	.topname{
-		width: 400rpx;
-	}
-	
-	.nav-submit{
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		z-index:2;
-		flex: 1;
-		right: 0;
-		flex-direction: row;
-		flex-wrap: nowrap;
-		background: #fff;
-		border-top:1rpx solid #eee;
-		.item{
-			flex-direction: row;
-			height: 100rpx;
-			align-items: center;
-			margin: 0 30rpx;
-			&.active{
-				color: #e80000;
-			}
-			.u-icon{
-				margin-right: 10rpx;
-				font-size: 40rpx;
-			}
-			&.btn{
-				flex: 1;
-				margin:0 10rpx;
-			}
-			.shopbtn{
-				background: #e80000;
-				color: #fff;
-				flex: 1;
-				height: 80rpx;
-				border-radius: 40rpx;
-				line-height: 80rpx;
-				text-align: center;
-			}
-		}
-	}
-	.boxgroup{
-		.box{
-			background: #fff;
-			margin: 15rpx 15rpx 0 15rpx;
-			padding: 20rpx;
-			border-radius: 20rpx;
-			font-size: 20rpx;
-			.marginauto{
-				margin-bottom: 20rpx;
-			}
-			.color999{
-				color:#999
-			}
-			.active{
-				color:#e80000
-			}
-			.u-icon{
-				margin-right: 10rpx;
-			}
-			.u-cell{
-				padding: 30rpx 0;
-				align-items: flex-start;
-			}
-			.label{
-				color:#000;
-				flex-direction: row;
-				margin-right: 20rpx;
-				.xg{
-					margin-left: -20rpx;
-				}
-			}
-			.mainlabel{
-				color:#999
-			}
-			
-			.price{
-				color:#e80000;
-				font-size: 45rpx;
-				flex-direction: row;
-				font-weight: bold;
-				margin-right: 20rpx;
-				.u-icon{
-					font-size: 30rpx;
-					margin-bottom: -10rpx;
-					margin-right: 5rpx;
-				}
-			}
-			.old-price{
-				color:#999;
-				margin-bottom: -10rpx;
-				font-size: 30rpx;
-				flex-direction: row;
-				text-decoration: line-through;
-				.u-icon{
-					font-size: 20rpx;	
-					margin-bottom: -5rpx;
-					margin-right: 5rpx;
-				}
-			}
-			.tags{
-				.u-tag{
-					margin-right: 10rpx;
-				}
-			}
-			.title{
-				font-size: 34rpx;
-				font-weight: bold;
-			}
-			.tagslist{
-				.u-tag{
-					margin-right: 10rpx;
-				}
-			}
-			.commentitem{
-				.customer{
-					margin-left: 20rpx;
-					.name{
-						font-weight: bold;
-						margin-bottom: 10rpx;
-						font-size: 24rpx;
-					}
-					.date{
-						color: #999;
-					}
-				}
-				.content{
-					line-height: 34rpx;
-					.text-area{
-						font-size: 26rpx;
-					}
-					.shoptype{
-						.item{
-							margin-right: 20rpx;
-							color:#999
-						}
-					}
-				}
-				.commentimages{
-					flex-direction: row;
-					.u-image{
-						margin-right: 20rpx;
-					}
-				}
-			}
-		}
-		.toolsbox{
-			padding: 0 30rpx;
-			
-		}
-		.shopdesc{
-			margin: 50rpx 0;
-			align-items: center;
-			.title{
-				width: 400rpx;
-				text-align: center;
-				align-items: center;
-				height: 2rpx;
-				line-height: 2rpx;
-				background: #999;
-				.line{
-					width: 150rpx;
-					background: #eee;
-				}
-			}
-			
-		}
-		
-		.parse{
-			*{
-				width: 100%;
-			}
-		}
-	}
-	.popupbox{
-		height: 70vh;
-		padding: 30rpx;
-		justify-content: space-between;
-		.popuptitle{
-			line-height: 80rpx;
-			font-size: 32rpx;
-			height: 80rpx;
-			text-align: center;
-			background: #fff;
-			position: fixed;
-			flex: 1;
-			margin: 0;			
-			width: 100vw;
-			top: 0;
-			left: 0;
-			z-index:1;
-			&.popuptop{
-				height: 240rpx;
-				padding: 30rpx;
-				flex-direction: row;
-				line-height: unset;
-				.fillbox{
-					align-items: flex-start;
-					justify-content: flex-end;
-				}
-				.u-image{
-					margin-right: 30rpx;
-				}
-				.price{
-					font-size: 45rpx;
-					color:#e80000;
-					font-weight: bold;
-					margin-bottom: 10rpx;
-					flex-direction: row;
-					.u-icon{
-						font-size: 30rpx;
-						margin-top: 15rpx;
-					}
-				}
-				.type{
-					font-size: 26rpx;
-					color: #777;
-				}
-			}
-		}
-		.popuplist{
-			flex: 1;
-			margin-top: 60rpx;
-			padding-bottom: 120rpx;
-			&.popuptype{
-				margin-top: 210rpx;
-				.popupitem{
-					margin-bottom: 30rpx;
-					.tags{
-						flex-direction: row;
-						flex-wrap: wrap;
-						margin: 20rpx 0;
-						.tag{
-							margin-right: 20rpx;
-							padding:10rpx 30rpx;
-							border-radius: 10rpx;
-							margin-bottom: 20rpx;
-							background: #eee;
-							&.active{
-								background: #e80000;
-								color: #fff;
-							}
-						}
-					}
-				}
-			}
-			.linetitle{
-				line-height: 50rpx;
-				font-weight: bold;
-			}
-			.addressitem{
-				margin: 20rpx 0;
-				align-items: center;
-				flex-direction: row;
-				.u-icon{
-					margin-right: 30rpx;
-					font-size: 40rpx;
-				}
-				.label{
-					font-size: 32rpx;
-					margin-bottom: 10rpx;
-					font-weight: bold;
-				}
-				.desc{
-					font-size: 20rpx;
-				}
-			}
-			.serveritem{
-				margin: 20rpx 0;
-				.label{
-					flex-direction: row;
-					margin-bottom: 20rpx;
-					.u-icon{
-						margin-right: 20rpx;
-						color: #e80000;
-					}
-				}
-				.desc{
-					color: #777;
-				}
-			}
-			.parameteritem{
-				flex-direction: row;
-				line-height: 30rpx;
-				padding: 30rpx 0;
-				.label{
-					color: #777;
-					width: 200rpx;
-				}
-				.desc{
-					flex: 1;
-				}
-			}
-		}
-		.popupbtn{
-			position: fixed;
-			bottom: 0;
-			left: 0;
-			z-index:1;
-			width: 100vw;
-			padding: 30rpx 50rpx;
-			.u-btn{
-				color: #fff;
-				background-color: #e80000;
-			}
-		}
 	}
 </style>
