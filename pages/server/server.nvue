@@ -175,7 +175,7 @@
 							<view @click="checkSku(index,index2)" :class="item.active?'active':''" class="tag" v-for="(item,index2) in sku.list" :key="index2">{{item.name}}</view>
 						</view>
 					</view>
-					<view class="popupitem flex-s">
+					<view class="popupitem flex-space-between flex-row">
 						<view class="linetitle">数量</view>
 						<u-number-box class="flex-center" :min="1" v-model="model.number"></u-number-box>
 					</view>
@@ -217,11 +217,14 @@
 				<view class="popuptitle">配送至</view>
 				<view class="popuplist">
 					<view class="addressitem" @click="setaddress(item,index)" v-for="(item,index) in data.expressAddressList" :key="index">
-						<u-icon custom-prefix="iconfont icon-dingwei1"v-if="!item.default"></u-icon>
-						<u-icon color="#e80000" name="checkbox-mark" v-if="item.default"></u-icon>
+						<u-icon custom-prefix="iconfont icon-dingwei1"v-if="!item.active"></u-icon>
+						<u-icon color="#e80000" name="checkbox-mark" v-if="item.active"></u-icon>
 						<view class="fillbox">
-							<view class="label">{{item.address}}</view>
-							<view class="desc">{{item.site}}</view>
+							<view class="label flex-center flex-row"><u-tag v-if="item.default" size="mini" type="error" class="u-m-r-15" text="默认" mode="dark"></u-tag>{{item.address}}</view>
+							<view class="desc u-m-b-10">{{item.site}}</view>
+							<view class="u-font-20">
+								{{item.name}} {{item.phone}}
+							</view>
 						</view>
 					</view>
 				</view>
@@ -401,17 +404,17 @@
 					
 					sku:[],
 					photoList:[],
-					skuName:null,
-					skuPrice:null,
-					skuImage:null,
+					skuName:'',
+					skuPrice:'',
+					skuImage:'',
 					number:1,
 					
-					date:null,
-					mendian:null,
-					mendianid:null,
+					date:'',
+					mendian:'',
+					mendianid:'',
 					
-					address:null,
-					addressid:null,
+					address:'',
+					addressid:'',
 				},
 				
 				//上传图片
@@ -506,12 +509,11 @@
 					$this.fullloading = false
 					$this.getBoxTop();
 				}, 500);
-				//this.redaytype()
 			},
 			//初始化数据
 			redaydata(){
 				for (var i in this.data.expressAddressList) {
-					if(this.data.expressAddressList[i].default){
+					if(this.data.expressAddressList[i].active){
 						this.model.address = this.data.expressAddressList[i].site
 						this.model.addressid = this.data.expressAddressList[i].id
 					}
@@ -571,9 +573,9 @@
 			setaddress(data,index){
 				this.expressAddressShow = false
 				for (var i in this.data.expressAddressList) {
-					this.data.expressAddressList[i].default = false
+					this.data.expressAddressList[i].active = false
 				}
-				this.data.expressAddressList[index].default = true
+				this.data.expressAddressList[index].active = true
 				this.model.address = this.data.expressAddressList[index].site
 				this.model.addressid = this.data.expressAddressList[index].id
 			},

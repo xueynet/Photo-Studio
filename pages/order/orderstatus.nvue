@@ -1,8 +1,8 @@
 <template>
 	<view class="page">
 		<full-loading :show="fullloading"></full-loading>
-		<view class="status">
-			<view class="title">
+		<view class="orderstatus flex-center">
+			<view class="title flex-center">
 				<view class="flex-center flex-row price u-m-b-20" v-if="data.status == 1" @click="setstatus(2)">
 					<u-icon name="setting"></u-icon>
 					待付款
@@ -20,7 +20,7 @@
 					已完成
 				</view>
 			</view>
-			<view class="desc">
+			<view class="desc flex-center">
 				<view class="flex-center flex-row u-font-20 item" v-if="data.status == 1">
 					<view class="flex-center flex-row u-m-r-20">需付款：<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{data.zongjia}}</view>
 					<view class="flex-center flex-row">剩余：<u-count-down bg-color="#eee" separator-size="20" font-size="20" separator="zh" class="u-m-l-20" :timestamp="data.countdown" :show-border="false" color="#606266" border-color="#909399"></u-count-down></view>
@@ -31,7 +31,7 @@
 			</view>
 		</view>
 		<view class="box" v-if="data.status == 1">
-			<view class="list">
+			<view class="orderstatus_xq">
 				<u-cell-group>
 					<u-cell-item class="cell flex-center flex-row" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
 						<view slot="title" class="customer flex-row flex-center">
@@ -66,15 +66,14 @@
 							<view>{{ item.type }}</view>
 						</view>
 						<view class="price flex-center flex-row">
-							￥{{priceInt(item.price)}}
-							<view class="decimal">.{{ priceDecimal(item.price) }}</view>
+							￥{{item.price}}
 						</view>
 						<view class="server flex-box">
 							<u-tag class="u-m-b-10" v-for="(tag,index3) in item.server" :key="index3" type="error" size="mini" :text="tag.name" shape="circle"></u-tag>
 						</view>
 					</view>
 				</view>
-				<view class="bottom">
+				<view class="bottom flex-end flex-bottom flex-right">
 					<view class="btns">
 						<u-button :plain="true" shape="circle" size="mini" class="btn" v-if="data.status == 1">取消订单</u-button>
 						<u-button :plain="true" shape="circle" size="mini" class="btn" v-if="data.status == 1">修改订单</u-button>
@@ -88,7 +87,7 @@
 			</view>
 		</view>
 		<view class="box">
-			<view class="list">
+			<view class="orderstatus_xq">
 				<u-cell-group>
 					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth" v-for="(item,index) in data.order" :key="index">
 						<view slot="title" class="title">
@@ -102,7 +101,7 @@
 			</view>
 		</view>
 		<view class="box" v-if="data.status !== 1">
-			<view class="list">
+			<view class="orderstatus_xq">
 				<u-cell-group title="配送信息">
 					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
 						<view slot="title" class="title">配送方式:</view>
@@ -124,7 +123,7 @@
 			</view>
 		</view>
 		<view class="box">
-			<view class="list">
+			<view class="orderstatus_xq">
 				<u-cell-group>
 					<u-cell-item class="cell" hover-class="none" :border-bottom="false" :arrow="false" :title-width="labelwidth">
 						<view slot="title" class="title">商品总价:</view>
@@ -258,154 +257,15 @@
 </script>
 
 <style lang="scss">
-	page, .page{
+	page,.page{
 		background: #eee;
 		padding-bottom: 20rpx;
-	}
-	.box{
-		background: #fff;
-		margin: 15rpx 15rpx 0 15rpx;
-		border-radius: 20rpx;
-		overflow: hidden;		
-	}
-	.status{
-		padding: 20rpx;
-		align-content: center;
-		align-items: center;
-		.title{
-			font-size: 40rpx;
-			margin-top: 50rpx;
-			font-weight: bold;
-			.u-icon{
-				margin-right: 10rpx;
-			}
-			.price{
-				color: #e80000;
-			}
-		}
-		.desc{
-			.item{
-				margin-bottom: 20rpx;
-			}
-		}
-		.btns{
-			align-items: center;
-			justify-content: center;
-			flex-direction: row;
-			.btn{
-				margin:0 10rpx;
-			}
+		.box{
+			background: #fff;
+			margin: 15rpx 15rpx 0 15rpx;
+			border-radius: 20rpx;
+			overflow: hidden;		
 		}
 	}
-	.order {
-		background-color: #ffffff;
-		border-radius: 20rpx;
-		box-sizing: border-box;		
-		padding: 20rpx;
-		font-size: 28rpx;
-		.top {
-			display: flex;
-			justify-content: space-between;
-			flex-direction: row;
-			.left {
-				display: flex;
-				align-items: center;
-				flex-direction: row;
-				.store {
-					margin: 0 10rpx;
-					font-size: 32rpx;
-					font-weight: bold;
-				}
-			}
-			.right {
-			}
-		}
-		.item {
-			display: flex;
-			margin: 20rpx 0 0;
-			flex-direction: row;
-			.left {
-				margin-right: 20rpx;
-				image {
-					width: 180rpx;
-					height: 180rpx;
-					border-radius: 10rpx;
-				}
-			}
-			.content {
-				flex: 1;
-				.title {
-					font-size: 28rpx;
-					line-height: 40rpx;
-					height: 80rpx;
-					font-weight: bold;
-				}
-				.type {
-					font-size: 20rpx;
-					line-height: 40rpx;
-					margin: 10rpx 0;
-					color: $u-tips-color;
-				}
-				.price{
-					color: #e80000;
-				}
-				.server {
-					align-items: flex-start;
-					margin-top: 15rpx;
-					.u-tag{
-						margin-right: 10rpx;
-					}
-				}
-				
-			}
-		}
-		.bottom {
-			display: flex;
-			margin-top: 30rpx;
-			justify-content: flex-end;
-			align-items: flex-end;
-			flex-direction: row;
-			.btns{
-				flex-direction: row;
-			}
-			.btn {
-				line-height: 52rpx;
-				width: 160rpx;
-				border-radius: 26rpx;
-				font-size: 26rpx;
-				text-align: center;
-				margin-left: 15rpx;
-			}
-		}
-	}
-	.list{
-		padding: 20rpx 0;
-		.cell{
-			padding-top: 10rpx;
-			padding-bottom: 0;
-			align-items: flex-start;
-			.price{
-				color: #e80000;
-				font-size: 30rpx;
-				.u-icon{
-					font-size: 20rpx;
-				}
-			}
-		}
-		.customer{
-			color: #000000;
-			.u-icon{
-				margin-right: 10rpx;
-				font-size: 40rpx;
-			}
-		}
-		.title{
-			color: #999;
-			font-size: 20rpx;
-		}
-		.fillbox{
-			color: #222;
-			font-size: 20rpx;
-		}
-	}
+	
 </style>

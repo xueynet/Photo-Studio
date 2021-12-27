@@ -15,6 +15,15 @@ uni-modal{
 .u-line-2, .u-line-3, .u-line-4, .u-line-5 {
     display: -webkit-box !important; 
 }
+.tag-red{
+	color: #fff;
+	background: #E80000;
+	padding: 0 10rpx;
+	border-radius: 8rpx;
+}
+.price{
+	color: #e80000;
+}
 .page{
 	background-color: #fff;
 	min-height: 100%;
@@ -109,6 +118,9 @@ uni-modal{
 .color-dark{
 	color: #bcbcbc;
 }
+.bg-fff{
+	background: #fff;
+}
 .bg-tm{
 	background: #ffffff00 !important;
 }
@@ -160,6 +172,7 @@ uni-modal{
 		}
 	}
 }
+
 .news{
 	background: #f9f9f9;
 	padding: 20rpx;
@@ -188,6 +201,7 @@ uni-modal{
 		}
 	}
 }
+
 .address{
 	.item {
 		padding: 40rpx 20rpx;
@@ -366,6 +380,86 @@ uni-modal{
 				flex: 1;
 			}
 		}
+		.couponitem {
+			margin: 30rpx 0;
+			height: auto;
+			background-color: #ffffff;
+			display: flex;
+			flex-direction: row;
+			.left {
+				background-color: #e80000;
+				text-align: center;
+				font-size: 28rpx;
+				border-radius: 10rpx;
+				width: 200rpx;
+				height: 160rpx;
+				justify-content: center;
+				color: #ffffff;
+				.sum {
+					font-weight: bold;
+					font-size: 20rpx;
+					flex-direction: row;
+					align-items: center;					
+					margin-bottom: 10rpx;
+					justify-content: center;
+					.u-icon{
+						margin-top: 20rpx;
+					}
+					.num {
+						font-size: 60rpx;
+					}
+				}
+				.type {
+					font-size: 24rpx;
+				}
+			}
+			.right {
+				padding-left: 20rpx;
+				font-size: 28rpx;
+				flex: 1;
+				.top {
+					border-bottom: 2rpx dashed $u-border-color;
+					flex: 1;
+					justify-content: space-between;
+					.title {
+						line-height: 40rpx;
+						.u-tag {
+							margin-right: 10rpx;
+						}
+					}
+					.bottom {
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+						justify-content: space-between;
+						margin: 10rpx 0;
+						.date {
+							font-size: 20rpx;
+							flex: 1;
+						}
+						.immediate-use {
+							height: auto;
+							padding: 0 20rpx;
+							font-size: 24rpx;
+							border-radius: 40rpx;
+							line-height: 40rpx;
+							color: rgb(117, 142, 165);
+							border: 2rpx solid rgb(117, 142, 165);
+						}
+					}
+				}
+			}
+			&.nook{
+				padding: 10rpx;
+				background: #ddd;
+				.left{
+					background: #999;
+				}
+				.tag{
+					background: #999;
+				}
+			}
+		}
 	}
 	.popupbtn{
 		position: fixed;
@@ -378,6 +472,204 @@ uni-modal{
 			color: #fff;
 			background-color: #e80000;
 		}
+	}
+}
+
+.order {
+	background-color: #ffffff;
+	margin: 15rpx 15rpx 0 15rpx;
+	border-radius: 20rpx;
+	box-sizing: border-box;
+	padding: 20rpx;
+	font-size: 28rpx;
+	.top {
+		display: flex;
+		justify-content: space-between;
+		flex-direction: row;
+		.left {
+			display: flex;
+			align-items: center;
+			flex-direction: row;
+			.store {
+				margin: 0 10rpx;
+				font-size: 32rpx;
+				font-weight: bold;
+			}
+		}
+		.right {
+			color: #e80000;
+		}
+	}
+	.item {
+		display: flex;
+		margin: 20rpx 0 0;
+		flex-direction: row;
+		.left {
+			margin-right: 20rpx;
+			image {
+				width: 180rpx;
+				height: 180rpx;
+				border-radius: 10rpx;
+			}
+		}
+		.content {
+			flex: 1;
+			.title {
+				font-size: 28rpx;
+				font-weight: bold;
+			}
+			.type {
+				font-size: 26rpx;
+				line-height: 60rpx;
+				color: $u-tips-color;
+			}
+			.server {
+				align-items: flex-start;
+				margin-top: 15rpx;
+				.u-tag{
+					margin-right: 10rpx;
+				}
+			}
+			
+		}
+	}
+	.total {
+		margin-top: 20rpx;
+		text-align: right;
+		font-size: 24rpx;
+		justify-content: space-between;
+		flex-wrap: nowrap;
+		flex-direction: row;
+		color:#999;
+		.number{
+			padding-top: 5rpx;
+		}
+		.price{
+			flex-wrap: nowrap;
+			align-items: center;
+			flex-direction: row;
+		}
+		.old-price {
+			font-size: 26rpx;
+			margin-left: 10rpx;
+			flex-direction: row;
+		}
+		.yh-price {
+			font-size: 26rpx;
+			flex-direction: row;
+			margin-left: 10rpx;
+		}
+		.total-price {
+			font-size: 28rpx;
+			margin-left: 10rpx;
+			flex-direction: row;
+			color: #000000;
+			font-weight: bold;
+		}
+	}
+	.bottom {
+		display: flex;
+		margin-top: 30rpx;
+		justify-content: space-between;
+		align-items: center;
+		flex-direction: row;
+		.btns{
+			flex-direction: row;
+		}
+		.btn {
+			line-height: 52rpx;
+			width: 160rpx;
+			border-radius: 26rpx;
+			font-size: 26rpx;
+			text-align: center;
+			margin-left: 15rpx;
+		}
+	}
+}
+
+.orderstatus{
+		padding: 20rpx;
+		.title{
+			font-size: 40rpx;
+			margin-top: 50rpx;
+			font-weight: bold;
+			.u-icon{
+				margin-right: 10rpx;
+			}
+			.price{
+				color: #e80000;
+			}
+		}
+		.desc{
+			.item{
+				margin-bottom: 20rpx;
+			}
+		}
+		.btns{
+			align-items: center;
+			justify-content: center;
+			flex-direction: row;
+			.btn{
+				margin:0 10rpx;
+			}
+		}
+	}
+
+.orderstatus_xq{
+	padding: 20rpx 0;
+	.cell{
+		padding-top: 10rpx !important;
+		padding-bottom: 0 !important;
+		align-items: flex-start !important;
+		.price{
+			color: #e80000;
+			font-size: 30rpx;
+			.u-icon{
+				font-size: 20rpx;
+			}
+		}
+	}
+	.customer{
+		color: #000000;
+		.u-icon{
+			margin-right: 10rpx;
+			font-size: 40rpx;
+		}
+	}
+	.title{
+		color: #999;
+		font-size: 20rpx;
+	}
+	.fillbox{
+		color: #222;
+		font-size: 20rpx;
+	}
+}
+
+.centre {
+	text-align: center;
+	margin: 200rpx auto;
+	align-items: center;
+	font-size: 32rpx;
+	image {
+		width: 164rpx;
+		height: 164rpx;
+		border-radius: 50%;
+		margin-bottom: 20rpx;
+	}
+	.tips {
+		font-size: 24rpx;
+		color: #999999;
+		margin-top: 20rpx;
+	}
+	.btn {
+		margin: 80rpx auto;
+		width: 200rpx;
+		border-radius: 32rpx;
+		line-height: 64rpx;
+		color: #ffffff;
+		font-size: 26rpx;
+		background: linear-gradient(270deg, rgba(249, 116, 90, 1) 0%, rgba(255, 158, 1, 1) 100%);
 	}
 }
 
@@ -551,6 +843,39 @@ uni-modal{
 			line-height: 80rpx;
 			text-align: center;
 		}
+	}
+	&.order{
+		.orderprice{
+			font-size: 50rpx;
+			color:#e80000;
+			.u-icon{
+				font-size: 30rpx;
+				margin-top: 10rpx;
+			}
+		}
+		.youhuiprice{
+			font-size: 20rpx;
+			.u-icon{
+				font-size: 20rpx;
+			}
+		}
+		.orderbtn{
+			background: #e80000;
+			width: 200rpx;
+			color: #fff;
+			height: 80rpx;
+			border-radius: 40rpx;
+			line-height: 80rpx;
+			text-align: center;
+		}
+	}
+	.paybtn{
+		color: #fff !important;
+		flex: 1;
+		height: 80rpx;
+		border-radius: 40rpx;
+		line-height: 80rpx;
+		text-align: center;
 	}
 }
 

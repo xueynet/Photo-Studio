@@ -6,7 +6,7 @@
 			</view>
 			<view class="paystatus">{{paystatus}}</view>
 			<view class="btngroup">
-				<u-button type="error" class="btn" @click="$navto('/pages/order/order/order')" :ripple="true" shape="circle">查看订单</u-button>
+				<u-button type="error" class="btn" @click="$navto('/pages/order/order')" :ripple="true" shape="circle">查看订单</u-button>
 				<u-button class="btn" @click="$swithto('/pages/index/index')" :ripple="true" shape="circle">返回首页</u-button>
 			</view>
 		</view>

@@ -1,7 +1,7 @@
 <template>
 	<view class="page u-font-20">
 		<full-loading :show="fullloading"></full-loading>
-		<view class="box flex-center flex-row" @click="addressshow = !addressshow">
+		<view class="bg-fff u-m-b-20 u-p-20 flex-center flex-row" @click="addressshow = !addressshow">
 			<view class="fillbox">
 				<view class="site flex-center flex-row u-m-b-15">
 					<u-tag v-if="checkaddress.default" class="u-m-r-15" type="error" size="mini" text="默认" mode="dark"></u-tag>
@@ -17,29 +17,29 @@
 			</view>
 			<u-icon custom-prefix="iconfont icon-chevron-right"></u-icon>
 		</view>
-		<view class="box">
+		<view class="bg-fff u-m-b-20 u-p-20">
 			<view class="productitem">
 				<view class="shopname flex-center flex-row u-m-b-20 bold">
 					<u-tag v-if="store.zy" class="u-m-r-15" size="mini" type="error" text="自营" mode="dark"></u-tag>
 					{{store.name}}
 				</view>
 				<view class="flex-space-between flex-row flex-start">
-					<u-image class='u-m-r-20' :src="product.image" width="200" height="200"></u-image>
+					<u-image class='u-m-r-20' :src="data.image" width="200" height="200"></u-image>
 					<view class="fillbox">
-						<view class="pname u-m-b-15 bold u-font-28">
-							{{product.name}}
+						<view class="u-m-b-15 bold u-font-28">
+							{{data.name}}
 						</view>
-						<view class="type u-m-b-15">
-							{{product.type}}
+						<view class="u-m-b-15 color-dark">
+							{{data.skuName}}
 						</view>
 						<view class="fillbox flex-space-between flex-row u-m-b-15">
 							<view class="price flex-center flex-row u-font-28">
-								<u-icon class="u-font-20" custom-prefix="iconfont icon-yen-sign"></u-icon>{{product.price}}
+								<u-icon class="u-font-20" custom-prefix="iconfont icon-yen-sign"></u-icon>{{data.price}}
 							</view>
-							<u-number-box @change="setzongjia" class="flex-center flex-row" :min="1" v-model="product.number"></u-number-box>
+							<u-number-box @change="setzongjia" class="flex-center flex-row" :min="1" v-model="data.number"></u-number-box>
 						</view>
 						<view class="server flex-start">
-							<u-tag v-for="(item,index) in product.server" :type="item.type" size="mini" :text="item.name" :key="index"></u-tag>
+							<u-tag v-for="(item,index) in data.server" :type="item.type" size="mini" :text="item.name" :key="index"></u-tag>
 						</view>
 					</view>
 				</view>
@@ -75,8 +75,8 @@
 				<u-input class="fillbox" v-model="model.beizhu" type="text" placeholder="请填写备注信息"></u-input>
 			</u-cell-item>
 		</u-cell-group>
-		<view class="submit flex-center flex-row">
-			<view class="fillbox">
+		<view class="tabbar-submit order flex-center flex-row u-p-20">
+			<view class="fillbox ">
 				<view class="orderprice flex-center flex-row">
 					<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{model.allzongjia}}
 				</view>
@@ -84,15 +84,15 @@
 					共省：<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{model.youhuije}}
 				</view>
 			</view>
-			<view class="orderbtn" @click="$navto('/pages/order/pay/pay',model)">提交订单</view>
+			<view class="orderbtn" @click="$navto('/pages/order/pay',$u.queryParams(model))">提交订单</view>
 		</view>
 		<u-popup v-model="addressshow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
 				<view class="popuptitle">配送至</view>
 				<view class="popuplist">
 					<view class="addressitem" @click="setaddress(item,index)" v-for="(item,index) in addresslist" :key="index">
-						<u-icon custom-prefix="iconfont icon-dingwei1"v-if="!item.check"></u-icon>
-						<u-icon color="#e80000" name="checkbox-mark" v-if="item.check"></u-icon>
+						<u-icon custom-prefix="iconfont icon-dingwei1"v-if="!item.active"></u-icon>
+						<u-icon color="#e80000" name="checkbox-mark" v-if="item.active"></u-icon>
 						<view class="fillbox">
 							<view class="label flex-center flex-row"><u-tag v-if="item.default" size="mini" type="error" class="u-m-r-15" text="默认" mode="dark"></u-tag>{{item.address}}</view>
 							<view class="desc u-m-b-10">{{item.site}}</view>
@@ -103,7 +103,7 @@
 					</view>
 				</view>
 				<view class="popupbtn">
-					<u-button @click="$navto('/pages/home/address/address')" :ripple="true" shape="circle">地址管理</u-button>
+					<u-button @click="$navto('/pages/home/address')" :ripple="true" shape="circle">地址管理</u-button>
 				</view>
 			</view>
 		</u-popup>
@@ -122,7 +122,7 @@
 						<view class="right">
 							<view class="top">
 								<view class="title">
-									<text><u-tag size="mini" mode="dark" text="官方" type="error"></u-tag>仅可购买个人护理部分商品仅可购买个人护理部分商品</text>
+									<text><text class="tag tag-red u-m-r-15">官方</text>仅可购买个人护理部分商品仅可购买个人护理部分商品</text>
 								</view>
 								<view class="bottom">
 									<view class="date u-line-1">2020.01.01-2020.01.31</view>
@@ -148,7 +148,7 @@
 						<view class="right">
 							<view class="top">
 								<view class="title">
-									<text><u-tag size="mini" mode="dark" text="官方" type="info"></u-tag>仅可购买个人护理部分商品仅可购买个人护理部分商品</text>
+									<text><text class="tag tag-red u-m-r-15">官方</text>仅可购买个人护理部分商品仅可购买个人护理部分商品</text>
 								</view>
 								<view class="bottom">
 									<view class="date u-line-1">2020.01.01-2020.01.31</view>
@@ -167,63 +167,29 @@
 		data() {
 			return {
 				fullloading:true,
-				page:{},
+				
 				store:{
+					id:0,
 					name:'照相馆自营',
 					zy:true,
 				},
-				product:{
+				
+				data:{
+					pid:0,
 					image:'',
-					name:'2021新款 赛600 四缸大摩托',
-					type:'官方标配 紫色',
-					price:'998.00',
+					name:'',
+					sku:'',
+					skuName:'',
+					price:'',
 					number:1,
-					yunfei:'10.00',
-					server:[
-						{name:'支持7天无理由退换货',
-						type:'error'}
-					]
+					yunfei:'',
+					server:[]
 				},
+				
 				checkaddress:{},
 				addressshow:false,
-				addresslist:[
-					{
-						id: 0,
-						default:false,
-						check:false,
-						site: '重庆市 渝北区 龙塔街道',
-						address:"龙塔街道179号",
-						name:'yzz',
-						phone:10086,
-					},
-					{
-						id: 1,
-						default:true,
-						check:true,
-						site: '广东省 深圳市 宝安区',
-						address:"自由路66号",
-						name:'yzz',
-						phone:10086,
-					},
-					{
-						id: 2,
-						default:false,
-						check:false,
-						site: '广东省 深圳市 宝安区',
-						address:'自由路68号',
-						name:'yzz',
-						phone:10086,
-					},
-					{
-						id: 3,
-						default:false,
-						check:false,
-						site: '广东省 深圳市 宝安区',
-						address:'平安路13号',
-						name:'yzz',
-						phone:10086,
-					}
-				],
+				addresslist:getApp().globalData.addressList,
+				
 				youhuijuanshow:false,
 				youhuijuanlist:[
 					{
@@ -244,6 +210,7 @@
 					},
 				],
 				youhuinumber:0,
+				
 				model:{
 					youhui:'',
 					youhuije:0,
@@ -263,42 +230,54 @@
 		},
 		methods: {
 			getdata(){
-				this.redayaddress()
-				this.setzongjia()
-				this.isyouhui()
-				this.setyunfei()
+				this.data.pid = this.option.pid
+				this.data.sku = this.option.sku
+				this.data.number = parseInt(this.option.number)
+				
+				this.data.skuName = '红色，高配'
+				this.data.image = '/static/images/product/goods/n3/1.jpg'
+				this.data.name = 'QUATREFOIL玻璃相框 A4营业执照荣誉证书框结婚照桌面摆台宝宝儿童照片画框挂墙'
+				this.data.price = '998.00'
+				this.data.yunfei = '10.00'
+				this.data.server = [
+					{name:'支持7天无理由退换货',type:'error'}
+				]
+				this.redaydata()
 				setTimeout(() => {
 					this.fullloading = false
 				}, 500);
 			},
-			priceDecimal(val) {
-				if (parseInt(val) === parseFloat(val).toFixed(2)) return val + '.00'
-				else return parseFloat(val).toFixed(2)
-			},
-			redayaddress(){
+			
+			//初始化数据
+			redaydata(){
 				for (var i = 0; i < this.addresslist.length; i++) {
-					if(this.addresslist[i].check){
+					if(this.addresslist[i].id == this.option.addressid){
 						this.checkaddress = this.addresslist[i]
 					}
 				}
+				this.setzongjia()
 			},
+			//设置地址
 			setaddress(data,index){
 				this.addressshow = false
 				for (var i = 0; i < this.addresslist.length; i++) {
-					this.addresslist[i].check = false
+					this.addresslist[i].active = false
 				}
-				this.addresslist[index].check = true
+				this.addresslist[index].active = true
 				this.checkaddress = this.addresslist[index]
 			},
+			//设置总价
 			setzongjia(){
-				this.model.zongjia = this.priceDecimal(parseFloat(this.product.price).toFixed(2)*this.product.number)
+				this.model.zongjia = this.$priceDecimal(parseFloat(this.data.price).toFixed(2)*this.data.number)
 				this.setyunfei()
 				this.isyouhui()
 				this.setallzongjia()
 			},
+			//设置运费
 			setyunfei(){
-				this.model.yunfei = this.priceDecimal(parseFloat(this.product.yunfei).toFixed(2)*this.product.number)
+				this.model.yunfei = this.$priceDecimal(parseFloat(this.data.yunfei).toFixed(2)*this.data.number)
 			},
+			//是否优惠
 			isyouhui(){
 				this.youhuinumber = 0
 				this.model.youhui = "无可用"
@@ -318,20 +297,22 @@
 					}
 				}
 			},
+			//设置优惠
 			setyouhui(item,index){
 				this.youhuijuanshow = false
 				for (var i = 0; i < this.youhuijuanlist.length; i++) {
 					this.youhuijuanlist[i].check = false
 				}
-				this.model.youhuije = this.priceDecimal(this.youhuijuanlist[index].youhui)
+				this.model.youhuije = this.$priceDecimal(this.youhuijuanlist[index].youhui)
 				this.youhuijuanlist[index].check = true
 				this.setallzongjia()
 			},
+			//全部总价
 			setallzongjia(){
-				const pprice = this.priceDecimal(parseFloat(this.model.zongjia).toFixed(2))
-				const pyunfei = this.priceDecimal(parseFloat(this.model.yunfei).toFixed(2))
-				const pyouhui = this.priceDecimal(parseFloat(this.model.youhuije).toFixed(2))
-				this.model.allzongjia = this.priceDecimal(parseFloat(pprice) + parseFloat(pyunfei) - parseFloat(pyouhui))
+				const pprice = this.$priceDecimal(parseFloat(this.model.zongjia).toFixed(2))
+				const pyunfei = this.$priceDecimal(parseFloat(this.model.yunfei).toFixed(2))
+				const pyouhui = this.$priceDecimal(parseFloat(this.model.youhuije).toFixed(2))
+				this.model.allzongjia = this.$priceDecimal(parseFloat(pprice) + parseFloat(pyunfei) - parseFloat(pyouhui))
 			}
 		}
 	}
@@ -340,270 +321,5 @@
 <style lang="scss">
 	.page{
 		background: #eee;
-	}
-	.price{
-		color: #e80000;
-	}
-	.box{
-		padding: 20rpx;
-		margin-bottom: 20rpx;
-		background: #fff;
-		.type{
-			color: #999;
-		}
-		.pname{
-			flex-wrap: nowrap;
-			height: 40rpx;
-		}
-		.price{
-			color: #e80000;
-		}
-	}
-	.submit{
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		z-index:2;
-		flex: 1;
-		right: 0;
-		flex-direction: row;
-		padding: 20rpx;
-		flex-wrap: nowrap;
-		background: #fff;
-		border-top:1rpx solid #eee;
-		.orderprice{
-			font-size: 50rpx;
-			color:#e80000;
-			.u-icon{
-				font-size: 30rpx;
-				margin-top: 10rpx;
-			}
-		}
-		.youhuiprice{
-			font-size: 20rpx;
-			.u-icon{
-				font-size: 20rpx;
-			}
-		}
-		.orderbtn{
-			background: #e80000;
-			width: 200rpx;
-			color: #fff;
-			height: 80rpx;
-			border-radius: 40rpx;
-			line-height: 80rpx;
-			text-align: center;
-		}
-	}
-		
-	.popupbox{
-		height: 70vh;
-		padding: 30rpx;
-		justify-content: space-between;
-		.popuptitle{
-			line-height: 80rpx;
-			font-size: 32rpx;
-			height: 80rpx;
-			text-align: center;
-			background: #fff;
-			position: fixed;
-			flex: 1;
-			margin: 0;			
-			width: 100vw;
-			top: 0;
-			left: 0;
-			z-index:1;
-			&.popuptop{
-				height: 240rpx;
-				padding: 30rpx;
-				flex-direction: row;
-				line-height: unset;
-				.fillbox{
-					align-items: flex-start;
-					justify-content: flex-end;
-				}
-				.u-image{
-					margin-right: 30rpx;
-				}
-				.price{
-					font-size: 45rpx;
-					color:#e80000;
-					font-weight: bold;
-					margin-bottom: 10rpx;
-					flex-direction: row;
-					.u-icon{
-						font-size: 30rpx;
-						margin-top: 15rpx;
-					}
-				}
-				.type{
-					font-size: 26rpx;
-					color: #777;
-				}
-			}
-		}
-		.popuplist{
-			flex: 1;
-			margin-top: 60rpx;
-			padding-bottom: 120rpx;
-			&.popuptype{
-				margin-top: 210rpx;
-				.popupitem{
-					margin-bottom: 30rpx;
-					.tags{
-						flex-direction: row;
-						flex-wrap: wrap;
-						margin: 20rpx 0;
-						.tag{
-							margin-right: 20rpx;
-							padding:10rpx 30rpx;
-							border-radius: 10rpx;
-							margin-bottom: 20rpx;
-							background: #eee;
-							&.active{
-								background: #e80000;
-								color: #fff;
-							}
-						}
-					}
-				}
-			}
-			.linetitle{
-				line-height: 50rpx;
-				font-weight: bold;
-			}
-			.addressitem{
-				margin: 20rpx 0;
-				align-items: center;
-				flex-direction: row;
-				.u-icon{
-					margin-right: 30rpx;
-					font-size: 40rpx;
-				}
-				.label{
-					font-size: 32rpx;
-					margin-bottom: 10rpx;
-					font-weight: bold;
-				}
-				.desc{
-					font-size: 20rpx;
-				}
-			}
-			.serveritem{
-				margin: 20rpx 0;
-				.label{
-					flex-direction: row;
-					margin-bottom: 20rpx;
-					.u-icon{
-						margin-right: 20rpx;
-						color: #e80000;
-					}
-				}
-				.desc{
-					color: #777;
-				}
-			}
-			.parameteritem{
-				flex-direction: row;
-				line-height: 30rpx;
-				padding: 30rpx 0;
-				.label{
-					color: #777;
-					width: 200rpx;
-				}
-				.desc{
-					flex: 1;
-				}
-			}
-			.couponitem {
-				margin: 30rpx 0;
-				height: auto;
-				background-color: #ffffff;
-				display: flex;
-				flex-direction: row;
-				.left {
-					background-color: #e80000;
-					text-align: center;
-					font-size: 28rpx;
-					border-radius: 10rpx;
-					width: 200rpx;
-					height: 160rpx;
-					justify-content: center;
-					color: #ffffff;
-					.sum {
-						font-weight: bold;
-						font-size: 20rpx;
-						flex-direction: row;
-						align-items: center;					
-						margin-bottom: 10rpx;
-						justify-content: center;
-						.u-icon{
-							margin-top: 20rpx;
-						}
-						.num {
-							font-size: 60rpx;
-						}
-					}
-					.type {
-						font-size: 24rpx;
-					}
-				}
-				.right {
-					padding-left: 20rpx;
-					font-size: 28rpx;
-					flex: 1;
-					.top {
-						border-bottom: 2rpx dashed $u-border-color;
-						flex: 1;
-						justify-content: space-between;
-						.title {
-							line-height: 40rpx;
-							.u-tag {
-								margin-right: 10rpx;
-							}
-						}
-						.bottom {
-							display: flex;
-							flex-direction: row;
-							align-items: center;
-							justify-content: space-between;
-							margin: 10rpx 0;
-							.date {
-								font-size: 20rpx;
-								flex: 1;
-							}
-							.immediate-use {
-								height: auto;
-								padding: 0 20rpx;
-								font-size: 24rpx;
-								border-radius: 40rpx;
-								line-height: 40rpx;
-								color: rgb(117, 142, 165);
-								border: 2rpx solid rgb(117, 142, 165);
-							}
-						}
-					}
-				}
-				&.nook{
-					padding: 10rpx;
-					background: #ddd;
-					.left{
-						background: #999;
-					}
-				}
-			}
-		}
-		.popupbtn{
-			position: fixed;
-			bottom: 0;
-			left: 0;
-			z-index:1;
-			width: 100vw;
-			padding: 30rpx 50rpx;
-			.u-btn{
-				color: #fff;
-				background-color: #e80000;
-			}
-		}
 	}
 </style>

@@ -99,6 +99,11 @@ Vue.prototype.$setnav = ($this,scrollTop,bgHeight,topName)=>{
 		}
 	} 
 }
+//计算小数
+Vue.prototype.$priceDecimal = (val) =>{
+	if (parseInt(val) === parseFloat(val).toFixed(2)) return val + '.00'
+	else return parseFloat(val).toFixed(2)
+},
 Vue.component('full-loading',fullloading)
 Vue.component('local-loading',localloading)
 Vue.config.productionTip = false

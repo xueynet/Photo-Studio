@@ -3,22 +3,22 @@
 		<u-toast ref="uToast"/>
 		<view class="pricebox flex-center u-p-20 u-font-20">
 			<view class="flex-center flex-row u-m-30">
-				<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>
-				<text class="price">{{data.price}}</text>
+				<u-icon size="20" class="price u-m-t-20" custom-prefix="iconfont icon-yen-sign"></u-icon>
+				<text class="price bold u-font-50">{{data.price}}</text>
 			</view>
 			<view class="time flex-center flex-row u-m-b-30">
 				<text>支付剩余时间</text>
 				<u-count-down class="u-m-l-20" :timestamp="data.countdown" :show-border="true" font-size="28" color="#606266" border-color="#909399"></u-count-down>
 			</view>
 		</view>
-		<u-cell-group class="paytype">
-			<u-cell-item hover-class="none" :title="item.name" :arrow="false" title-width="140" v-for="(item,index) in paytype" :key="index">
-				<u-icon slot="icon" :color="item.color" size="40" :custom-prefix="item.icon"></u-icon>
-				<u-switch :loading="item.check&&paying" :disabled="paying" @change="setpaytype(index)" :active-color="item.color" slot="right-icon" :size="40" v-model="item.check"></u-switch>
+		<u-cell-group>
+			<u-cell-item @click="setpaytype(index)" hover-class="none" :title="item.name" :arrow= "false" title-width="140" v-for="(item,index) in paytype" :key="index">
+				<u-icon class="u-m-r-20" slot="icon" :color="item.color" size="40" :custom-prefix="item.icon"></u-icon>
+				<u-switch :loading="item.check&&paying" :disabled="paying" :active-color="item.color" slot="right-icon" :size="40" v-model="item.check"></u-switch>
 			</u-cell-item>
 		</u-cell-group>
-		<view class="submit">
-			<u-button :style="btnbg" class="btn" @click="pay()" :ripple="true" shape="circle">
+		<view class="tabbar-submit u-p-20">
+			<u-button :style="btnbg" class="paybtn" @click="pay()" :ripple="true" shape="circle">
 				<text v-if="item.check" v-for="(item,index) in paytype" :key="index">{{item.name}}</text><text class="u-m-l-10">{{data.price}}</text>
 			</u-button>
 		</view>
@@ -81,7 +81,7 @@
 		},
 		methods: {
 			getdata(){
-				this.data.price = this.priceDecimal(this.data.price)
+				this.data.price = this.$priceDecimal(this.data.price)
 				this.setbtn()
 			},
 			pay(){
@@ -91,7 +91,7 @@
 					this.$refs.uToast.show({
 						title: '支付成功，即将跳转',
 						type: 'success',
-						url: '/pages/order/pay/paystatus',
+						url: '/pages/order/paystatus',
 						callback(){
 							that.paying = false
 						}
@@ -104,28 +104,19 @@
 				}
 				
 			},
-			priceDecimal(val) {
-				if (parseInt(val) === parseFloat(val).toFixed(2)) return val + '.00'
-				else return parseFloat(val).toFixed(2)
-			},
 			setpaytype(index) {
 				if(this.paying){
 					this.paytype[index].check = true
 					return
 				}
-				for (var i = 0; i < this.paytype.length; i++) {
+				for (var i in this.paytype) {
 					if(i!=index) this.paytype[i].check = false
 				}
-				if(!this.paytype[index].check) {
-					this.paytype[index].check = true
-					this.$refs.uToast.show({
-						title: '必选一种方式',
-					})
-				}
+				this.paytype[index].check = true
 				this.setbtn()
 			},
 			setbtn(){
-				for (var i = 0; i < this.paytype.length; i++) {
+				for (var i in this.paytype) {
 					if(this.paytype[i].check) {
 						this.paynum = i
 						this.btnbg = 'background:' + this.paytype[i].color
@@ -140,43 +131,5 @@
 <style lang="scss">
 	.page{
 		background: #fff;
-	}
-	.pricebox{
-		.u-icon{
-			font-size: 20rpx;
-			margin-top: 20rpx;
-			color:#e80000;
-		}
-		.price{
-			font-size: 50rpx;
-			color: #e80000;
-			font-weight: bold;
-		}
-	}
-	.paytype{
-		.u-icon{
-			width: 60rpx;
-		}
-	}
-	.submit{
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		z-index:2;
-		flex: 1;
-		right: 0;
-		flex-direction: row;
-		padding: 20rpx;
-		flex-wrap: nowrap;
-		background: #fff;
-		border-top:1rpx solid #eee;
-		.btn{
-			color: #fff;
-			flex: 1;
-			height: 80rpx;
-			border-radius: 40rpx;
-			line-height: 80rpx;
-			text-align: center;
-		}
 	}
 </style>

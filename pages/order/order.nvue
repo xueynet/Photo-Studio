@@ -1,5 +1,5 @@
 <template>
-	<view>
+	<view class="page">
 		<full-loading :show="fullloading"></full-loading>
 		<view class="wrap">
 			<u-toast ref="uToast"/>
@@ -11,11 +11,11 @@
 			inactive-color="#333" active-color="#e80000"
 			ref="tabs" :list="list" :current="current" @change="change" bar-width="100"
 			:is-scroll="false" swiperWidth="750"></u-tabs-swiper>
-			<swiper class="swiper-box" :current="swiperCurrent" @transition="transition" @animationfinish="animationfinish">
+			<swiper class="swiper-box fillbox" :current="swiperCurrent" @transition="transition" @animationfinish="animationfinish">
 				<swiper-item class="swiper-item" v-for="(page, index) in list" :key="index">
 					<scroll-view scroll-y style="height: 100%;width: 100%;" @scrolltolower="reachBottom">
 						<view class="page-box" v-if="page.list.length>0">
-							<view class="order" @click="$navto('/pages/order/order/orderstatus',res.id)" v-for="(res, pindex) in page.list" :key="pindex">
+							<view class="order" @click="$navto('/pages/order/orderstatus',res.id)" v-for="(res, pindex) in page.list" :key="pindex">
 								<view class="top">
 									<view class="left">
 										<u-icon v-if="false" name="home" :size="30" color="rgb(94,94,94)"></u-icon>
@@ -33,24 +33,23 @@
 									<view class="left"><image :src="item.image" mode="aspectFill"></image></view>
 									<view class="content">
 										<view class="title u-line-2">{{ item.title }}</view>
-										<view class="type">{{ item.type }}</view>
-										<view class="server">
-											<u-tag v-for="(tag,index3) in item.server" :key="index3" type="error" size="mini" :text="tag.name" shape="circle"></u-tag>
+										<view class="type flex-center flex-row">
+											<view class="u-m-r-15">数量：{{ item.number }}</view>
+											<view>{{ item.type }}</view>
 										</view>
-									</view>
-									<view class="right">
-										<view class="price">
-											￥{{priceInt(item.price)}}
-											<view class="decimal">.{{ priceDecimal(item.price) }}</view>
+										<view class="price flex-center flex-row">
+											￥{{item.price}}
 										</view>
-										<view class="number">x{{ item.number }}</view>
+										<view class="server flex-box">
+											<u-tag class="u-m-b-10" v-for="(tag,index3) in item.server" :key="index3" type="error" size="mini" :text="tag.name" shape="circle"></u-tag>
+										</view>
 									</view>
 								</view>
 								<view class="total">
 									<view class="number">
 										<view>共{{ totalNum(res.goodsList) }}件商品</view>
 									</view>
-									<view class="price">
+									<view class="flex-row">
 										<view class="old-price">
 											总价<u-icon size="20" custom-prefix="iconfont icon-yen-sign"></u-icon>{{res.zongjia}}
 										</view>
@@ -66,17 +65,17 @@
 									<view class="more"><u-icon name="more-dot-fill" color="rgb(203,203,203)"></u-icon></view>
 									<view class="btns">
 										<u-button @click="closeorder(res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 1">取消订单</u-button>
-										<u-button @click="$navto('/pages/order/order/ordercreate',res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 1">修改订单</u-button>
-										<u-button @click="$navto('/pages/order/pay/pay',res.id)" :plain="true" type="error" shape="circle" size="mini" class="btn" v-if="res.status == 1">继续支付</u-button>
+										<u-button @click="$navto('/pages/order/ordercreate',res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 1">修改订单</u-button>
+										<u-button @click="$navto('/pages/order/pay',res.id)" :plain="true" type="error" shape="circle" size="mini" class="btn" v-if="res.status == 1">继续支付</u-button>
 										<u-button @click="msgorder(res.pid)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 2">提醒发货</u-button>
-										<u-button @click="$navto('/pages/order/wuliu/wuliu',res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 3">查看物流</u-button>
-										<u-button @click="$navto('/pages/order/refund/refund',res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 2||res.status == 3||res.status == 4">退换/售后</u-button>
-										<u-button @click="$navto('/pages/order/comment/addcomment',res.goodsList[0].pid)" :plain="true" type="warning" shape="circle" size="mini" class="btn" v-if="res.status == 4">评价</u-button>
+										<u-button @click="$navto('/pages/order/wuliu',res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 3">查看物流</u-button>
+										<u-button @click="$navto('/pages/order/refund',res.id)" :plain="true" shape="circle" size="mini" class="btn" v-if="res.status == 2||res.status == 3||res.status == 4">退换/售后</u-button>
+										<u-button @click="$navto('/pages/comment/addcomment',res.goodsList[0].pid)" :plain="true" type="warning" shape="circle" size="mini" class="btn" v-if="res.status == 4">评价</u-button>
 										<u-button @click="$navto('/pages/product/product',res.goodsList[0].pid)" :plain="true" type="error" shape="circle" size="mini" class="btn" v-if="res.status == 4">再次购买</u-button>
 									</view>
 								</view>
 							</view>
-							<u-loadmore :status="loadStatus[index].status" bgColor="#f2f2f2" @loadmore="reachBottom"></u-loadmore>
+							<u-loadmore :load-text="loadText" :status="loadStatus[index].status" bgColor="#f2f2f2" @loadmore="reachBottom"></u-loadmore>
 						</view>
 						<view class="page-box" v-else>
 							<view class="centre">
@@ -100,6 +99,21 @@
 		data() {
 			return {
 				fullloading:true,
+				loadText:getApp().globalData.loadText,
+				loadStatus: [
+					{
+						status:'loadmore'
+					},{
+						status:'loadmore'
+					},{
+						status:'loadmore'
+					},{
+						status:'loadmore'
+					},{
+						status:'loadmore'
+					},
+				],
+				
 				keyword:'',
 				list: [
 					{
@@ -127,36 +141,8 @@
 				current: 0,
 				swiperCurrent: 0,
 				tabsHeight: 0,
-				loadStatus: [
-					{
-						status:'loadmore'
-					},{
-						status:'loadmore'
-					},{
-						status:'loadmore'
-					},{
-						status:'loadmore'
-					},{
-						status:'loadmore'
-					},
-				],
+				
 			};
-		},
-		computed: {
-			// 价格小数
-			priceDecimal() {
-				return val => {
-					if (val !== parseInt(val)) return val.slice(-2);
-					else return '00';
-				};
-			},
-			// 价格整数
-			priceInt() {
-				return val => {
-					if (val !== parseInt(val)) return val.split('.')[0];
-					else return val;
-				};
-			}
 		},
 		onShow() {
 			this.$isLogin()&&this.getdata()
@@ -190,12 +176,27 @@
 					this.fullloading = false
 				}, 500);
 			},
+			//取消订单
 			closeorder(){
 				console.log('取消订单')
 			},
+			//提醒发货
 			msgorder(){
 				console.log('提醒发货')
 			},
+			//计算数量
+			totalNum(item) {
+				let num = 0;
+				item.map(val => {
+					num += val.number;
+				});
+				return num;
+			},
+			//请求算计
+			getList() {
+				
+			},
+			//加载更多
 			reachBottom() {
 				if(this.list[this.swiperCurrent].list.length>20) {
 					this.loadStatus[this.swiperCurrent].status = 'nomore'
@@ -212,16 +213,8 @@
 					that.list[that.swiperCurrent].list = data
 				}, 1000)
 			},
-			getList() {
-				
-			},
-			totalNum(item) {
-				let num = 0;
-				item.map(val => {
-					num += val.number;
-				});
-				return num;
-			},
+			
+			//页面动效
 			change(index) {
 				this.swiperCurrent = index;
 				if(this.list[this.swiperCurrent].list.length==0){
@@ -243,175 +236,14 @@
 </script>
 
 <style lang="scss">
-page {
+.page {
 	height: 100%;
 	background-color: #f2f2f2;
-}
-.order {
-	background-color: #ffffff;
-	margin: 15rpx 15rpx 0 15rpx;
-	border-radius: 20rpx;
-	box-sizing: border-box;
-	padding: 20rpx;
-	font-size: 28rpx;
-	.top {
+	.wrap {
 		display: flex;
-		justify-content: space-between;
-		flex-direction: row;
-		.left {
-			display: flex;
-			align-items: center;
-			flex-direction: row;
-			.store {
-				margin: 0 10rpx;
-				font-size: 32rpx;
-				font-weight: bold;
-			}
-		}
-		.right {
-			color: #e80000;
-		}
+		flex-direction: column;
+		height: calc(100vh - var(--window-top));
+		width: 100%;
 	}
-	.item {
-		display: flex;
-		margin: 20rpx 0 0;
-		flex-direction: row;
-		.left {
-			margin-right: 20rpx;
-			image {
-				width: 180rpx;
-				height: 180rpx;
-				border-radius: 10rpx;
-			}
-		}
-		.content {
-			flex: 1;
-			.title {
-				font-size: 28rpx;
-				line-height: 60rpx;
-				height: 60rpx;
-				font-weight: bold;
-			}
-			.type {
-				font-size: 26rpx;
-				line-height: 60rpx;
-				color: $u-tips-color;
-			}
-			.server {
-				align-items: flex-start;
-				margin-top: 15rpx;
-				.u-tag{
-					margin-right: 10rpx;
-				}
-			}
-			
-		}
-		.right {
-			margin-left: 10rpx;
-			text-align: right;
-			line-height: 60rpx;
-			.price{
-				flex-direction: row;
-				font-weight: bold;
-			}
-			.decimal {
-				font-size: 24rpx;
-			}
-			.number {
-				color: $u-tips-color;
-				font-size: 24rpx;
-			}
-		}
-	}
-	.total {
-		margin-top: 20rpx;
-		text-align: right;
-		font-size: 24rpx;
-		justify-content: space-between;
-		flex-wrap: nowrap;
-		flex-direction: row;
-		color:#999;
-		.number{
-			padding-top: 5rpx;
-		}
-		.price{
-			flex-wrap: nowrap;
-			align-items: center;
-			flex-direction: row;
-		}
-		.old-price {
-			font-size: 26rpx;
-			margin-left: 10rpx;
-			flex-direction: row;
-		}
-		.yh-price {
-			font-size: 26rpx;
-			flex-direction: row;
-			margin-left: 10rpx;
-		}
-		.total-price {
-			font-size: 28rpx;
-			margin-left: 10rpx;
-			flex-direction: row;
-			color: #000000;
-			font-weight: bold;
-		}
-	}
-	.bottom {
-		display: flex;
-		margin-top: 30rpx;
-		justify-content: space-between;
-		align-items: center;
-		flex-direction: row;
-		.btns{
-			flex-direction: row;
-		}
-		.btn {
-			line-height: 52rpx;
-			width: 160rpx;
-			border-radius: 26rpx;
-			font-size: 26rpx;
-			text-align: center;
-			margin-left: 15rpx;
-		}
-	}
-}
-.centre {
-	text-align: center;
-	margin: 200rpx auto;
-	align-items: center;
-	font-size: 32rpx;
-	image {
-		width: 164rpx;
-		height: 164rpx;
-		border-radius: 50%;
-		margin-bottom: 20rpx;
-	}
-	.tips {
-		font-size: 24rpx;
-		color: #999999;
-		margin-top: 20rpx;
-	}
-	.btn {
-		margin: 80rpx auto;
-		width: 200rpx;
-		border-radius: 32rpx;
-		line-height: 64rpx;
-		color: #ffffff;
-		font-size: 26rpx;
-		background: linear-gradient(270deg, rgba(249, 116, 90, 1) 0%, rgba(255, 158, 1, 1) 100%);
-	}
-}
-.wrap {
-	display: flex;
-	flex-direction: column;
-	height: calc(100vh - var(--window-top));
-	width: 100%;
-}
-.swiper-box {
-	flex: 1;
-}
-.swiper-item {
-	height: 100%;
 }
 </style>

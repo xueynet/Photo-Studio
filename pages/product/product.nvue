@@ -1,13 +1,25 @@
 <template>
 	<view class="page">
 		<full-loading :show="fullloading"></full-loading>
+		<u-navbar :is-back="false" :background="pagenavbg" :immersive="true">
+			<view class="slot-content fillbox flex-space-between flex-center flex-row">
+				<view class="flex-center flex-row">
+					<u-icon @click="$back()" size="50" custom-prefix="iconfont icon-chevron-left" class="u-m-20"></u-icon>
+				</view>
+				<u-subsection @change="toplistchange" class="toplistbox" :style="[toplistshow]" :list="toplist" button-color="#eee" bg-color="#ffffff00" :current="topcurrent"></u-subsection>
+				<view class="flex-center flex-row">
+					<u-icon @click="$navto('/pages/search/search')" size="50" custom-prefix="iconfont icon-gongxiang" class="u-m-20"></u-icon>
+				</view>
+			</view>
+		</u-navbar>
 		<u-swiper
+			class="getTop banner"
 			bg-color="#ffffff"
 			:height="750"
 			:current="0"
 			:autoplay="false"
 			:list="data.banner" 
-			:title="false" @click="showBigImg">
+			:title="false" @click="$showBigImg(data.banner,0)">
 		</u-swiper>
 		<view class="boxgroup">
 			<view class="box">
@@ -15,8 +27,8 @@
 					<view class="price"><u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{data.price}}</view>
 					<view class="old-price"><u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>{{data.oldprice}}</view>
 				</view>
-				<view class="flex-space-between  flex-row marginauto color999">
-					<view class="tags flex-center flex-row">
+				<view class="flex-space-between flex-row marginauto color999">
+					<view class="tags flex-box">
 						<u-tag mode="dark" size="mini" v-for="(tag,index) in data.tags" :key="index" :type="tag.type" :text="tag.name"></u-tag>
 					</view>
 					<view class="flex-center flex-row">月销 {{data.salesVolume}}</view>
@@ -24,26 +36,27 @@
 				<view class="title marginauto">
 					{{data.title}}
 				</view>
-				<view class="flex-space-between flex-row color999">
+				<view class="flex-space-between  flex-row color999">
 					<view class="flex-center flex-row" :class="data.star?'active':''"><u-icon custom-prefix="iconfont icon-aixin"></u-icon>收藏</view>
 					<view class="flex-center flex-row"><u-icon custom-prefix="iconfont icon-gongxiang"></u-icon>分享</view>
 				</view>
 			</view>
 			<view class="box toolsbox">
 				<u-cell-group>
-					<u-cell-item @click="typeshow=true" title="已选" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
+					<u-cell-item @click="openSku()" title="已选" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
 						<view class="fillbox flex-center flex-row">
-							<view class="label" v-if="model.checktype.name != ''">{{model.checktype.name}}</view>
-							<view v-else class="label flex-center" v-for="(item,index) in data.type" :key="index"><text class="xg" v-if="index>0">/</text>{{item.name}}</view>
+							<view class="label" v-for="(item,index) in model.sku" :key="index"><text class="xg" v-if="index>0">/</text>{{item.name}}</view>
+							<view class="label" v-if="model.skuName!=''">{{model.number}} 件</view>
+							<view class="label" v-else>请选择服务</view>
 						</view>
 					</u-cell-item>
-					<u-cell-item @click="addressshow=true" title="发货" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
+					<u-cell-item @click="expressAddressShow=true" title="发货" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
 						<view class="fillbox flex-start">
-							<view class="label">{{data.shopAddres}} | 快递：{{data.express}}</view>
-							<view class="express">配送至：{{model.myAddress}}</view>
+							<view class="label">{{data.storeAddress||'中国'}} | 快递：{{data.express||'免运费'}}</view>
+							<view class="express">配送至：{{model.address||'请添加地址'}}</view>
 						</view>
 					</u-cell-item>
-					<u-cell-item @click="servershow=true" title="服务" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
+					<u-cell-item @click="serverShow=true" title="服务" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
 						<view class="fillbox flex-start">
 							<view class="flex-box">
 								<view class="label" v-if="item.main" :class="!item.main?'mainlabel':''" v-for="(item,index) in data.server" :key="index"><u-icon size="12" custom-prefix="iconfont icon-o"></u-icon> {{item.name}}</view>
@@ -53,7 +66,7 @@
 							</view>
 						</view>
 					</u-cell-item>
-					<u-cell-item @click="parametershow=true" title="参数" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
+					<u-cell-item @click="parameterShow=true" title="参数" title-width="80" hover-class="none" :title-style="{'font-size':'20rpx'}">
 						<view class="fillbox flex-center flex-row">
 							<view class="label" v-for="(item,index) in data.parameter" v-if="index<2" :key="index">{{item.name}}</view>
 							<view v-if="data.parameter.length>2">···</view>
@@ -61,13 +74,13 @@
 					</u-cell-item>
 				</u-cell-group>
 			</view>
-			<view class="box comment">
+			<view class="box comment getTop">
 				<view class="flex-space-between flex-row marginauto">
-					<view class="title">商品评价({{data.comment.number}})</view>
-					<view @click="navto('pages/product/comment','comment')" class="more flex-center flex-row">好评率 {{data.comment.goodcomment}} <u-icon custom-prefix="iconfont icon-chevron-right"></u-icon></view>
+					<view class="title">服务评价({{data.comment.number}})</view>
+					<view @click="$navto('/pages/product/comment',id)" class="more flex-center flex-row">好评率 {{data.comment.goodcomment}} <u-icon custom-prefix="iconfont icon-chevron-right"></u-icon></view>
 				</view>
 				<view class="tagslist flex-box marginauto">
-					<u-tag @click="navto('pages/product/comment','comment')" type="error" shape="circle" size="default" :text="item.name" v-for="(item,index) in data.comment.taglist" :key="index">{{item.number}}</u-tag>
+					<u-tag @click="$navto('/pages/product/comment',id)" type="error" shape="circle" size="default" :text="item.name" v-for="(item,index) in data.comment.taglist" :key="index">{{item.number}}</u-tag>
 				</view>
 				<view class="list">
 					<view class="commentitem" v-for="(item,index) in data.comment.list" :key="index">
@@ -83,16 +96,16 @@
 								{{item.comment}}
 							</view>
 							<view class="commentimages marginauto">
-								<u-image v-for="(image,index2) in item.images" :key="index2" width="150" height="150" :src="image" @click="showBigImg(image,item.images)"></u-image>
+								<u-image v-for="(image,index2) in item.images" :key="index2" width="150" height="150" :src="image" @click="$showBigImg(item.images,image)"></u-image>
 							</view>
-							<view class="shoptype flex-row flex-center">
+							<view class="shoptype flex-box">
 								<view class="color999 u-m-r-20" v-for="(type,index2) in item.shoptype" :key="index2">{{type.name}}</view>
 							</view>
 						</view>
 					</view>
 				</view>
 			</view>
-			<view class="shopdesc">
+			<view class="shopdesc getTop">
 				<view class="title">
 					<view class="line">
 						图文详情
@@ -101,8 +114,8 @@
 			</view>
 			<u-parse class="parse" :use-cache="true" :show-with-animation="true" :lazy-load="true" :html="data.parse"></u-parse>
 		</view>
-		<view class="nav-submit">
-			<view class="item" :class="data.star?'active':''" @click="addstar()">
+		<view class="tabbar-submit">
+			<view class="item" :class="data.star?'active':''" @click="addstar()">-
 				<u-icon custom-prefix="iconfont icon-shoucang"></u-icon>
 				<view class="label">收藏</view>
 			</view>
@@ -111,63 +124,45 @@
 				<view class="label">客服</view>
 			</view>
 			<view class="item btn">
-				<view class="shopbtn" @click="typeshow=true">立即购买</view>
+				<view @click="createOrder()" class="shopbtn">立即购买</view>
 			</view>
 		</view>
-		<u-popup v-model="typeshow" mode="bottom" border-radius="20" :closeable="true">
+		<u-popup v-model="skuShow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
 				<view class="popuptitle popuptop">
-					<u-image width="180" height="180" :src="model.checktype.image"></u-image>
+					<u-image width="180" height="180" :src="model.skuImage"></u-image>
 					<view class="fillbox">
 						<view class="price">
 							<u-icon custom-prefix="iconfont icon-yen-sign"></u-icon>
-							{{model.checktype.price}}
+							{{model.skuPrice}}
 						</view>
-						<view class="type">
-							{{model.checktype.name}}
+						<view class="sku">
+							{{model.skuName}} x {{model.number}}
 						</view>
 					</view>
 				</view>
-				<view class="popuplist popuptype">
-					<view class="popupitem" v-for="(typeitem,index) in data.type" :key="index">
-						<view class="linetitle">{{typeitem.name}}</view>
+				<view class="popuplist popupSku">
+					<view class="popupitem" v-for="(sku,index) in data.sku" :key="index">
+						<view class="linetitle">{{sku.name}}</view>
 						<view class="tags">
-							<view @click="settype(index,index2)" :class="item.check?'active':''" class="tag" v-for="(item,index2) in typeitem.list" :key="index2">{{item.name}}</view>
+							<view @click="checkSku(index,index2)" :class="item.active?'active':''" class="tag" v-for="(item,index2) in sku.list" :key="index2">{{item.name}}</view>
 						</view>
 					</view>
 					<view class="popupitem flex-space-between flex-row">
 						<view class="linetitle">数量</view>
-						<u-number-box class="flex-center" :min="1" v-model="model.pnumber"></u-number-box>
+						<u-number-box class="flex-center" :min="1" v-model="model.number"></u-number-box>
 					</view>
 				</view>
 				<view class="popupbtn">
-					<u-button @click="typeshow = false" :ripple="true" shape="circle">确定</u-button>
+					<u-button @click="skuShow = false" :ripple="true" shape="circle">确定</u-button>
 				</view>
 			</view>
 		</u-popup>
-		<u-popup v-model="addressshow" mode="bottom" border-radius="20" :closeable="true">
+		<u-popup v-model="serverShow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
-				<view class="popuptitle">配送至</view>
+				<view class="popuptitle">说明</view>
 				<view class="popuplist">
-					<view class="addressitem" @click="setaddress(item,index)" v-for="(item,index) in data.myAddresslist" :key="index">
-						<u-icon custom-prefix="iconfont icon-dingwei1"v-if="!item.default"></u-icon>
-						<u-icon color="#e80000" name="checkbox-mark" v-if="item.default"></u-icon>
-						<view class="fillbox">
-							<view class="label">{{item.address}}</view>
-							<view class="desc">{{item.site}}</view>
-						</view>
-					</view>
-				</view>
-				<view class="popupbtn">
-					<u-button @click="navto('/pages/home/address/address','addres')" :ripple="true" shape="circle">地址管理</u-button>
-				</view>
-			</view>
-		</u-popup>
-		<u-popup v-model="servershow" mode="bottom" border-radius="20" :closeable="true">
-			<view class="popupbox">
-				<view class="popuptitle">服务</view>
-				<view class="popuplist">
-					<view class="linetitle">服务说明</view>
+					<view class="linetitle">说明</view>
 					<view class="serveritem" v-for="(item,index) in data.server" :key="index">
 						<view class="label"><u-icon size="12" custom-prefix="iconfont icon-o"></u-icon>{{item.name}}</view>
 						<view class="desc">{{item.desc}}</view>
@@ -178,7 +173,28 @@
 				</view>
 			</view>
 		</u-popup>
-		<u-popup v-model="parametershow" mode="bottom" border-radius="20" :closeable="true">
+		<u-popup v-model="expressAddressShow" mode="bottom" border-radius="20" :closeable="true">
+			<view class="popupbox">
+				<view class="popuptitle">配送至</view>
+				<view class="popuplist">
+					<view class="addressitem" @click="setaddress(item,index)" v-for="(item,index) in data.expressAddressList" :key="index">
+						<u-icon custom-prefix="iconfont icon-dingwei1"v-if="!item.active"></u-icon>
+						<u-icon color="#e80000" name="checkbox-mark" v-if="item.active"></u-icon>
+						<view class="fillbox">
+							<view class="label flex-center flex-row"><u-tag v-if="item.default" size="mini" type="error" class="u-m-r-15" text="默认" mode="dark"></u-tag>{{item.address}}</view>
+							<view class="desc u-m-b-10">{{item.site}}</view>
+							<view class="u-font-20">
+								{{item.name}} {{item.phone}}
+							</view>
+						</view>
+					</view>
+				</view>
+				<view class="popupbtn">
+					<u-button @click="$navto('/pages/home/address')" :ripple="true" shape="circle">地址管理</u-button>
+				</view>
+			</view>
+		</u-popup>
+		<u-popup v-model="parameterShow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
 				<view class="popuptitle">参数</view>
 				<view class="popuplist">
@@ -196,12 +212,35 @@
 	export default {
 		data() {
 			return {
+				//页面动效
+				id:0,
 				fullloading:true,
-				page:0,
-				typeshow:false,
-				addressshow:false,
-				servershow:false,
-				parametershow:false,
+				pagenavbg: {
+					background: '#ffffff00',
+					color:'#fff'
+				},
+				titleshow:false,
+				toplistshow:{
+					opacity: 0,
+				},
+				toplist:[{
+						name: '商品',
+					}, 
+					{
+						name: '评价',
+					}, 
+					{
+						name: '详情',
+					}],
+				topcurrent:0,
+				
+				//控制弹出框显示
+				skuShow:false,
+				expressAddressShow:false,
+				serverShow:false,
+				parameterShow:false,
+				
+				//获取数据
 				data:{
 					banner: [],
 					price:'',
@@ -216,97 +255,63 @@
 							type:'primary'
 						}
 					],
-					salesVolume:'999+',
+					salesVolume:'',
 					title:'',
 					star:true,
-					type:[
-						{
-							id:1,
-							name:'颜色分类',
+					storeAddress:'北京 东城',
+					express:'20',
+					expressAddressList:getApp().globalData.addressList,
+					sku:[{
+							id:0,
+							name:'颜色',
 							list:[
 								{
+									id:0,
+									active:true,
 									name:'红色',
-									check:true,
-									image:'/static/images/goods/p2.jpg',
+									image:'',
 								},
 								{
+									id:1,
+									active:false,
+									name:'蓝色',
+									image:'',
+								},
+								{
+									id:2,
+									active:false,
 									name:'绿色',
-									check:false,
-									price:'85.00',
-									image:'/static/images/goods/p1.jpg',
-								},
-								{
-									name:'粉色',
-									check:false,
-									price:'89.00',
-									image:'/static/images/goods/p1.jpg',
-								},
-								{
-									name:'黑色',
-									check:false,
-									image:'/static/images/goods/p1.jpg',
-								},
-								{
-									name:'墨绿色',
-									check:false,
-									image:'/static/images/goods/p1.jpg',
-								},
-								{
-									name:'橙色',
-									check:false,
-									image:'/static/images/goods/p1.jpg',
-								},
-								{
-									name:'白色',
-									check:false,
-									image:'/static/images/goods/p1.jpg',
+									image:'',
 								}
 							]
 						},
 						{
-							id:2,
-							name:'套餐类型',
+							id:1,
+							name:'增值服务',
 							list:[
-								{
-									name:'官方标配',
-									price:'79.00',
-									check:true,
+								{	
+									id:0,
+									active:true,
+									name:'标配',
 								},
-								{
-									name:'官方标配+优惠附加',
-									price:'99.00',
-									check:false,
+								{	
+									id:1,
+									active:false,
+									name:'顶配',
 								}
 							]
 						}
 					],
-					shopAddres:'广东 东莞',
-					express:'免运费',
-					myAddresslist:[
+					parameter:[
 						{
-							id: 0,
-							default:false,
-							site: '重庆市 渝北区 龙塔街道',
-							address:"龙塔街道179号"
+							name:'品牌',
+							desc:'三星',
 						},
 						{
-							id: 1,
-							default:true,
-							site: '广东省 深圳市 宝安区',
-							address:"自由路66号"
+							name:'型号',
+							desc:'BX660',
 						},
-						{
-							id: 2,
-							default:false,
-							site: '广东省 深圳市 宝安区',
-							address:'自由路68号'
-						},
-						{
-							id: 3,
-							default:false,
-							site: '广东省 深圳市 宝安区',
-							address:'平安路13号'
-						}
+						
 					],
 					server:[
 						{
@@ -328,17 +333,6 @@
 							desc:"平台极速退款"
 						}
 					],
-					parameter:[
-						{
-							name:'品牌',
-							desc:'三星',
-						},
-						{
-							name:'型号',
-							desc:'BX660',
-						},
-						
-					],
 					comment:{
 						number:999,
 						goodcomment:'100%',
@@ -357,7 +351,7 @@
 								avatar:'头像',
 								name:'小柯基',
 								adddate:'1天前',
-								shoptype:[
+								shopSku:[
 									{
 										name:'官方标配',
 									},
@@ -376,42 +370,42 @@
 					},
 					parse:'<img src="/static/images/banner/1.jpg"/><img src="/static/images/banner/2.jpg"/><img src="/static/images/banner/3.jpg"/><img src="/static/images/banner/4.jpg"/><img src="/static/images/banner/5.jpg"/>'
 				},
+				
+				//发送数据
 				model:{
-					pid:'',
-					checktype:{
-						image:'',
-						price:'',
-						name:'',
-					},
-					myAddressid:null,
-					myAddress:'',
-					pnumber:1,
-				}
+					pid:0,
+					
+					sku:[],
+					skuName:'',
+					skuPrice:'',
+					skuImage:'',
+					number:1,
+					
+					address:'',
+					addressid:'',
+				},
 			}
 		},
 		onShow() {
-			if (getApp().globalData.hasLogin && getApp().globalData.hasLaunch) {
-				getApp().globalData.hasLaunch = false
-				this.getdata()
-			} else {
-				if(!getApp().globalData.hasLogin){
-					this.$u.route({
-						url: '/pages/home/login',
-					})
-				}
-			}
+			this.$isLogin()&&this.getdata()
+			var $this = this
+			setTimeout(function() {
+				uni.createSelectorQuery().select('.banner').boundingClientRect((size) => {
+					$this.$setnav($this,size.top*-1,size.height,false)
+				}).exec()
+			}, 0);
 		},
 		onLoad(e) {
 			this.option = e
-			if (getApp().globalData.hasLogin && !getApp().globalData.hasLaunch) {
-				this.getdata()
-			}
+			this.$firstGet()&&this.getdata()
 		},
 		onPullDownRefresh() {
-			console.log('refresh');
 			setTimeout(function () {
 				uni.stopPullDownRefresh();
 			}, 1000);
+		},
+		onPageScroll(e){
+			this.$setnav(this,e.scrollTop,uni.upx2px(750),false)
 		},
 		methods: {
 			getdata(){
@@ -419,90 +413,117 @@
 				this.data.banner = this.$defalutdata.goods[id].images
 				this.data.price = this.$defalutdata.goods[id].price
 				this.data.oldprice = this.$defalutdata.goods[id].price*2
-				this.data.salesVolume = this.$defalutdata.goods[id].shop
+				this.data.salesVolume = this.$defalutdata.goods[id].shops
 				this.data.title = this.$defalutdata.goods[id].title
 				
-				this.page = this.option.page||this.option.id
-				this.model.pid = this.page
-				this.redayaddress()
-				this.redaytype()
-				
+				this.id = this.option.id
+				this.model.pid = this.id
+				this.redaydata()
 				var $this = this
 				setTimeout(function() {
 					$this.fullloading = false
+					$this.getBoxTop();
 				}, 500);
 			},
-			navto(url,name){
-				var params = {}
-				if(name=="createorder"){
-					params['pid'] = this.model.pid
-					params['number'] = this.model.pnumber
-					params['addressid'] = this.model.myAddressid
-					params['checktype'] = this.model.checktype.name
-				}else if(name=="comment"){
-					params['page'] = this.page
-				}
-				this.$u.route({
-					url,
-					params
-				})
-			},
-			showBigImg(current,list){
-				if(list==undefined) list = this.data.banner
-				uni.previewImage({
-					current:current,
-					urls: list,
-					indicator: 'number',
-				})
-			},
-			redayaddress(){
-				for (var i = 0; i < this.data.myAddresslist.length; i++) {
-					if(this.data.myAddresslist[i].default){
-						this.model.myAddress = this.data.myAddresslist[i].site
-						this.model.myAddressid = this.data.myAddresslist[i].id
+			//初始化数据
+			redaydata(){
+				for (var i in this.data.expressAddressList) {
+					if(this.data.expressAddressList[i].active){
+						this.model.address = this.data.expressAddressList[i].site
+						this.model.addressid = this.data.expressAddressList[i].id
 					}
 				}
 			},
-			redaytype(){
-				this.model.checktype.name = ''
-				for (var o = 0; o < this.data.type.length; o++) {
-					for (var i = 0; i < this.data.type[o].list.length; i++) {
-						if(this.data.type[o].list[i].check){
-							if(this.data.type[o].list[i].image){
-								this.model.checktype.image = this.data.type[o].list[i].image
-							}
-							if(this.data.type[o].list[i].price){
-								this.model.checktype.price = this.data.type[o].list[i].price
-							}
-							if(o==0&&i==0){
-								this.model.checktype.name = this.data.type[o].list[i].name
-							}else{
-								this.model.checktype.name = this.model.checktype.name+' '+this.data.type[o].list[i].name
-							}
+			
+			//打开sku框
+			openSku(){
+				this.skuShow = true
+				this.setSku()
+			},
+			
+			//设置sku商品
+			setSku(){
+				this.model.sku = []
+				for (var o in this.data.sku) {
+					for (var i in this.data.sku[o].list) {
+						if(this.data.sku[o].list[i].active){
+							this.model.sku.push(this.data.sku[o].list[i])
 						}
 					}
 				}
+				this.model.skuName = ''
+				for (var i in this.model.sku){
+					this.model.skuName += ' ' + this.model.sku[i].name
+				}
+				this.model.skuPrice = '99'
+				this.model.skuImage = '/static/images/product/server/s1/1.jpg'
 			},
+			
+			//选择sku商品
+			checkSku(i1,i2){
+				for (var i in this.data.sku[i1].list) {
+					this.data.sku[i1].list[i].active = false
+				}
+				this.data.sku[i1].list[i2].active = true
+				this.setSku()
+			},
+			
+			//选择邮寄地址
+			setaddress(data,index){
+				this.expressAddressShow = false
+				for (var i in this.data.expressAddressList) {
+					this.data.expressAddressList[i].active = false
+				}
+				this.data.expressAddressList[index].active = true
+				this.model.address = this.data.expressAddressList[index].site
+				this.model.addressid = this.data.expressAddressList[index].id
+			},
+			
+			//收藏
 			addstar(){
 				this.data.star = !this.data.star
 				//网络请求
-			},
-			settype(i1,i2){
-				for (var i = 0; i < this.data.type[i1].list.length; i++) {
-					this.data.type[i1].list[i].check = false
+			},		
+			
+			//创建订单
+			createOrder(){
+				if(this.$u.test.isEmpty(this.model.sku)) return this.openSku()
+				if(this.$u.test.isEmpty(this.model.address)) return this.expressAddressShow = !this.expressAddressShow
+				var sku = ''
+				for (let i in this.model.sku) {
+					sku += this.model.sku[i].id + ','
 				}
-				this.data.type[i1].list[i2].check = true
-				this.redaytype()
-			},
-			setaddress(data,index){
-				this.addressshow = false
-				for (var i = 0; i < this.data.myAddresslist.length; i++) {
-					this.data.myAddresslist[i].default = false
+				var params = {
+					pid:this.model.pid,
+					sku:sku,
+					number:this.model.number,
+					addressid:this.model.addressid,
 				}
-				this.data.myAddresslist[index].default = true
-				this.model.myAddress = this.data.myAddresslist[index].site
-				this.model.myAddressid = this.data.myAddresslist[index].id
-			}
+				this.$navto('/pages/order/ordercreate',this.$u.queryParams(params))
+			},
+			
+			//页面动画
+			getBoxTop() {
+				new Promise(resolve => {
+					let selectorQuery = uni.createSelectorQuery();
+					selectorQuery.selectAll('.getTop').boundingClientRect((rects) => {
+						if(!rects.length) {
+							setTimeout(() => {
+								this.getBoxTop();
+							}, 10);
+							return ;
+						}
+						for (let i in rects) {
+							this.toplist[i]['top'] = rects[i].top - rects[0].top;
+							resolve();
+						}
+					}).exec()
+				})
+			},
+			toplistchange(index){
+				this.topcurrent = index
+				this.$pageScrollTo(this.toplist[index].top - 50) 
+			},
 		}
 	}
 </script>
@@ -511,309 +532,5 @@
 	.page{
 		background: #eee;
 		padding-bottom:100rpx ;
-	}
-	.nav-submit{
-		position: fixed;
-		bottom: 0;
-		left: 0;
-		z-index:2;
-		flex: 1;
-		right: 0;
-		flex-direction: row;
-		flex-wrap: nowrap;
-		background: #fff;
-		border-top:1rpx solid #eee;
-		.item{
-			flex-direction: row;
-			height: 100rpx;
-			align-items: center;
-			margin: 0 30rpx;
-			&.active{
-				color: #e80000;
-			}
-			.u-icon{
-				margin-right: 10rpx;
-				font-size: 40rpx;
-			}
-			&.btn{
-				flex: 1;
-				margin:0 10rpx;
-			}
-			.shopbtn{
-				background: #e80000;
-				color: #fff;
-				flex: 1;
-				height: 80rpx;
-				border-radius: 40rpx;
-				line-height: 80rpx;
-				text-align: center;
-			}
-		}
-	}
-	.boxgroup{
-		.box{
-			background: #fff;
-			margin: 15rpx 15rpx 0 15rpx;
-			padding: 20rpx;
-			border-radius: 20rpx;
-			font-size: 20rpx;
-			.marginauto{
-				margin-bottom: 20rpx;
-			}
-			.color999{
-				color:#999
-			}
-			.active{
-				color:#e80000
-			}
-			.u-icon{
-				margin-right: 10rpx;
-			}
-			.u-cell{
-				padding: 30rpx 0;
-				align-items: flex-start;
-			}
-			.label{
-				color:#000;
-				flex-direction: row;
-				margin-right: 20rpx;
-				.xg{
-					margin-left: -20rpx;
-				}
-			}
-			.mainlabel{
-				color:#999
-			}
-			
-			.price{
-				color:#e80000;
-				font-size: 45rpx;
-				flex-direction: row;
-				font-weight: bold;
-				margin-right: 20rpx;
-				.u-icon{
-					font-size: 30rpx;
-					margin-bottom: -10rpx;
-					margin-right: 5rpx;
-				}
-			}
-			.old-price{
-				color:#999;
-				margin-bottom: -10rpx;
-				font-size: 30rpx;
-				flex-direction: row;
-				text-decoration: line-through;
-				.u-icon{
-					font-size: 20rpx;	
-					margin-bottom: -5rpx;
-					margin-right: 5rpx;
-				}
-			}
-			.tags{
-				.u-tag{
-					margin-right: 10rpx;
-				}
-			}
-			.title{
-				font-size: 34rpx;
-				font-weight: bold;
-			}
-			.tagslist{
-				.u-tag{
-					margin-right: 10rpx;
-				}
-			}
-			.commentitem{
-				.customer{
-					margin-left: 20rpx;
-					.name{
-						font-weight: bold;
-						margin-bottom: 10rpx;
-						font-size: 24rpx;
-					}
-					.date{
-						color: #999;
-					}
-				}
-				.content{
-					line-height: 34rpx;
-					.text-area{
-						font-size: 26rpx;
-					}
-					.shoptype{
-						.item{
-							margin-right: 20rpx;
-							color:#999
-						}
-					}
-				}
-				.commentimages{
-					flex-direction: row;
-					.u-image{
-						margin-right: 20rpx;
-					}
-				}
-			}
-		}
-		.toolsbox{
-			padding: 0 30rpx;
-			
-		}
-		.shopdesc{
-			margin: 50rpx 0;
-			align-items: center;
-			.title{
-				width: 400rpx;
-				text-align: center;
-				align-items: center;
-				height: 2rpx;
-				line-height: 2rpx;
-				background: #999;
-				.line{
-					width: 150rpx;
-					background: #eee;
-				}
-			}
-			
-		}
-		
-		.parse{
-			*{
-				width: 100%;
-			}
-		}
-	}
-	.popupbox{
-		height: 70vh;
-		padding: 30rpx;
-		justify-content: space-between;
-		.popuptitle{
-			line-height: 80rpx;
-			font-size: 32rpx;
-			height: 80rpx;
-			text-align: center;
-			background: #fff;
-			position: fixed;
-			flex: 1;
-			margin: 0;			
-			width: 100vw;
-			top: 0;
-			left: 0;
-			z-index:1;
-			&.popuptop{
-				height: 240rpx;
-				padding: 30rpx;
-				flex-direction: row;
-				line-height: unset;
-				.fillbox{
-					align-items: flex-start;
-					justify-content: flex-end;
-				}
-				.u-image{
-					margin-right: 30rpx;
-				}
-				.price{
-					font-size: 45rpx;
-					color:#e80000;
-					font-weight: bold;
-					margin-bottom: 10rpx;
-					flex-direction: row;
-					.u-icon{
-						font-size: 30rpx;
-						margin-top: 15rpx;
-					}
-				}
-				.type{
-					font-size: 26rpx;
-					color: #777;
-				}
-			}
-		}
-		.popuplist{
-			flex: 1;
-			margin-top: 60rpx;
-			padding-bottom: 120rpx;
-			&.popuptype{
-				margin-top: 210rpx;
-				.popupitem{
-					margin-bottom: 30rpx;
-					.tags{
-						flex-direction: row;
-						flex-wrap: wrap;
-						margin: 20rpx 0;
-						.tag{
-							margin-right: 20rpx;
-							padding:10rpx 30rpx;
-							border-radius: 10rpx;
-							margin-bottom: 20rpx;
-							background: #eee;
-							&.active{
-								background: #e80000;
-								color: #fff;
-							}
-						}
-					}
-				}
-			}
-			.linetitle{
-				line-height: 50rpx;
-				font-weight: bold;
-			}
-			.addressitem{
-				margin: 20rpx 0;
-				align-items: center;
-				flex-direction: row;
-				.u-icon{
-					margin-right: 30rpx;
-					font-size: 40rpx;
-				}
-				.label{
-					font-size: 32rpx;
-					margin-bottom: 10rpx;
-					font-weight: bold;
-				}
-				.desc{
-					font-size: 20rpx;
-				}
-			}
-			.serveritem{
-				margin: 20rpx 0;
-				.label{
-					flex-direction: row;
-					margin-bottom: 20rpx;
-					.u-icon{
-						margin-right: 20rpx;
-						color: #e80000;
-					}
-				}
-				.desc{
-					color: #777;
-				}
-			}
-			.parameteritem{
-				flex-direction: row;
-				line-height: 30rpx;
-				padding: 30rpx 0;
-				.label{
-					color: #777;
-					width: 200rpx;
-				}
-				.desc{
-					flex: 1;
-				}
-			}
-		}
-		.popupbtn{
-			position: fixed;
-			bottom: 0;
-			left: 0;
-			z-index:1;
-			width: 100vw;
-			padding: 30rpx 50rpx;
-			.u-btn{
-				color: #fff;
-				background-color: #e80000;
-			}
-		}
 	}
 </style>

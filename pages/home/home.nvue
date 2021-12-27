@@ -72,7 +72,7 @@
 	export default {
 		data() {
 			return {
-				pic:'https://uviewui.com/common/logo.png',
+				pic:'/static/images/lanmu/xz.png',
 				show:true,
 				fullloading:true,
 				pagenavbg: {
