@@ -194,7 +194,7 @@
 					goodsList: [
 						{
 							pid:4,
-							image: '/static/images/product/goods/n4/1.jpg',
+							image: 'https://singledemo.photo.xueycloud.com/static/images/product/goods/n4/1.jpg',
 							title: '智汇 相册簿插页式相册本过塑5寸6寸7寸8寸混装照片收纳册大容量影集旅行情侣宝宝儿童成长记录纪念册 时光记（混装990张）',
 							type: '灰色，M，官方标配',
 							price: '348.58',

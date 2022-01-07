@@ -127,7 +127,7 @@
 				<view @click="createOrder()" class="shopbtn">立即购买</view>
 			</view>
 		</view>
-		<u-popup v-model="skuShow" mode="bottom" border-radius="20" :closeable="true">
+		<u-popup v-show="skuShow" v-model="skuShow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
 				<view class="popuptitle popuptop">
 					<u-image width="180" height="180" :src="model.skuImage"></u-image>
@@ -158,7 +158,7 @@
 				</view>
 			</view>
 		</u-popup>
-		<u-popup v-model="serverShow" mode="bottom" border-radius="20" :closeable="true">
+		<u-popup v-show="serverShow" v-model="serverShow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
 				<view class="popuptitle">说明</view>
 				<view class="popuplist">
@@ -173,7 +173,7 @@
 				</view>
 			</view>
 		</u-popup>
-		<u-popup v-model="expressAddressShow" mode="bottom" border-radius="20" :closeable="true">
+		<u-popup v-show="expressAddressShow" v-model="expressAddressShow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
 				<view class="popuptitle">配送至</view>
 				<view class="popuplist">
@@ -194,7 +194,7 @@
 				</view>
 			</view>
 		</u-popup>
-		<u-popup v-model="parameterShow" mode="bottom" border-radius="20" :closeable="true">
+		<u-popup v-show="parameterShow" v-model="parameterShow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
 				<view class="popuptitle">参数</view>
 				<view class="popuplist">
@@ -361,14 +361,14 @@
 								],
 								comment:'商品收到了，79两件，质量不错，我很喜欢',
 								images: [
-									'/static/images/goods/p1.jpg',
-									'/static/images/goods/p2.jpg',
-									'/static/images/goods/p3.jpg',
+									'https://singledemo.photo.xueycloud.com/static/images/goods/p1.jpg',
+									'https://singledemo.photo.xueycloud.com/static/images/goods/p2.jpg',
+									'https://singledemo.photo.xueycloud.com/static/images/goods/p3.jpg',
 								],
 							}
 						]
 					},
-					parse:'<img src="/static/images/banner/1.jpg"/><img src="/static/images/banner/2.jpg"/><img src="/static/images/banner/3.jpg"/><img src="/static/images/banner/4.jpg"/><img src="/static/images/banner/5.jpg"/>'
+					parse:'<img src="https://singledemo.photo.xueycloud.com/static/images/banner/1.jpg"/><img src="https://singledemo.photo.xueycloud.com/static/images/banner/2.jpg"/><img src="https://singledemo.photo.xueycloud.com/static/images/banner/3.jpg"/><img src="https://singledemo.photo.xueycloud.com/static/images/banner/4.jpg"/><img src="https://singledemo.photo.xueycloud.com/static/images/banner/5.jpg"/>'
 				},
 				
 				//发送数据
@@ -384,6 +384,13 @@
 					address:'',
 					addressid:'',
 				},
+			
+				barcolor:'#ffffff',
+			}
+		},
+		watch:{
+			barcolor(n,o){
+				this.$NavigationBarColor(n)
 			}
 		},
 		onShow() {
@@ -392,6 +399,7 @@
 			setTimeout(function() {
 				uni.createSelectorQuery().select('.banner').boundingClientRect((size) => {
 					$this.$setnav($this,size.top*-1,size.height,false)
+					$this.$NavigationBarColor($this.barcolor)
 				}).exec()
 			}, 0);
 		},
@@ -456,7 +464,7 @@
 					this.model.skuName += ' ' + this.model.sku[i].name
 				}
 				this.model.skuPrice = '99'
-				this.model.skuImage = '/static/images/product/server/s1/1.jpg'
+				this.model.skuImage = 'https://singledemo.photo.xueycloud.com/static/images/product/server/s1/1.jpg'
 			},
 			
 			//选择sku商品

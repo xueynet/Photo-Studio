@@ -26,7 +26,7 @@
 		</view>
 		<u-button type="error" @click="submit">提交</u-button>
 		<u-action-sheet :list="actionSheetList" v-model="actionSheetShow" @click="actionSheetCallback"></u-action-sheet>
-		<u-picker mode="region" v-model="pickerShow" @confirm="regionConfirm"></u-picker>
+		<u-picker v-show="pickerShow" mode="region" v-model="pickerShow" @confirm="regionConfirm"></u-picker>
 	</view>
 </template>
 

@@ -18,13 +18,13 @@
 		</u-swiper>
 		<view class="cards flex-center flex-row u-m-b-25 box-shadow">
 			<view @click="$swithto('/pages/server/list')" class="card flex-row-center flex-center">
-				<u-image width="120" height="120" src="/static/images/icon/shop.png"></u-image>
+				<u-image width="120" height="120" src="https://singledemo.photo.xueycloud.com/static/images/icon/shop.png"></u-image>
 				<view class="title">预约服务</view>
 				<view class="desc">提前预约，省心省事</view>
 			</view>
 			<u-line color="info" direction="col"/>
 			<view @click="$swithto('/pages/category/category')" class="card flex-row-center flex-center">
-				<u-image width="120" height="120"  src="/static/images/icon/shoping.png"></u-image>
+				<u-image width="120" height="120"  src="https://singledemo.photo.xueycloud.com/static/images/icon/shoping.png"></u-image>
 				<view class="title">在线购物</view>
 				<view class="desc">日用好货，尽在此刻</view>
 			</view>
@@ -47,7 +47,7 @@
 			</u-grid-item>
 		</u-grid>
 		<view class="flex-center flex-row flex-row-center u-m-40">
-			<u-image width="40" height="40" src="/static/images/icon/sptj.png"></u-image>
+			<u-image width="40" height="40" src="https://singledemo.photo.xueycloud.com/static/images/icon/sptj.png"></u-image>
 			<view class="u-font-40 bold u-m-l-20">商品推荐</view>
 		</view>
 		<view class="list">
@@ -71,7 +71,7 @@
 			</view>
 			<u-loadmore :load-text="loadText" :status="loadStatus" @loadmore="addRandomData"></u-loadmore>
 		</view>
-		<u-picker @confirm="xzaddress" v-model="addressshow" mode="region" :safe-area-inset-bottom="true" title="选择城市"></u-picker>
+		<u-picker v-show="addressshow" @confirm="xzaddress" v-model="addressshow" mode="region" :safe-area-inset-bottom="true" title="选择城市"></u-picker>
 	</view>
 </template>
 
@@ -93,15 +93,22 @@
 				gridpage: [],
 				gridlist: [],
 				datalist: [],
+				
+				barcolor:'#ffffff',
 			}
 		},
-		
+		watch:{
+			barcolor(n,o){
+				this.$NavigationBarColor(n)
+			}
+		},
 		onShow() {
 			this.$isLogin()&&this.getdata()
 			var $this = this
 			setTimeout(function() {
 				uni.createSelectorQuery().select('.banner').boundingClientRect((size) => {
 					$this.$setnav($this,size.top*-1,size.height,true)
+					$this.$NavigationBarColor($this.barcolor)
 				}).exec()
 			}, 0);
 		},

@@ -76,14 +76,15 @@ Vue.prototype.$showBigImg = (list,current) =>{
 Vue.prototype.$setnav = ($this,scrollTop,bgHeight,topName)=>{
 	var titleheight = bgHeight/2
 	var number = scrollTop/bgHeight
-	var color = '#fff'
+	var color = '#ffffff'
 	if(scrollTop<titleheight){
-		color = '#fff'
+		color = '#ffffff'
 		if(topName) $this.titleshow = false
 	}else{
-		color = '#000'
+		color = '#000000'
 		if(topName) $this.titleshow = true
 	}
+	$this.barcolor = color
 	$this.pagenavbg = {
 		background: 'rgba(255,255,255,'+number+')',
 		color:color
@@ -99,6 +100,18 @@ Vue.prototype.$setnav = ($this,scrollTop,bgHeight,topName)=>{
 		}
 	} 
 }
+//设置状态栏
+Vue.prototype.$NavigationBarColor = (color) =>{
+	console.log(color)
+	uni.setNavigationBarColor({
+	    frontColor: color,
+		backgroundColor: color,
+		animation: {
+	       duration: 100,
+	       timingFunc: 'easeIn'
+		}
+	})
+},
 //计算小数
 Vue.prototype.$priceDecimal = (val) =>{
 	if (parseInt(val) === parseFloat(val).toFixed(2)) return val + '.00'

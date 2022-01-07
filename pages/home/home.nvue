@@ -16,7 +16,7 @@
 			</view>
 		</u-navbar>
 		<view class="grzxbg banner">
-			<view class="flex-row-center flex-center user-box" @click="$navto('/pages/home/personal')">
+			<view class="flex-row-center flex-center flex-right user-box" @click="$navto('/pages/home/personal')">
 				<view class="item u-m-b-20">
 					<u-avatar :src="pic" size="140"></u-avatar>
 				</view>
@@ -25,7 +25,7 @@
 					<view class="u-font-14">会员号:helang_uView</view>
 				</view>
 			</view>
-			<u-image class="imgbg" width="750" height="400" src="/static/images/cbanner/grzx.jpg"></u-image>
+			<image class="imgbg" src="https://singledemo.photo.xueycloud.com/static/images/cbanner/grzx.jpg"></image>
 		</view>
 		
 		<u-grid class="order border-radius box-shadow" :col="5" :border="false">
@@ -72,14 +72,20 @@
 	export default {
 		data() {
 			return {
-				pic:'/static/images/lanmu/xz.png',
+				pic:'https://singledemo.photo.xueycloud.com/static/images/lanmu/xz.png',
 				show:true,
 				fullloading:true,
 				pagenavbg: {
 					background: '#ffffff00',
 					color:'#fff'
 				},
-				titleshow:false
+				titleshow:false,
+				barcolor:'#ffffff',
+			}
+		},
+		watch:{
+			barcolor(n,o){
+				this.$NavigationBarColor(n)
 			}
 		},
 		
@@ -89,6 +95,7 @@
 			setTimeout(function() {
 				uni.createSelectorQuery().select('.banner').boundingClientRect((size) => {
 					$this.$setnav($this,size.top*-1,size.height,true)
+					$this.$NavigationBarColor($this.barcolor)
 				}).exec()
 			}, 0);
 		},
@@ -124,15 +131,24 @@
 	}
 	.grzxbg{
 		overflow: hidden;
-		.u-image{
+		.imgbg{
 			position: absolute;	
 			transform: scale(1.1);
+			width: 750rpx;
+			height: 450rpx;
+			// #ifdef MP
+			height: 550rpx;
+			// #endif
 		}
 		.user-box{
-			height: 400rpx;
+			height: 450rpx;
+			// #ifdef MP
+			height: 550rpx;
+			// #endif
 			padding: 20rpx;
 			z-index:1;
 			margin: auto;
+			padding-bottom: 70rpx;
 			color: #fff;
 		}
 	}
@@ -143,6 +159,7 @@
 		width: 700rpx;
 		margin: auto;
 		margin-top: -40rpx;
+		z-index:3;
 		.u-icon, .iconfont{
 			color:#333;
 			margin-bottom: 20rpx;

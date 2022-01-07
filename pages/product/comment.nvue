@@ -62,9 +62,9 @@
 							],
 							comment:'商品收到了，79两件，质量不错，我很喜欢',
 							images: [
-								'/static/images/goods/p1.jpg',
-								'/static/images/goods/p2.jpg',
-								'/static/images/goods/p3.jpg',
+								'https://singledemo.photo.xueycloud.com/static/images/goods/p1.jpg',
+								'https://singledemo.photo.xueycloud.com/static/images/goods/p2.jpg',
+								'https://singledemo.photo.xueycloud.com/static/images/goods/p3.jpg',
 							],
 						},
 						{
@@ -81,8 +81,8 @@
 							],
 							comment:'商品收到了，79两件，质量不错，我很喜欢',
 							images: [
-								'/static/images/goods/p5.jpg',
-								'/static/images/goods/p4.jpg',
+								'https://singledemo.photo.xueycloud.com/static/images/goods/p5.jpg',
+								'https://singledemo.photo.xueycloud.com/static/images/goods/p4.jpg',
 							],
 						}
 					]

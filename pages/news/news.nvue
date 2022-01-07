@@ -17,7 +17,7 @@
 			</view>
 		</u-navbar>
 		<view class="newsbg banner">
-			<u-image width="750" height="400" src="/static/images/cbanner/newsbg.png"></u-image>
+			<u-image width="750" height="400" src="https://singledemo.photo.xueycloud.com/static/images/cbanner/newsbg.png"></u-image>
 		</view>
 		<u-sticky :enable="enable" :offset-top="offsettop" :h5-nav-height="0" class="sxbox u-m-b-20" bg-color="#ffffff00">
 			<view class="flex-center flex-row sticky">
@@ -86,7 +86,13 @@
 					{
 						name: '线下互动'
 					}, 
-				]
+				],
+				barcolor:'#ffffff',
+			}
+		},
+		watch:{
+			barcolor(n,o){
+				this.$NavigationBarColor(n)
 			}
 		},
 		
@@ -97,6 +103,7 @@
 			setTimeout(function() {
 				uni.createSelectorQuery().select('.banner').boundingClientRect((size) => {
 					$this.$setnav($this,size.top*-1,size.height,true)
+					$this.$NavigationBarColor($this.barcolor)
 				}).exec()
 			}, 0);
 		},

@@ -17,7 +17,7 @@
 				</view>
 			</view>
 		</u-navbar>
-		<u-popup v-model="checklist" mode="left">
+		<u-popup v-show="checklist" v-model="checklist" mode="left">
 			<view class="slidebox">
 				<view class="title">
 					服务类型
@@ -32,7 +32,7 @@
 			</view>
 		</u-popup>
 		<view class="serverbg banner">
-			<u-image width="750" height="400" src="/static/images/cbanner/serverbg.png"></u-image>
+			<u-image width="750" height="400" src="https://singledemo.photo.xueycloud.com/static/images/cbanner/serverbg.png"></u-image>
 		</view>
 		<u-sticky :enable="enable" :offset-top="offsettop" :h5-nav-height="0" class="stickybox u-m-b-20" bg-color="#ffffff00">
 			<view class="flex-center flex-row sticky">
@@ -99,8 +99,14 @@
 				loadStatus: 'loadmore',
 				datalist: [],
 				serverlist:[],
-				loadText:getApp().globalData.loadText
-			};
+				loadText:getApp().globalData.loadText,
+				barcolor:'#ffffff',
+			}
+		},
+		watch:{
+			barcolor(n,o){
+				this.$NavigationBarColor(n)
+			}
 		},
 		onShow() {
 			this.enable = true
@@ -109,6 +115,7 @@
 			setTimeout(function() {
 				uni.createSelectorQuery().select('.banner').boundingClientRect((size) => {
 					$this.$setnav($this,size.top*-1,size.height,true)
+					$this.$NavigationBarColor($this.barcolor)
 				}).exec()
 			}, 0);
 		},

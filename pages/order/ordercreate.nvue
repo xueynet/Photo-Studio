@@ -86,7 +86,7 @@
 			</view>
 			<view class="orderbtn" @click="$navto('/pages/order/pay',$u.queryParams(model))">提交订单</view>
 		</view>
-		<u-popup v-model="addressshow" mode="bottom" border-radius="20" :closeable="true">
+		<u-popup v-show="addressshow" v-model="addressshow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
 				<view class="popuptitle">配送至</view>
 				<view class="popuplist">
@@ -107,7 +107,7 @@
 				</view>
 			</view>
 		</u-popup>
-		<u-popup v-model="youhuijuanshow" mode="bottom" border-radius="20" :closeable="true">
+		<u-popup v-show="youhuijuanshow" v-model="youhuijuanshow" mode="bottom" border-radius="20" :closeable="true">
 			<view class="popupbox">
 				<view class="popuptitle">优惠卷</view>
 				<view class="popuplist">
@@ -235,7 +235,7 @@
 				this.data.number = parseInt(this.option.number)
 				
 				this.data.skuName = '红色，高配'
-				this.data.image = '/static/images/product/goods/n3/1.jpg'
+				this.data.image = 'https://singledemo.photo.xueycloud.com/static/images/product/goods/n3/1.jpg'
 				this.data.name = 'QUATREFOIL玻璃相框 A4营业执照荣誉证书框结婚照桌面摆台宝宝儿童照片画框挂墙'
 				this.data.price = '998.00'
 				this.data.yunfei = '10.00'
